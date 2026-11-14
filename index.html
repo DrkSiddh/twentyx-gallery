@@ -1,1 +1,163 @@
-PLACEHOLDER_HTML
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ArtVision X • TwentyX Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-start: #0a0a1a;
+    --bg-mid: #1a1a3a;
+    --bg-end: #2a1a4a;
+    --accent: #e94560;
+    --text: #f0f0f0;
+    --muted: #aaaaaa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--bg-start), var(--bg-mid), var(--bg-end));
+    background-attachment: fixed;
+    transition: background 1.5s ease;
+    overflow-x: hidden;
+  }
+  header { text-align: center; padding: 4rem 1.5rem 2rem; }
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: clamp(2.2rem, 6vw, 4.5rem);
+    letter-spacing: 0.08em;
+    background: linear-gradient(90deg, #ff6b6b, #e94560, #ff8e8e);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+  }
+  .subtitle { font-size: 1.15rem; color: var(--muted); max-width: 680px; margin: 0 auto 1.5rem; }
+  .community-link { display: inline-block; margin-top: 0.5rem; color: var(--accent); text-decoration: none; font-weight: 500; }
+  .gallery { max-width: 1400px; margin: 0 auto; padding: 1rem 1.5rem 4rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 2rem; }
+  .artist-card { background: rgba(20, 20, 40, 0.65); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden; backdrop-filter: blur(10px); transition: transform 0.3s ease; }
+  .artist-card:hover { transform: translateY(-6px); }
+  .artist-header { padding: 1.25rem 1.5rem 0.75rem; }
+  .artist-name { font-family: 'Orbitron', sans-serif; font-size: 1.35rem; font-weight: 700; }
+  .post-meta { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
+  .post-link { color: var(--accent); text-decoration: none; }
+  .media-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 2px; background: #000; }
+  .media-grid img { width: 100%; height: 70px; object-fit: cover; cursor: pointer; }
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 1000; align-items: center; justify-content: center; }
+  .lightbox.active { display: flex; }
+  .lightbox img { max-width: 90vw; max-height: 90vh; }
+  .lightbox-close { position: absolute; top: 1.5rem; right: 1.5rem; color: white; font-size: 2rem; cursor: pointer; background: none; border: none; }
+  .welcome-mat { position: fixed; inset: 0; background: rgba(5, 5, 20, 0.92); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+  .welcome-mat.hidden { display: none; }
+  .welcome-content { background: rgba(20, 20, 45, 0.9); border: 1px solid rgba(233, 69, 96, 0.3); border-radius: 20px; max-width: 620px; padding: 2.5rem 2rem; text-align: center; }
+  .welcome-content h2 { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; margin-bottom: 1rem; background: linear-gradient(90deg, #ff6b6b, #e94560); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .welcome-content p { margin-bottom: 1rem; line-height: 1.55; color: #ddd; }
+  .welcome-content button { background: #e94560; color: white; border: none; padding: 0.8rem 1.8rem; border-radius: 30px; font-size: 1rem; cursor: pointer; }
+  footer { text-align: center; padding: 2rem 1rem 3rem; color: var(--muted); font-size: 0.9rem; }
+</style>
+</head>
+<body>
+<div class="welcome-mat" id="welcome-mat">
+  <div class="welcome-content">
+    <h2>Welcome to TwentyX</h2>
+    <p>This is a living gallery of artists from the ArtVision X community who share a full twenty photos or videos in a single post using <strong>#twentyx</strong>.</p>
+    <p>Every piece is a complete collection. Every name is celebrated. The gallery updates with new voices, and appreciation posts go out at daybreak and sunset.</p>
+    <p><strong>How to enter:</strong> Post your own full twenty-piece collection on X, include the hashtag <strong>#twentyx</strong>, and share it in the ArtVision X community.</p>
+    <button onclick="closeWelcome()">Enter the Gallery</button>
+  </div>
+</div>
+<header>
+  <h1>ARTVISION X<br>TWENTYX</h1>
+  <p class="subtitle">A living gallery of artists who share full twenty-piece collections. Updated with the latest voices from the community.</p>
+  <a class="community-link" href="https://x.com/i/communities/1835009931231322257" target="_blank">Join the ArtVision X Community →</a>
+</header>
+<div class="gallery" id="gallery"></div>
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+<footer>
+  Share your own full twenty with <strong>#twentyx</strong> in the ArtVision X community.<br>
+  Appreciation posts go out at daybreak and sunset.
+</footer>
+<script>
+const fallbackArtists = [
+  {
+    "name": "Fortune",
+    "postUrl": "https://x.com/For1un3/status/2121375550040080857",
+    "date": "2026-11-13",
+    "media": ["https://pbs.twimg.com/media/HXCiHP1XUAAo5Ab.png","https://pbs.twimg.com/media/HXCiIjwXcAAW3cT.png","https://pbs.twimg.com/media/HXCiJ7CXkAEcyBC.jpg","https://pbs.twimg.com/media/HXCiWvgWoAAcu03.png","https://pbs.twimg.com/media/HXCiYjQWIAEuUzU.png","https://pbs.twimg.com/media/HXCiZr4X0AAackG.jpg","https://pbs.twimg.com/media/HXCii__XUAA9gaO.jpg","https://pbs.twimg.com/media/HXCikIFXwAEbSTU.jpg","https://pbs.twimg.com/media/HXCin1JXMAAj1Q_.png","https://pbs.twimg.com/media/HXCi2K3XUAAGASS.jpg","https://pbs.twimg.com/media/HXCi30MXIAAz7nc.jpg","https://pbs.twimg.com/media/HXCi4prWMAAaE6F.png","https://pbs.twimg.com/media/HXCi6kXWcAAcpp0.png","https://pbs.twimg.com/media/HXCi-mlWUAAH9uK.jpg","https://pbs.twimg.com/media/HXCjAQxXoAA9o2n.jpg","https://pbs.twimg.com/media/HXCjBLTW4AA-Jbl.jpg","https://pbs.twimg.com/media/HXCjDNLXoAAHbt2.jpg","https://pbs.twimg.com/media/HXCjL9AXEAAGi5p.png","https://pbs.twimg.com/media/HXCjQXTWgAEyDHl.jpg","https://pbs.twimg.com/media/HXCjbIpXoAE6_zM.jpg"]
+  }
+];
+let artists = fallbackArtists;
+async function loadArtists() {
+  try {
+    const response = await fetch('artists.json');
+    if (response.ok) {
+      const data = await response.json();
+      if (Array.isArray(data) && data.length > 0) artists = data;
+    }
+  } catch (e) { console.log('Using fallback data'); }
+  renderGallery();
+}
+function updateGradient() {
+  const hour = new Date().getHours();
+  const root = document.documentElement;
+  if (hour >= 5 && hour < 10) {
+    root.style.setProperty('--bg-start', '#0c1445');
+    root.style.setProperty('--bg-mid', '#1e3a5f');
+    root.style.setProperty('--bg-end', '#ff7e5f');
+  } else if (hour >= 10 && hour < 17) {
+    root.style.setProperty('--bg-start', '#0a1628');
+    root.style.setProperty('--bg-mid', '#1a3a5c');
+    root.style.setProperty('--bg-end', '#2e5a7a');
+  } else if (hour >= 17 && hour < 21) {
+    root.style.setProperty('--bg-start', '#1a0a2e');
+    root.style.setProperty('--bg-mid', '#4a1a4a');
+    root.style.setProperty('--bg-end', '#ff6b35');
+  } else {
+    root.style.setProperty('--bg-start', '#050510');
+    root.style.setProperty('--bg-mid', '#0f0f2a');
+    root.style.setProperty('--bg-end', '#1a1a40');
+  }
+}
+function renderGallery() {
+  const gallery = document.getElementById('gallery');
+  gallery.innerHTML = '';
+  artists.forEach(artist => {
+    const card = document.createElement('div');
+    card.className = 'artist-card';
+    const mediaItems = (artist.media || []).slice(0, 20);
+    card.innerHTML = `
+      <div class="artist-header">
+        <div class="artist-name">${artist.name || 'Unknown Artist'}</div>
+        <div class="post-meta">${artist.date || ''} · <a class="post-link" href="${artist.postUrl || '#'}" target="_blank">View original post</a></div>
+      </div>
+      <div class="media-grid">${mediaItems.map(url => `<img src="${url}" alt="" onclick="openLightbox('${url}')">`).join('')}</div>
+    `;
+    gallery.appendChild(card);
+  });
+}
+function openLightbox(src) {
+  const lb = document.getElementById('lightbox');
+  document.getElementById('lightbox-img').src = src;
+  lb.classList.add('active');
+}
+function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
+function closeWelcome() {
+  document.getElementById('welcome-mat').classList.add('hidden');
+  localStorage.setItem('twentyx_welcomed', 'true');
+}
+if (localStorage.getItem('twentyx_welcomed') === 'true') document.getElementById('welcome-mat').classList.add('hidden');
+document.getElementById('lightbox').addEventListener('click', (e) => { if (e.target.id === 'lightbox') closeLightbox(); });
+updateGradient();
+setInterval(updateGradient, 60000);
+loadArtists();
+</script>
+</body>
+</html>
