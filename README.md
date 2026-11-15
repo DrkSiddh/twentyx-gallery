@@ -75,3 +75,40 @@ Preview (read-only, third-party): https://rawcdn.githack.com/DrkSiddh/twentyx-ga
 **Unfinished:** authenticated X community discovery, native video, true WebGL/3D rooms, camera-based gesture recognition. A published artist permalink QR resolves correctly after the upgraded page reaches the production domain.
 
 **Operational note:** GitHub's automated syntax and archive-safety tests pass, but there has not yet been a visual, cross-browser, or device QA pass. Keep the PR as draft until preview is reviewed.
+
+
+## Automatic discovery • X API connection
+
+The twice-daily publisher now runs `npm run discover` **before** `npm run publish`. It uses X's official recent search endpoint with `#TwentyX has:media -is:retweet -is:quote`, expands media and author objects, and pages through up to 200 results per scheduled run by default. The oldest window is recent search's last seven days.
+
+**One-time owner setup (required before live discovery):**
+1. In the [X Developer Console](https://console.x.com/), create or select an approved project/app with read access and obtain its **Bearer Token**. An X Premium subscription does not automatically supply developer API credentials or usage credits.
+2. Go to this GitHub repository → **Settings → Secrets and variables → Actions → New repository secret**. Name it exactly **`X_BEARER_TOKEN`** and paste the token. Never commit it into a file.
+3. Merge the reviewed PR into `main` when ready. Then use **Actions → TwentyX sunrise / sunset publisher → Run workflow** for the initial test. Inspect the run log plus `data/discovery-report.json` and `data/review-queue.json`.
+4. After the test, leave GitHub Actions enabled. Scheduled runs target **6 AM and 6 PM Pacific**, subject to GitHub scheduling delays. X API read usage may incur charges; set an appropriate spending limit in the X Developer Console.
+
+**Strict admission logic:**
+- An X post must contain the actual `#TwentyX` hashtag, belong to community **1835009931231322257**, and have **exactly 20 media keys**.
+- The API must return the corresponding twenty **distinct real photo media records** and their valid X image URLs. We do not synthesize placeholders, use quote-post images, or turn a four-image post into twenty.
+- X currently does **not** document a Community-only recent-search operator. The collector requests the `community_id` post field, filters for this exact community ID, and **fails closed** when community membership is unavailable. If the API rejects that field, the query is retried without it; such candidates are held in `data/review-queue.json` instead of auto-published.
+- Posts with twenty attachments that include video, or have partial media expansions, also go to the review queue until those formats can be supported.
+- An unsuccessful API run never overwrites the archive. A successful run merges newly verified records with existing ones.
+- `data/inbox.json` is a staging area, not the permanent source of truth. Do not accept submissions via arbitrary untrusted writes to that file.
+
+**Reality check:** The collector is implemented and wired, but it **cannot execute real discovery until the repository owner adds the X API Bearer Token**. We have not verified whether the user's X API tier exposes `community_id` and all twenty expanded media objects, so full hands-off community verification remains conditional on a real API response.
+
+## Collector's Edition • welcome brochure
+
+On publication, `scripts/welcome.mjs` creates a 1080 × 1350 portrait collector brochure per artist under `welcome/` as both **PNG** and **self-contained SVG**. The composition features:
+
+- Iridescent TwentyX wordmark on a dark navy/plum metallic frame.
+- Large artist name and authentic X handle, the post date, and 20/20 count.
+- **All twenty actual artist images**, fit *inside* their own tiles without cropping; numbered like an exhibition contact sheet.
+- A QR code that links to that artist's permanent TwentyX solo page.
+
+The generator retrieves the artist's X-hosted image URLs only to create the share image. If any image is unavailable, it **defers that artist's brochure** instead of inventing an image, and retries on a future run. On-site download prefers the generated brochure PNG; for an artist whose new brochure hasn't been generated, the earlier text-and-QR fallback is still available.
+
+Website Dune Rise typography and the generated graphic's system-font fallback may render differently where the proprietary font is unavailable. Do not commit third-party font files without appropriate licensing.
+
+The historical artist work is not modified. Please follow the original artist's rights and X platform terms when redistributing promotional copies.
+
