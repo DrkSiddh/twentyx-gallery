@@ -20,5 +20,7 @@ jobs:
           node --check scripts/discover.mjs
           node --check scripts/publish.mjs
           node --check scripts/welcome.mjs
-      - name: Run archive safety tests
+      - name: Install render dependencies
+        run: npm install --no-package-lock
+      - name: Run archive, discovery and brochure tests
         run: node --test tests/*.test.mjs
