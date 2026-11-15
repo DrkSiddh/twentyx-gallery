@@ -418,8 +418,28 @@ function bindUI(){
  },{passive:true});
  window.addEventListener('popstate',()=>{renderRoute();window.scrollTo(0,0)});
 }
+async function syncLatestExhibitions(){
+ try{
+  const response=await fetch('./artists.json?v='+Date.now(),{cache:'no-store'});
+  if(!response.ok)return;
+  const data=await response.json();
+  if(!Array.isArray(data))return;
+  const fresh=sortArtists(data.filter(valid));
+  if(!fresh.length)return;
+  const previousIds=new Set(artists.map(artistID));
+  const combined=new Map(artists.map(a=>[artistID(a),a]));
+  fresh.forEach(a=>combined.set(artistID(a),a));
+  if(combined.size===previousIds.size)return;
+  artists=sortArtists([...combined.values()]);
+  byId('artist-count').textContent=artists.length;
+  byId('work-count').textContent=(artists.length*20).toLocaleString();
+  if(!byId('cinema').classList.contains('active'))renderRoute();
+  featureWork(false);
+ }catch(error){console.warn('Live stats refresh deferred:',error.message)}
+}
 async function load(){
  setDayPhase();setInterval(setDayPhase,60000);bindUI();
+ window.setInterval(syncLatestExhibitions,120000);
  let seeded=[];
  try{
   const el=byId('seeded-artists');
