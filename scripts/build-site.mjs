@@ -43,7 +43,7 @@ function renderCard(a,index){
   +'<div class="card-meta"><div>'+(index<3?'<div class="card-overline">FEATURED ARTIST / '+String(index+1).padStart(2,'0')+'</div>':'')
   +'<h3 class="card-name">'+title+'</h3><div class="card-handle">@'+artistHandle+' · 20 / 20</div></div><span class="card-date">'+date+'</span></div>'
   +'<div class="card-mosaic">'+originals+'</div>'
-  +'<div class="card-footer"><a class="pill primary" href="https://x.com/'+artistHandle+'" target="_blank" rel="noopener noreferrer">Follow on X ↗</a>'
+  +'<div class="card-footer"><a class="pill primary" href="https://twitter.com/intent/follow?screen_name='+artistHandle+'" data-follow="true" target="_blank" rel="noopener noreferrer">Follow on X ↗</a>'
   +'<a class="ghost" href="'+esc(a.postUrl)+'" target="_blank" rel="noopener noreferrer">Original post ↗</a>'
   +'<a class="ghost artist-open" href="?artist='+idOf(a)+'">Explore 20 →</a></div>'
   +'</article>';
