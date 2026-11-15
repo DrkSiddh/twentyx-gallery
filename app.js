@@ -243,8 +243,19 @@ async function copyLink(url,target){
 }
 /* Share poster is composed from the artist's identity, never generates or changes their art. */
 async function downloadPoster(a,target){
- const original=target.textContent;target.disabled=true;target.textContent='Creating graphic…';
+ const original=target.textContent;target.disabled=true;target.textContent='Preparing collector brochure…';
  try{
+  const filename='welcome/'+artistHandle(a).toLowerCase()+'-'+artistID(a)+'.png';
+  const prepared=await fetch(filename,{method:'HEAD',cache:'no-store'}).catch(()=>null);
+  if(prepared?.ok){
+   const response=await fetch(filename);
+   if(!response.ok)throw Error('Could not retrieve collector brochure');
+   const blob=await response.blob(),objectURL=URL.createObjectURL(blob);
+   const download=document.createElement('a');download.href=objectURL;
+   download.download='TwentyX-'+artistHandle(a)+'-brochure.png';
+   document.body.append(download);download.click();download.remove();
+   setTimeout(()=>URL.revokeObjectURL(objectURL),6000);return;
+  }
   if(!window.QRCode)throw Error('QR renderer unavailable. Please refresh while online.');
   const c=document.createElement('canvas');c.width=1080;c.height=1350;
   const ctx=c.getContext('2d');
