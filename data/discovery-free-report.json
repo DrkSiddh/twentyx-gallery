@@ -1,0 +1,165 @@
+{
+  "completedAt": "2026-11-15T19:35:12.533Z",
+  "method": "public-web+FxEmbed (no paid X API)",
+  "knownExhibitions": 9,
+  "candidatesFound": 15,
+  "checked": 13,
+  "admitted": 0,
+  "sourceChecks": [
+    {
+      "source": "community",
+      "status": 403,
+      "postLinks": 0,
+      "readable": false
+    },
+    {
+      "source": "X hashtag search",
+      "status": 403,
+      "postLinks": 0,
+      "readable": false
+    },
+    {
+      "source": "FxEmbed search",
+      "query": "#TwentyX",
+      "returned": 14,
+      "readable": true
+    },
+    {
+      "source": "FxEmbed search",
+      "query": "\"PankyVT\" \"#TwentyX\"",
+      "returned": 0,
+      "readable": true
+    },
+    {
+      "source": "FxEmbed search",
+      "query": "\"Elyris\" \"#TwentyX\"",
+      "returned": 0,
+      "readable": true
+    },
+    {
+      "source": "FxEmbed search",
+      "query": "from:ok__vision #TwentyX",
+      "returned": 0,
+      "readable": true
+    },
+    {
+      "source": "FxEmbed search",
+      "query": "from:PanksterVT #TwentyX",
+      "returned": 0,
+      "readable": true
+    },
+    {
+      "source": "FxEmbed search",
+      "query": "from:Elyris_Art #TwentyX",
+      "returned": 0,
+      "readable": true
+    }
+  ],
+  "results": [
+    {
+      "id": "2121576057115402357",
+      "handle": "stunnifer",
+      "kind": "review",
+      "reason": "twenty-media-not-proven",
+      "observed": null,
+      "source": "free-search"
+    },
+    {
+      "id": "2121498370867146770",
+      "handle": "maxximillian",
+      "kind": "review",
+      "reason": "twenty-media-not-proven",
+      "observed": null,
+      "source": "free-search"
+    },
+    {
+      "id": "2121498370388951061",
+      "handle": "maxximillian",
+      "kind": "review",
+      "reason": "twenty-media-not-proven",
+      "observed": 1,
+      "source": "free-search"
+    },
+    {
+      "id": "2121467913445990695",
+      "handle": "maxximillian",
+      "kind": "review",
+      "reason": "twenty-media-not-proven",
+      "observed": null,
+      "source": "free-search"
+    },
+    {
+      "id": "2121437570861269394",
+      "handle": "maxximillian",
+      "kind": "review",
+      "reason": "twenty-media-not-proven",
+      "observed": 1,
+      "source": "free-search"
+    },
+    {
+      "id": "1639927411600138242",
+      "handle": "sn0w0bb",
+      "kind": "review",
+      "reason": "twenty-media-not-proven",
+      "observed": 1,
+      "source": "free-search"
+    },
+    {
+      "id": "1442839262433447941",
+      "handle": "Infowgs",
+      "kind": "review",
+      "reason": "twenty-media-not-proven",
+      "observed": 1,
+      "source": "free-search"
+    },
+    {
+      "id": "1410830054964170754",
+      "handle": "Infowgs",
+      "kind": "review",
+      "reason": "twenty-media-not-proven",
+      "observed": 1,
+      "source": "free-search"
+    },
+    {
+      "id": "1170896660114882560",
+      "handle": "jackiestutto5an",
+      "kind": "review",
+      "reason": "twenty-media-not-proven",
+      "observed": null,
+      "source": "free-search"
+    },
+    {
+      "id": "911403830176227328",
+      "handle": "QUEENS828PLACE",
+      "kind": "review",
+      "reason": "twenty-media-not-proven",
+      "observed": null,
+      "source": "free-search"
+    },
+    {
+      "id": "882267329903681536",
+      "handle": "Screw_Dryver",
+      "kind": "review",
+      "reason": "twenty-media-not-proven",
+      "observed": 1,
+      "source": "free-search"
+    },
+    {
+      "id": "826497773369430018",
+      "handle": "WestPointHats1",
+      "kind": "review",
+      "reason": "twenty-media-not-proven",
+      "observed": 1,
+      "source": "free-search"
+    },
+    {
+      "id": "2121728209721131289",
+      "handle": "ok__vision",
+      "kind": "reject",
+      "reason": "missing-hashtag",
+      "observed": null,
+      "source": "known-candidate"
+    }
+  ],
+  "caveat": "No result does not prove no eligible X posts. Public community/search access may be restricted."
+}
