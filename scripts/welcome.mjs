@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * TwentyX Collector's Edition welcome brochure.
+ * TwentyX exhibition invitation brochure.
  * Makes a PNG and self-contained SVG of the artist's REAL 20 images with QR.
  * Source media is hotlinked for retrieval, never modified on X or invented.
  * If any media cannot be fetched, we do not publish an incomplete brochure.
@@ -50,16 +50,16 @@ export async function makeBrochure(a,{loadImage=getThumb}={}){
  const code=await QRCode.toDataURL(ROOT+'?artist='+id,{margin:2,errorCorrectionLevel:'H',width:170,color:{dark:'#151329',light:'#ffffff'}});
  const qrBase64=code.split(',')[1];
  const name=ESC(a.name),at=ESC(handle);
- const titleSize=a.name.length>26?43:a.name.length>18?54:a.name.length>12?68:85;
+ const titleSize=a.name.length>26?36:a.name.length>18?44:a.name.length>12?52:68;
  const font='font-family="Inter,DejaVu Sans,sans-serif"';
  const lines=[
  '<svg xmlns="http://www.w3.org/2000/svg" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">',
  backdrop(),
- '<text x="65" y="79" '+font+' font-size="20" font-weight="750" letter-spacing="5" fill="#f4a2c8">ARTVISION X     /     THE COMMUNITY ARCHIVE</text>',
+ '<text x="65" y="79" '+font+' font-size="20" font-weight="750" letter-spacing="5" fill="#f4a2c8">ARTVISION PRESENTS     /     A MULTIDIMENSIONAL EXHIBITION</text>',
  '<text x="62" y="181" font-family="Dune Rise,Inter,sans-serif" font-weight="900" font-size="109" letter-spacing="-4" fill="url(#chrome)">TWENTYX</text>',
  '<line x1="66" y1="206" x2="1014" y2="206" stroke="#f4a2c8" stroke-opacity=".45"/>',
- '<text x="65" y="249" '+font+' font-size="17" font-weight="700" letter-spacing="5" fill="#f4a2c8">WELCOME TO THE EXHIBITION  /  COLLECTOR&apos;S EDITION</text>',
- '<text x="62" y="329" '+font+' font-size="'+titleSize+'" font-weight="850" fill="#fff7fb">'+name+'</text>',
+ '<text x="65" y="249" '+font+' font-size="17" font-weight="700" letter-spacing="5" fill="#f4a2c8">WELCOME TO THE EXHIBITION</text>',
+ '<text x="62" y="329" '+font+' font-size="'+titleSize+'" font-weight="850" fill="#fff7fb">CURATED BY '+name+'.</text>',
  '<text x="68" y="359" '+font+' font-size="23" fill="#d4c7de">@'+at+'     ·     20 / 20 WORKS     ·     '+ESC(a.date||'')+'</text>',
  '<rect x="64" y="386" width="952" height="756" rx="11" fill="#100e20" stroke="#ffffff" stroke-opacity=".15" stroke-width="2"/>'
  ];
@@ -72,9 +72,9 @@ export async function makeBrochure(a,{loadImage=getThumb}={}){
  }
  lines.push(
  '<image x="65" y="1168" width="146" height="146" href="data:image/png;base64,'+qrBase64+'"/>',
- '<text x="243" y="1211" '+font+' font-size="26" font-weight="800" fill="#fff6fa">TWENTY WORKS. ONE POST.</text>',
- '<text x="243" y="1248" '+font+' font-size="22" fill="#d7d0e5">Scan to explore the artist&apos;s full exhibition.</text>',
- '<text x="243" y="1286" '+font+' font-size="18" font-weight="700" letter-spacing="2" fill="#f4a2c8">#TWENTYX      ·      TWENTY IS THE MAXIMUM.</text>',
+ '<text x="243" y="1211" '+font+' font-size="24" font-weight="800" fill="#fff6fa">TwentyX Presented By ArtVision</text>',
+ '<text x="243" y="1248" '+font+' font-size="22" fill="#d7d0e5">Scan to explore the full size exhibition.</text>',
+ '<text x="243" y="1286" '+font+' font-size="18" font-weight="700" letter-spacing="2" fill="#f4a2c8">#TWENTYX  &#8226;  Twenty works of art on X</text>',
  '<line x1="65" y1="1320" x2="1015" y2="1320" stroke="#e2acd2" stroke-opacity=".5"/>',
  '</svg>');
  const svg=lines.join('\n');
