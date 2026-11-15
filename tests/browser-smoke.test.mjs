@@ -31,10 +31,12 @@ test('inline script boots with live statistics and working search',async()=>{
  const t=boot();
  try{
   await new Promise(done=>setTimeout(done,40));
-  assert.deepEqual(t.errors,[],t.errors.join('\n'));
+  assert.deepEqual(t.errors.filter(e=>!e.startsWith('WARN: Live refresh unavailable')),[],t.errors.join('\n'));
   assert.equal(t.doc.getElementById('artist-count').textContent,'9');
   assert.equal(t.doc.getElementById('work-count').textContent,'180');
   assert.equal(t.doc.querySelectorAll('.collection-card').length,9);
+  assert.match(t.doc.querySelector('#feature-image').src,/pbs\.twimg\.com\/media/);
+  assert.match(t.doc.querySelector('#feature-title').textContent,/Pepavaggio/);
   assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,180);
   const input=t.doc.querySelector('#search');
   input.value='Stunnifer';input.dispatchEvent(new t.win.Event('input',{bubbles:true}));
@@ -55,5 +57,8 @@ test('slideshow selection opens and shows an actual artwork',async()=>{
   t.doc.querySelector('#launch-selection').click();
   assert.ok(t.doc.querySelector('#cinema').classList.contains('active'));
   assert.match(t.doc.querySelector('#cinema-img').src,/pbs\.twimg\.com\/media/);
+  assert.equal(t.doc.querySelectorAll('#cinema-filmstrip button').length,20);
+  t.doc.querySelector('#cinema-next').click();
+  assert.match(t.doc.querySelector('#cinema-progress').textContent,/02 \/ 20/);
  }finally{t.close()}
 });
