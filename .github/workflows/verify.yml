@@ -17,6 +17,7 @@ jobs:
       - name: Check frontend and publisher syntax
         run: |
           node --check app.js
+          node --check scripts/discover.mjs
           node --check scripts/publish.mjs
           node --check scripts/welcome.mjs
       - name: Run archive safety tests
