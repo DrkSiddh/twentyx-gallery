@@ -18,6 +18,7 @@ jobs:
         run: |
           node --check scripts/build-site.mjs
           node --check app.js
+          node --check scripts/discover-free.mjs
           node --check scripts/discover.mjs
           node --check scripts/publish.mjs
           node --check scripts/welcome.mjs

@@ -126,3 +126,30 @@ Existing `/?artist=<post-id>` links continue working.
 If an artist changes their X handle, maintain a static redirect page for the
 old @handle to prevent broken shared links.
 Visitor-facing help copy omits internal scheduling and publishing caveats.
+
+## Automatic #TwentyX discovery — no paid X API
+
+The twice-daily GitHub Actions publisher calls `npm run discover:free` before the
+non-destructive gallery publisher. There is **no X API token requirement**.
+
+Eligibility is deliberately simple: one original X post with `#TwentyX`
+and **exactly 20 distinct, real photographic attachments**. Missing community
+metadata is not a disqualifier. A retrieved one-image preview is never inflated
+to twenty, nor taken as proof that the actual post contained only one.
+
+Discovery tries the public X community/hashtag pages and free FxEmbed search;
+individual post images are checked through free FxEmbed and VxTwitter status
+lookups. The free source can return 403, 404, partial media, or sparse search
+results; no free public source guarantees complete coverage of X community posts.
+Every run writes a technical report to `data/discovery-free-report.json`
+with source availability, candidate count, admission count and review reasons.
+The exhibition itself should **never** display internal reliability warnings.
+
+New qualified records are merged into `data/inbox.json`, then published
+to `data/collections.json`, `artists.json`, artist rooms and brochures.
+Existing exhibits cannot be deleted by a failed scan. Scheduled execution is
+at the same two Pacific-time publication windows.
+
+A green Actions result proves the job completed, **not** that every eligible
+X post was discoverable. Check `newExhibitions` and `sourceChecks` in the
+report to diagnose upstream access issues.

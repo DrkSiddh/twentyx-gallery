@@ -1,0 +1,35 @@
+name: Probe free TwentyX public discovery
+on:
+  push:
+    branches: ["feature/automatic-free-x-discovery"]
+    paths:
+      - "scripts/discover-free.mjs"
+      - "tests/discovery-free.test.mjs"
+      - "package.json"
+      - ".github/workflows/probe-free.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install dependencies and public browser
+        run: |
+          npm install --no-package-lock
+          npx playwright install --with-deps chromium --only-shell
+      - name: Run checks without X API key
+        run: node --test tests/discovery-free.test.mjs
+      - name: Probe public community, hashtag and original post media
+        run: npm run discover:free
+      - name: Show discovery result
+        if: always()
+        run: |
+          if [ -f data/discovery-free-report.json ]; then
+            node --input-type=module -e "import fs from 'node:fs';const r=JSON.parse(fs.readFileSync('data/discovery-free-report.json'));console.log(JSON.stringify(r,null,2))"
+          fi

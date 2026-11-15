@@ -9,6 +9,8 @@ on:
     paths:
       - "artists.json"
       - "data/inbox.json"
+      - "scripts/discover-free.mjs"
+      - ".github/workflows/publish.yml"
 permissions:
   contents: write
 concurrency:
@@ -37,16 +39,14 @@ jobs:
         if: steps.window.outputs.allowed == 'true'
         with:
           node-version: '22'
-      - name: Install QR renderer
+      - name: Install free discovery browser and build tools
         if: steps.window.outputs.allowed == 'true'
-        run: npm install --no-package-lock
-      - name: Discover verified TwentyX community posts
+        run: |
+          npm install --no-package-lock
+          npx playwright install --with-deps chromium --only-shell
+      - name: Find and validate new TwentyX posts at no API cost
         if: steps.window.outputs.allowed == 'true'
-        env:
-          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
-          X_COMMUNITY_ID: "1835009931231322257"
-          X_MAX_PAGES: "2"
-        run: npm run discover
+        run: npm run discover:free
       - name: Validate, merge and publish without deletions
         if: steps.window.outputs.allowed == 'true'
         run: npm run publish
