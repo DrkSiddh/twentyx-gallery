@@ -45,7 +45,7 @@ function valid(a){
  return a.media.every(url=>{try{const u=new URL(url);return u.protocol==='https:'&&u.hostname==='pbs.twimg.com'&&u.pathname.startsWith('/media/')}catch{return false}});
 }
 function sortArtists(list){
- const rank=a=>{const p=parsePost(a.postUrl);const handle=p.handle.toLowerCase();const found=PINN.indexOf(handle);return found<0?99:found};
+ const rank=a=>{const p=parsePost(a.postUrl);const handle=p.handle.toLowerCase();const found=PINNED.indexOf(handle);return found<0?99:found};
  return [...list].sort((a,b)=>rank(a)-rank(b)||parsePost(b.postUrl).id.localeCompare(parsePost(a.postUrl).id));
 }
 function artistID(a){return parsePost(a.postUrl).id}
