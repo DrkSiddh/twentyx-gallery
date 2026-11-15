@@ -9,6 +9,7 @@ function boot(){
  const console=new VirtualConsole();
  console.on('jsdomError',err=>errors.push(err.message));
  console.on('error',msg=>errors.push(msg));
+ console.on('warn',msg=>errors.push('WARN: '+msg));
  const dom=new JSDOM(html,{
   url:'https://twentyx.artvision.today/',
   runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:console,
