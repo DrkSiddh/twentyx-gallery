@@ -1,127 +1,103 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#080a17">
-<meta name="description" content="TwentyX: twenty artworks, one artist, one post. A living ArtVision X gallery.">
-<title>TwentyX — ArtVision X</title>
-<style>
-:root{color-scheme:dark;--ink:#f6f3ff;--muted:#b5aeca;--line:#ffffff24;--panel:#121225;--pink:#ffa2dd;--orange:#ffac81;--bg:#080917}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 85% 0%,#56275390,transparent 42%),radial-gradient(ellipse at 0% 45%,#172758,transparent 48%),var(--bg);color:var(--ink);font:15px/1.55 system-ui,-apple-system,sans-serif}
-a{color:inherit}button,input{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--pink);outline-offset:3px}
-main{max-width:1450px;margin:auto;padding:0 24px}.mast{padding:76px 0 42px}.eyebrow{text-transform:uppercase;letter-spacing:.25em;color:var(--pink);font-size:11px;font-weight:800}
-h1{font-size:clamp(4.5rem,14vw,12rem);letter-spacing:-.095em;line-height:.96;margin:14px 0 22px;font-weight:900;background:linear-gradient(105deg,#ffe5f4,#f8a1df 45%,#adbcff 78%,#ffb38c);color:transparent;background-clip:text}
-.lead{font-size:clamp(1.15rem,2vw,1.55rem);max-width:680px;color:#e8dff2}.lead strong{color:#fff}
-.topline,.controls,.actions,.stats,.headrow{display:flex;gap:14px;align-items:center;flex-wrap:wrap;justify-content:space-between}
-.pill,.action,.search{border:1px solid var(--line);border-radius:100px;background:#ffffff0d;padding:11px 18px;color:var(--ink);text-decoration:none}
-.action:hover,.pill:hover{border-color:var(--pink);background:#ffffff1b}
-.primary{background:#f6a8dd;color:#1d0924;border-color:transparent;font-weight:750}.primary:hover{background:#ffcff0}
-.stats{justify-content:start;gap:26px;color:var(--muted);margin:34px 0 24px}.stats strong{font-size:24px;color:white;display:block;line-height:1.25}
-.controls{margin:32px 0 24px}.search{min-width:230px;flex:1;max-width:440px;border-radius:12px;outline:none}
-section>h2{font-size:20px}.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,345px),1fr));gap:20px;padding:12px 0 90px}
-.card{min-width:0;background:linear-gradient(145deg,#21213db3,#0e1022e8);border:1px solid var(--line);border-radius:23px;overflow:hidden;box-shadow:0 12px 36px #0002;transition:transform .2s,border-color .2s}
-.card:hover{transform:translateY(-4px);border-color:#efa7d675}.card-head{padding:20px 20px 16px}.artist{font-size:21px;font-weight:780;letter-spacing:-.04em;overflow-wrap:anywhere}.handle{font-size:13px;color:var(--muted)}.date{font-size:12px;color:var(--muted)}.mosaic{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;padding:3px;background:#070712;aspect-ratio:5/4}
-.tile{position:relative;overflow:hidden;background:linear-gradient(135deg,#302843,#161b37);border:0;padding:0;min-width:0;min-height:0}
-.tile img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s}.tile:hover img{transform:scale(1.12)}
-.tile em{color:#bcb0dc;font-style:normal;font-size:13px}.card-bottom{padding:18px 20px 20px;display:flex;gap:8px;flex-wrap:wrap}
-.card-bottom a,.card-bottom button{padding:8px 12px;font-size:12px;border:1px solid var(--line);border-radius:8px;background:#ffffff10;color:white;text-decoration:none}
-.card-bottom a:hover,.card-bottom button:hover{background:#ef9cd92b}.card-bottom .follow{background:#f5a8dd;color:#220d28;font-weight:800}
-.note{color:var(--muted);font-size:13px}.empty{padding:50px 20px;text-align:center;color:var(--muted)}
-.viewer{position:fixed;inset:0;background:#050610f7;z-index:10;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px}
-.viewer.open{display:flex}.viewer img{display:block;max-width:calc(100vw - 55px);max-height:calc(100dvh - 190px);object-fit:contain;border-radius:4px}
-.viewerbar{position:absolute;top:15px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.viewer button{background:#222339;border:1px solid #ffffff4d;border-radius:50%;color:white;width:43px;height:43px;font-size:24px}
-.viewerbar button{flex-shrink:0}.nav{position:absolute;bottom:20px;display:flex;align-items:center;gap:20px}.viewerlabel{color:#eee;text-align:center;font-size:13px;max-width:80vw}
-.footer{border-top:1px solid var(--line);padding:40px 0 60px;color:var(--muted);display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
-@media(max-width:600px){main{padding:0 14px}.mast{padding-top:42px}.gallery{gap:14px}.controls{align-items:stretch}.search{max-width:none}.topline{align-items:flex-start}.pill{font-size:12px}.card-head{padding:16px}h1{letter-spacing:-.08em}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
-</style>
-</head>
-<body>
-<main>
-<header class="mast">
-<div class="topline"><div class="eyebrow">ARTVISION X / THE COMMUNITY ARCHIVE</div><a class="pill" href="https://x.com/i/communities/1835009931231322257" target="_blank" rel="noopener noreferrer">Join the community ↗</a></div>
-<h1>TWENTY<span style="color:#ffacd9">X</span></h1>
-<p class="lead"><strong>Twenty works. One post. No compromises.</strong> A living exhibition celebrating artists who bring the full twenty to ArtVision X. Explore their worlds. Follow the makers. Share their moment.</p>
-<div class="stats"><div><strong id="artistCount">—</strong> collections</div><div><strong id="workCount">—</strong> works</div><div><strong>06:00 / 18:00 PT</strong> publication windows</div></div>
-<div class="topline"><a class="action primary" href="https://x.com/i/communities/1835009931231322257" target="_blank" rel="noopener noreferrer">Submit your twenty ↗</a><span class="note">Post exactly 20 images with #TwentyX in the community.</span></div>
-</header>
-<section aria-labelledby="gallery-heading">
-<div class="controls"><h2 id="gallery-heading">The exhibition</h2><input class="search" id="search" type="search" placeholder="Find an artist…" aria-label="Find an artist"><button class="action" id="shuffle">Surprise me ↝</button></div>
-<p class="note" id="status" role="status" aria-live="polite">Loading complete collections…</p>
-<div class="gallery" id="gallery"></div>
-</section>
-<footer class="footer"><span>TWENTYX • An independent ArtVision X community gallery.</span><span>Artists retain all rights to their work. Every card links to its original X post.</span></footer>
-</main>
-<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Artwork viewer" tabindex="-1">
-<div class="viewerbar"><div class="viewerlabel" id="viewerTitle"></div><button id="close" aria-label="Close artwork viewer">×</button></div>
-<img id="full" alt=""><div class="nav"><button id="prev" aria-label="Previous artwork">‹</button><span id="position">1 / 20</span><button id="next" aria-label="Next artwork">›</button></div>
-</div>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080b19">
+<meta name="description" content="Twenty works. One post. No compromises. A living gallery of the ArtVision X community.">
+<title>TwentyX • ArtVision X</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.cdnfonts.com/css/dune-rise" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js" defer></script>
-<script>
-'use strict';
-const gallery=document.querySelector('#gallery'),search=document.querySelector('#search'),status=document.querySelector('#status');
-const viewer=document.querySelector('#viewer'),full=document.querySelector('#full');
-let artists=[],active=null,index=0,lastFocus=null;
-const escapeText=(s)=>String(s||'');
-function parsePost(url){try{let u=new URL(url);let m=u.pathname.match(/^\/([A-Za-z0-9_]{1,15})\/status\/(\d+)\/?$/);return ['x.com','twitter.com'].includes(u.hostname)&&m?{handle:m[1],id:m[2]}:null}catch{return null}}
-function valid(a){const p=parsePost(a?.postUrl);return p&&typeof a.name==='string'&&Array.isArray(a.media)&&a.media.length===20&&new Set(a.media).size===20&&a.media.every(u=>{try{let x=new URL(u);return x.protocol==='https:'&&x.hostname==='pbs.twimg.com'&&x.pathname.startsWith('/media/')}catch{return false}})}
-const el=(tag,cls,text)=>{let x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x};
-function link(label,url,cls){const a=el('a',cls,label);a.href=url;a.target='_blank';a.rel='noopener noreferrer';return a}
-function profileUrl(a){const p=parsePost(a.postUrl);return 'https://x.com/'+p.handle}
-function profilePath(a){return location.origin+location.pathname+'?artist='+encodeURIComponent(parsePost(a.postUrl).id)}
-function card(a){
- const c=el('article','card');c.id='artist-'+parsePost(a.postUrl).id;
- const header=el('div','card-head');header.append(el('div','artist',a.name),el('div','handle','@'+parsePost(a.postUrl).handle+' · 20 / 20'),el('div','date',a.date||''));c.append(header);
- const mosaic=el('div','mosaic');
- a.media.forEach((src,i)=>{const b=el('button','tile');b.type='button';b.setAttribute('aria-label','View artwork '+(i+1)+' of 20 by '+a.name);const img=el('img');img.src=src;img.loading='lazy';img.decoding='async';img.alt='Artwork '+(i+1)+' by '+a.name;img.referrerPolicy='no-referrer';b.append(img);b.addEventListener('click',()=>open(a,i,b));mosaic.append(b)});
- c.append(mosaic);
- const buttons=el('div','card-bottom');buttons.append(link('Follow on X ↗',profileUrl(a),'follow'),link('Original post ↗',a.postUrl));
- const visit=el('button','','Artist page ↗');visit.addEventListener('click',()=>{history.pushState(null,'','?artist='+encodeURIComponent(parsePost(a.postUrl).id));showSelected()});buttons.append(visit);
- const download=el('button','','↓ QR welcome card');download.addEventListener('click',()=>downloadPoster(a,download));buttons.append(download);c.append(buttons);return c;
-}
-function render(){
- const q=search.value.trim().toLowerCase();let selected=artists.filter(a=>(a.name+' '+parsePost(a.postUrl).handle).toLowerCase().includes(q));
- gallery.replaceChildren(...selected.map(card));status.textContent=selected.length+' complete collections shown · Each includes exactly 20 works';
- if(!selected.length)gallery.append(el('div','empty','No artists match this search.'));
-}
-function showSelected(){const id=new URLSearchParams(location.search).get('artist');let match=artists.find(a=>parsePost(a.postUrl).id===id);if(!match){render();return}search.value='';gallery.replaceChildren(card(match));status.textContent='Artist collection: '+match.name+' · 20 of 20 artworks · '+artists.length+' in the archive';const back=el('button','action','← All artists');back.addEventListener('click',()=>{history.pushState(null,'',location.pathname);render()});gallery.prepend(back);document.title=match.name+' — TwentyX Gallery'}
-function open(a,i,target){active=a;index=i;lastFocus=target;viewer.classList.add('open');document.body.style.overflow='hidden';showImage();viewer.focus()}
-function showImage(){if(!active)return;full.src=active.media[index];full.alt='Artwork '+(index+1)+' of 20 by '+active.name;document.querySelector('#position').textContent=(index+1)+' / 20';document.querySelector('#viewerTitle').textContent=active.name}
-function move(n){index=(index+n+20)%20;showImage()}
-function close(){viewer.classList.remove('open');full.removeAttribute('src');document.body.style.overflow='';active=null;lastFocus?.focus()}
-document.querySelector('#close').addEventListener('click',close);document.querySelector('#prev').addEventListener('click',()=>move(-1));document.querySelector('#next').addEventListener('click',()=>move(1));
-document.addEventListener('keydown',e=>{if(!active)return;if(e.key==='Escape')close();if(e.key==='ArrowRight')move(1);if(e.key==='ArrowLeft')move(-1);if(e.key==='Tab'){const focus=[document.querySelector('#close'),document.querySelector('#prev'),document.querySelector('#next')];if(!focus.includes(document.activeElement)){e.preventDefault();focus[0].focus()}}});
-let startX=0;viewer.addEventListener('touchstart',e=>{startX=e.changedTouches[0].clientX},{passive:true});viewer.addEventListener('touchend',e=>{let dx=e.changedTouches[0].clientX-startX;if(Math.abs(dx)>55)move(dx<0?1:-1)},{passive:true});
-async function downloadPoster(a,button){
- const old=button.textContent;button.disabled=true;button.textContent='Creating graphic…';
- try{
-  if(!window.QRCode)throw new Error('QR generator not loaded. Please retry when online.');
-  const w=1080,h=1350,canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');
-  let grad=ctx.createLinearGradient(0,0,w,h);grad.addColorStop(0,'#100e32');grad.addColorStop(.56,'#472044');grad.addColorStop(1,'#1e3258');ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);
-  ctx.fillStyle='#ffaadf';ctx.font='bold 34px system-ui';ctx.fillText('ARTVISION X  /  TWENTYX',72,112);
-  ctx.fillStyle='#fff6fc';ctx.font='bold 112px system-ui';ctx.fillText('WELCOME',64,290);
-  ctx.fillStyle='#f9bde4';ctx.font='bold 112px system-ui';ctx.fillText('TO THE 20.',64,402);
-  ctx.fillStyle='#fff';ctx.font='bold 67px system-ui';let name=a.name;while(ctx.measureText(name).width>920){ctx.font=(parseInt(ctx.font.match(/\d+/)[0])-2)+'px system-ui';if(parseInt(ctx.font)<25)break}ctx.fillText(name,72,550);
-  ctx.font='34px system-ui';ctx.fillStyle='#dfd6f2';ctx.fillText('@'+parsePost(a.postUrl).handle+'  ·  20 works / 1 post',72,614);
-  ctx.fillStyle='#fff';ctx.fillRect(72,713,420,420);
-  const qr=await QRCode.toDataURL(profilePath(a),{width:380,margin:2,errorCorrectionLevel:'H',color:{dark:'#17142b',light:'#ffffff'}});
-  const img=new Image();img.src=qr;await img.decode();ctx.drawImage(img,92,733,380,380);
-  ctx.fillStyle='#fff';ctx.font='bold 37px system-ui';ctx.fillText('EXPLORE',548,822);ctx.fillText('THE FULL',548,875);ctx.fillText('COLLECTION',548,928);
-  ctx.fillStyle='#e7d7ef';ctx.font='28px system-ui';ctx.fillText('Scan to visit the artist',548,1000);ctx.fillText('in the TwentyX gallery.',548,1043);
-  ctx.fillStyle='#ffbadc';ctx.font='30px system-ui';ctx.fillText('#TwentyX   •   Twenty is the maximum.',72,1235);
-  const aLink=document.createElement('a');aLink.download='TwentyX-'+parsePost(a.postUrl).handle+'-welcome.png';aLink.href=canvas.toDataURL('image/png');aLink.click();
- }catch(e){alert('Could not make welcome graphic: '+e.message)}
- finally{button.disabled=false;button.textContent=old}
-}
-search.addEventListener('input',()=>{history.replaceState(null,'',location.pathname);render()});
-document.querySelector('#shuffle').addEventListener('click',()=>{if(!artists.length)return;const a=artists[Math.floor(Math.random()*artists.length)];history.pushState(null,'','?artist='+parsePost(a.postUrl).id);showSelected()});
-window.addEventListener('popstate',()=>{document.title='TwentyX — ArtVision X';if(new URLSearchParams(location.search).has('artist'))showSelected();else render()});
-fetch('./artists.json?cache='+Math.floor(Date.now()/900000)).then(r=>{if(!r.ok)throw Error('HTTP '+r.status);return r.json()}).then(data=>{
- if(!Array.isArray(data))throw Error('Invalid collection archive');
- artists=data.filter(valid).sort((a,b)=>parsePost(b.postUrl).id.localeCompare(parsePost(a.postUrl).id));
- document.querySelector('#artistCount').textContent=artists.length;document.querySelector('#workCount').textContent=(artists.length*20).toLocaleString();
- if(new URLSearchParams(location.search).has('artist'))showSelected();else render();
-}).catch(e=>{status.textContent='Gallery unavailable: '+e.message+'. Please try again later. Previously published artworks have not been deleted.'});
-</script>
-</body></html>
+<script src="./app.js" defer></script>
+</head>
+<body data-phase="night">
+<div class="ambient ambient-a" aria-hidden="true"></div><div class="ambient ambient-b" aria-hidden="true"></div>
+<div class="page-shell">
+<header class="topbar">
+ <a class="brand" href="./" id="home-link" aria-label="TwentyX gallery home"><span class="brand-mark">X</span><span>ARTVISION <em>X</em><small>THE COMMUNITY ARCHIVE</small></span></a>
+ <div class="top-actions">
+  <span class="time-indicator" id="phase-label">A LIVING EXHIBITION</span>
+  <button class="icon-btn" type="button" data-info="about" aria-label="About TwentyX" title="About TwentyX">i</button>
+  <a class="ghost small" href="https://x.com/i/communities/1835009931231322257" target="_blank" rel="noopener noreferrer">Join the community ↗</a>
+ </div>
+</header>
+<main>
+<section id="home-view">
+ <div class="hero">
+  <div class="hero-superline">ARTVISION X <span class="dash"></span> THE COMMUNITY ARCHIVE</div>
+  <h1 class="twentyx iridescent">TWENTY<span>X</span></h1>
+  <p class="hero-intro"><strong>Twenty works. One post. No compromises.</strong> A living exhibition celebrating artists who bring the full twenty to ArtVision X. Explore their worlds. Follow the makers. Share their moment.</p>
+  <div class="hero-stats" aria-label="Gallery statistics">
+   <div><strong id="artist-count">—</strong><span>collections</span></div>
+   <div><strong id="work-count">—</strong><span>works</span></div>
+   <div><strong>06:00 / 18:00 PT</strong><span>publication windows <button class="tiny-info" data-info="updates" aria-label="About publishing times">i</button></span></div>
+  </div>
+  <div class="cta-cluster"><a class="pill primary" href="https://x.com/i/communities/1835009931231322257" target="_blank" rel="noopener noreferrer">Share your #TwentyX ↗</a><span class="cta-helper">Post exactly 20 images with #TwentyX in the community. <button class="tiny-info" data-info="join" aria-label="How to participate">i</button></span></div>
+ </div>
+ <div class="exhibition-header">
+  <div class="exhibition-heading"><div class="overline">EXPLORE THE COLLECTIONS</div><h2>The exhibition <button class="tiny-info" data-info="browse" aria-label="How to explore the gallery">i</button></h2></div>
+  <div class="toolbar">
+   <label class="searchbox"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Find an artist…" aria-label="Find an artist"></label>
+   <button class="ghost" id="surprise" type="button">Surprise me ↝</button>
+   <button class="pill outline" id="choose-slideshow" type="button">◉ Slideshow <span class="desktop-only">studio</span></button>
+  </div>
+ </div>
+ <div class="section-note" id="home-status" aria-live="polite">Loading complete collections…</div>
+ <div class="home-gallery" id="home-gallery"></div>
+</section>
+
+<section id="artist-view" hidden aria-labelledby="artist-title">
+ <div class="artist-topline">
+  <button id="back-to-all" class="back-link" type="button">← Back to all artists</button>
+  <div class="artist-brand iridescent">TWENTYX<span> / SOLO EXHIBITION</span></div>
+ </div>
+ <div class="spotlight-heading">
+  <div class="spotlight-title-wrap"><div class="overline">ARTVISION X <span class="dash"></span> ARTIST SPOTLIGHT <span class="twenty-badge">20 / 20</span></div><h1 id="artist-title">Artist</h1><div class="artist-byline"><span id="artist-handle"></span><span id="artist-date"></span></div></div>
+  <div class="artist-sideword" aria-hidden="true">TWENTYX</div>
+ </div>
+ <div class="spotlight-actions">
+  <div class="spotlight-main-actions">
+   <a id="follow-link" class="pill primary" target="_blank" rel="noopener noreferrer">Follow on X ↗</a>
+   <a id="original-link" class="ghost" target="_blank" rel="noopener noreferrer">Original post ↗</a>
+   <button id="copy-artist" class="ghost" type="button">⤴ Artist page</button>
+   <button id="download-qr" class="ghost" type="button">↓ QR welcome card</button>
+   <button class="icon-btn" data-info="qr" type="button" aria-label="About QR welcome cards">i</button>
+  </div>
+  <div class="view-switch" aria-label="Artist viewing mode">
+   <button id="wall-mode" class="mode-btn active" aria-pressed="true" type="button">▦ Exhibition wall</button>
+   <button id="spatial-mode" class="mode-btn" aria-pressed="false" type="button">◇ Spatial carousel</button>
+   <button id="play-artist" class="pill outline" type="button">▶ Fullscreen show</button>
+  </div>
+ </div>
+ <div id="artist-wall" class="artist-wall" aria-label="Twenty artworks"></div>
+ <div id="spatial-stage" class="spatial-stage" hidden>
+  <div class="stage-topline"><div class="overline">SPATIAL VIEW <button class="tiny-info" data-info="spatial" aria-label="About spatial view">i</button></div><span id="stage-counter">01 / 20</span></div>
+  <div class="perspective-scene">
+   <button id="spatial-prev" class="spatial-side side-left" type="button" aria-label="Previous work"><img id="stage-left" alt=""></button>
+   <button id="spatial-current" class="spatial-center" type="button" aria-label="Open current artwork fullscreen"><img id="stage-main" alt=""></button>
+   <button id="spatial-next" class="spatial-side side-right" type="button" aria-label="Next work"><img id="stage-right" alt=""></button>
+  </div>
+  <div class="stage-footer"><button id="stage-prev-button" class="ghost" type="button">← Previous</button><div class="stage-dots" id="stage-dots" aria-label="Current artwork"></div><button id="stage-next-button" class="ghost" type="button">Next →</button></div>
+ </div>
+ <div class="next-artist-bar"><button class="ghost" type="button" id="previous-artist">← Previous artist</button><span>TWENTY WORKS. ONE ARTIST. NO COMPROMISES.</span><button class="ghost" type="button" id="next-artist">Next artist →</button></div>
+</section>
+</main>
+<footer class="footer"><span>TWENTYX • An independent ArtVision X community gallery.</span><span>Artists retain all rights to their work. Every collection links to its original X post.</span></footer>
+</div>
+
+<dialog id="help-modal" class="glass-dialog"><div class="dialog-head"><div class="overline">YOUR GUIDE TO TWENTYX</div><button id="close-help" class="icon-btn" type="button" aria-label="Close information">×</button></div><h2 id="help-title"></h2><div id="help-body"></div><button id="help-done" class="pill primary" type="button">Got it ↗</button></dialog>
+
+<dialog id="selection-modal" class="glass-dialog selection-dialog"><div class="dialog-head"><div class="overline">THE TWENTYX CINEMA</div><button id="close-selection" class="icon-btn" type="button" aria-label="Close slideshow selection">×</button></div><h2>Curate your own show.</h2><p class="dialog-muted">Choose one artist, a few favorites, or the entire community. The screen belongs to the art.</p><div class="select-actions"><button class="ghost" id="select-all" type="button">Select all</button><button class="ghost" id="select-none" type="button">Clear selection</button></div><div id="artist-checklist" class="artist-checklist"></div><div class="dialog-footer"><span id="selection-count">0 selected</span><button class="pill primary" id="launch-selection" type="button">▶ Start slideshow</button></div></dialog>
+
+<div id="cinema" class="cinema" role="dialog" aria-modal="true" aria-label="Fullscreen artwork slideshow" aria-hidden="true" tabindex="-1">
+ <div class="cinema-background" aria-hidden="true"></div>
+ <div class="cinema-top"><div><span class="cinema-kicker">ARTVISION X / TWENTYX CINEMA</span><h2 id="cinema-artist"></h2><span id="cinema-progress"></span></div><div class="cinema-top-actions"><a id="cinema-follow" target="_blank" rel="noopener noreferrer">Follow artist ↗</a><button class="cinema-icon" id="cinema-info" aria-label="Slideshow help">i</button><button class="cinema-icon" id="cinema-close" aria-label="Exit slideshow">×</button></div></div>
+ <div class="cinema-viewport"><button id="cinema-previous" class="cinema-arrow left" aria-label="Previous artwork">‹</button><img id="cinema-img" alt="Art in slideshow"><button id="cinema-next" class="cinema-arrow right" aria-label="Next artwork">›</button></div>
+ <div class="cinema-bottom"><div class="cinema-nav"><button id="cinema-previous-artist" type="button">↑ Previous artist</button><button id="cinema-play" type="button">▶ Play</button><button id="cinema-next-artist" type="button">↓ Next artist</button></div><div class="cinema-tools"><label for="cinema-speed">Interval <select id="cinema-speed"><option value="3000">3s</option><option value="5000" selected>5s</option><option value="8000">8s</option><option value="12000">12s</option></select></label><span>← → artwork &nbsp; ↑ ↓ artist &nbsp; Space play/pause</span></div></div>
+</div>
+</body>
+</html>
