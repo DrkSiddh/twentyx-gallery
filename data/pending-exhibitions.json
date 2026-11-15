@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Recovery intake only; no pending artist is displayed until twenty authentic, distinct artworks from one verified #TwentyX X post have been recovered.",
+  "candidates": [
+    {
+      "displayName": "ok vision",
+      "xHandleCandidate": "ok__vision",
+      "postUrlCandidate": "https://x.com/ok__vision/status/2121728209721131289",
+      "postDateCandidate": "2026-11-14",
+      "mediaUrlsRecovered": [
+        "https://pbs.twimg.com/media/HXHkh6yaUAAsdJY.jpg"
+      ],
+      "mediaCountRecovered": 1,
+      "mediaCountRequired": 20,
+      "status": "pending-media-verification",
+      "source": "Historical 2026-11-15 malformed single-artist import; URL and one image were found, not a complete set"
+    },
+    {
+      "displayName": "PankyVT",
+      "xHandleCandidate": null,
+      "postUrlCandidate": null,
+      "mediaUrlsRecovered": [],
+      "mediaCountRecovered": 0,
+      "mediaCountRequired": 20,
+      "status": "pending-original-post-and-media",
+      "source": "Named in 2026-11-15 morning commit message; no qualified source post/media stored"
+    },
+    {
+      "displayName": "Elyris",
+      "xHandleCandidate": null,
+      "postUrlCandidate": null,
+      "mediaUrlsRecovered": [],
+      "mediaCountRecovered": 0,
+      "mediaCountRequired": 20,
+      "status": "pending-original-post-and-media",
+      "source": "Named in 2026-11-15 morning commit message; no qualified source post/media stored"
+    }
+  ],
+  "admissionRule": "Original X post, correct artist, #TwentyX and exactly 20 distinct media URLs; do not synthesize missing entries or overwrite existing exhibitions."
+}
