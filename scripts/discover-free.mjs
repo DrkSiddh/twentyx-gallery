@@ -6,8 +6,9 @@
  * hashtag search, with the FxEmbed open/public search as a secondary source.
  * Independent media inspection: FxEmbed's public single-post endpoint.
  *
- * Never infer 20 photos from a thumbnail collage. Never publish an unverified
- * community post. Network failure cannot delete or replace gallery data.
+ * Never infer 20 photos from a thumbnail collage. Publication needs the
+ * #TwentyX hashtag and exactly 20 genuine images in one post.
+ * Network failure cannot delete or replace gallery data.
  * Public X access can disappear: report that accurately, don't fake success.
  */
 import fs from 'node:fs';
@@ -48,9 +49,8 @@ export function checkStatus(status,source,communityId=COMMUNITY_ID){
  if(!hasTag(text))return {kind:'reject',reason:'missing-hashtag',id};
  if(status.reposted_by||status.type==='retweet')
    return {kind:'reject',reason:'not-original-post',id};
- const inside=String(status.community?.id||status.community_id||'')===String(communityId);
- if(!inside && source!=='confirmed-community-feed')
-   return {kind:'review',reason:'community-not-confirmed',id,handle};
+ // Community ID may be absent from public embeds and is not an admission rule.
+ // The hashtag and exact media count are the two requirements.
  const all=Array.isArray(status.media?.all)?status.media.all:status.media?.photos;
  if(!Array.isArray(all)||all.length!==20){
   // A free embed service can truncate media, so a short response is not
@@ -65,7 +65,11 @@ export function checkStatus(status,source,communityId=COMMUNITY_ID){
  const date=new Date(status.created_timestamp?Number(status.created_timestamp)*1000:status.created_at);
  if(!Number.isFinite(date.valueOf()))
    return {kind:'review',reason:'invalid-post-date',id,handle};
- return {kind:'admit',reason:'verified-20-original-photos',id,handle,
+ // The gallery was launched in November 2026; don't admit unrelated historical
+ // uses of the same hashtag from years earlier.
+ if(date < new Date('2026-11-01T00:00:00Z'))
+   return {kind:'reject',reason:'before-exhibition-launch',id,handle};
+ return {kind:'admit',reason:'verified-hashtag-and-20-original-photos',id,handle,
   record:{name:name.slice(0,100),postUrl:'https://x.com/'+handle+'/status/'+id,
    date:date.toISOString().slice(0,10),media:urls}};
 }
