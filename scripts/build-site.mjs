@@ -52,6 +52,15 @@ const initial=ordered.map(renderCard).join('\n');
 const seed=JSON.stringify(ordered).replaceAll('<','\\u003c').replaceAll('>','\\u003e').replaceAll('&','\\u0026');
 let output=html;
 const requireReplace=(from,to)=>{if(!output.includes(from))throw Error('Missing expected HTML anchor: '+from);output=output.replace(from,to)};
+const newest=[...artists].sort((a,b)=>idOf(b).localeCompare(idOf(a)))[0];
+const sourceFeatured=newest.media[0];
+requireReplace('<strong id="artist-count">0</strong>','<strong id="artist-count">'+artists.length+'</strong>');
+requireReplace('<strong id="work-count">0</strong>','<strong id="work-count">'+(artists.length*20)+'</strong>');
+requireReplace('<img id="feature-image" alt="Featured TwentyX artwork" loading="eager" decoding="async">',
+ '<img id="feature-image" src="'+esc(sourceFeatured)+'" alt="Featured original artwork curated by '+esc(newest.name)+'" loading="eager" decoding="async">');
+requireReplace('<h2 id="feature-title" class="feature-artist-name">Artist spotlight</h2>',
+ '<h2 id="feature-title" class="feature-artist-name">'+esc(newest.name)+'</h2>');
+
 requireReplace('<link rel="stylesheet" href="./styles.css">','<style>\n'+css+'\n</style>');
 requireReplace('<script src="./app.js" defer></script>','');
 requireReplace('<div class="home-gallery" id="home-gallery"></div>','<div class="home-gallery" id="home-gallery">\n'+initial+'\n</div>');
