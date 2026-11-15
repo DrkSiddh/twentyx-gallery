@@ -9,7 +9,9 @@ function boot(){
  const console=new VirtualConsole();
  console.on('jsdomError',err=>errors.push(err.message));
  console.on('error',msg=>errors.push(msg));
- console.on('warn',msg=>errors.push('WARN: '+msg));
+ console.on('warn',(...args)=>errors.push('WARN: '+args.map(a=>String(a)).join(' :: ')));
+ const seed=html.match(/<script id="seeded-artists" type="application\/json">([\s\S]*?)<\/script>/)?.[1];
+ if(!seed)errors.push('MISSING SEED TAG');else try{const data=JSON.parse(seed);if(!Array.isArray(data))errors.push('SEED NOT ARRAY')}catch(e){errors.push('INVALID SEED JSON: '+e.message+' near '+seed.slice(0,120))}
  const dom=new JSDOM(html,{
   url:'https://twentyx.artvision.today/',
   runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:console,
