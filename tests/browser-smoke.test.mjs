@@ -97,3 +97,44 @@ test('artist credits use display type; brochure download is a same-origin file',
   assert.match(captures[0].filename,/^TwentyX-stunnifer-exhibition\.(svg|png)$/i);
  }finally{t.close()}
 });
+
+
+test('single-word artist names cannot wrap and dynamic fit marks both headlines',async()=>{
+ const t=boot();
+ try{
+  await new Promise(done=>setTimeout(done,55));
+  assert.equal(t.doc.querySelector('#feature-title').textContent,'Pepavaggio');
+  assert.ok(t.doc.querySelector('#feature-title').classList.contains('single-moniker'));
+  t.doc.querySelector('.artist-open').click();
+  assert.ok(t.doc.querySelector('#artist-title').classList.contains('single-moniker'));
+  const styles=readFileSync('styles.css','utf8');
+  assert.match(styles,/\.feature-artist-name\.single-moniker[^}]+white-space:nowrap/);
+  assert.match(styles,/font-family:'Oxanium'/);
+  const template=readFileSync('src/index.template.html','utf8');
+  assert.match(template,/family=Oxanium/);
+ }finally{t.close()}
+});
+
+test('fullscreen autoplay hides controls but restores them on interaction or pause',async()=>{
+ const t=boot();
+ try{
+  await new Promise(done=>setTimeout(done,55));
+  t.doc.querySelector('#choose-slideshow').click();
+  t.doc.querySelector('#launch-selection').click();
+  const cinema=t.doc.querySelector('#cinema');
+  assert.equal(cinema.classList.contains('playing'),true,'autoplay should start');
+  t.win.hideCinemaControls();
+  assert.equal(cinema.classList.contains('controls-hidden'),true,'playing cinema should fade UI');
+  cinema.dispatchEvent(new t.win.Event('pointermove',{bubbles:true}));
+  assert.equal(cinema.classList.contains('controls-hidden'),false,'pointer movement reveals UI');
+  t.win.hideCinemaControls();
+  cinema.dispatchEvent(new t.win.Event('touchstart',{bubbles:true}));
+  assert.equal(cinema.classList.contains('controls-hidden'),false,'touch reveals UI');
+  t.doc.querySelector('#cinema-play').click();
+  assert.equal(cinema.classList.contains('playing'),false,'pause ends auto-fade');
+  t.win.hideCinemaControls();
+  assert.equal(cinema.classList.contains('controls-hidden'),false,'paused mode must remain visible');
+  t.doc.querySelector('#cinema-close').click();
+  assert.equal(cinema.classList.contains('active'),false);
+ }finally{t.close()}
+});

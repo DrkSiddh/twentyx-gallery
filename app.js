@@ -24,6 +24,8 @@ let selection=new Set();
 let featuredArtist=null,featuredIndex=0;
 let seedRecoverySource='embedded JSON';
 let cinemaNativeFullscreen=false;
+let cinemaFadeTimer=null;
+let cardRevealObserver=null;
 const prefersReduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const help={
   about:['What is TwentyX?','TwentyX Presented By ArtVision is a multidimensional self-evolving art exhibition. Every artist curates twenty works of art on X. Enter their solo exhibitions, experience the work in multiple dimensions, and follow the artists who made it.'],
@@ -128,12 +130,58 @@ function featureWork(next=false){
   img.alt='Featured work '+(featuredIndex+1)+' of 20 curated by '+featuredArtist.name;
   byId('feature-number').textContent=String(featuredIndex+1).padStart(2,'0')+' / 20';
   byId('feature-title').textContent=featuredArtist.name;
+  fitArtistHeadlines();
   byId('feature-subline').textContent='An exhibition curated by '+featuredArtist.name+' · '+featuredArtist.date;
   img.classList.remove('change');
  };
  if(prefersReduced||!next)reveal();
  else window.setTimeout(reveal,220);
 }
+
+/** Preserve a single-word artist moniker on one line at any viewport size. */
+function fitArtistHeadlines(){
+ const definitions=[['feature-title',114,26],['artist-title',172,30]];
+ for(const [id,maximum,minimum] of definitions){
+  const heading=byId(id);
+  if(!heading)continue;
+  const name=heading.textContent.trim();
+  const oneWord=Boolean(name)&&!/\s/.test(name);
+  heading.classList.toggle('single-moniker',oneWord);
+  heading.style.removeProperty('font-size');
+  if(!oneWord)continue;
+  // Hidden pages and the jsdom test environment have no measurable width;
+  // CSS nowrap is the reliable fallback in those situations.
+  const available=heading.clientWidth;
+  if(available<30)continue;
+  let size=Math.min(maximum,Math.max(minimum,window.innerWidth*(id==='feature-title'?.085:.11)));
+  heading.style.fontSize=size+'px';
+  while(size>minimum && heading.scrollWidth>heading.clientWidth+1){
+   size=Math.max(minimum,size-2);
+   heading.style.fontSize=size+'px';
+  }
+ }
+}
+function scheduleHeadlineFit(){
+ fitArtistHeadlines();
+ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitArtistHeadlines).catch(()=>{});
+}
+function revealCards(root=document){
+ if(prefersReduced||typeof IntersectionObserver!=='function')return;
+ if(!cardRevealObserver){
+  cardRevealObserver=new IntersectionObserver(entries=>{
+   for(const entry of entries){
+    if(!entry.isIntersecting)continue;
+    entry.target.classList.add('art-entered');
+    cardRevealObserver.unobserve(entry.target);
+   }
+  },{threshold:.13,rootMargin:'0px 0px 35px 0px'});
+ }
+ root.querySelectorAll('.collection-card,.artist-wall .artwork-thumb').forEach((el,index)=>{
+  el.style.animationDelay=(index%9*65)+'ms';
+  cardRevealObserver.observe(el);
+ });
+}
+
 function sourceArtistsFromArtworkDOM(){
  // Independent fallback: the initial HTML itself contains twenty images per artist.
  const result=[];
@@ -167,6 +215,7 @@ function renderHome(){
  });
  if(!shown.length)root.append(create('div','empty','No artists match this search. Try another name or handle.'));
  byId('home-status').textContent=shown.length+' complete collections · All contain twenty artworks';
+ revealCards(root);
 }
 function changeMode(mode){
  wallMode=mode;
@@ -200,12 +249,14 @@ function renderArtist(a){
  currentArtist=a;
  document.title=a.name+' • TwentyX Gallery';
  byId('artist-title').textContent=a.name;
+ fitArtistHeadlines();
  byId('artist-handle').textContent='@'+artistHandle(a)+'  ·  20 / 20 works';
  byId('artist-date').textContent=a.date||'';
  byId('follow-link').href=followIntent(a);byId('follow-link').dataset.follow='true';
  byId('original-link').href=a.postUrl;
  const wall=byId('artist-wall');wall.replaceChildren();
  a.media.forEach((_,i)=>wall.append(makeTile(a,i)));
+ revealCards(wall);
  spatialIndex=0;
  changeMode('wall');
  const index=artists.findIndex(item=>artistID(item)===artistID(a));
@@ -301,14 +352,32 @@ function cinemaArtistStep(delta){
  viewerArtistIndex=(viewerArtistIndex+delta+viewerArtists.length)%viewerArtists.length;
  viewerWorkIndex=0;renderCinema();
 }
+function hideCinemaControls(){
+ const cinema=byId('cinema');
+ if(!prefersReduced && cinema.classList.contains('active') && cinema.classList.contains('playing')){
+  cinema.classList.add('controls-hidden');
+ }
+}
+function revealCinemaControls(){
+ const cinema=byId('cinema');
+ cinema.classList.remove('controls-hidden');
+ if(cinemaFadeTimer){clearTimeout(cinemaFadeTimer);cinemaFadeTimer=null}
+ if(!prefersReduced && cinema.classList.contains('active') && cinema.classList.contains('playing')){
+  cinemaFadeTimer=setTimeout(hideCinemaControls,2400);
+ }
+}
 function setPlaying(playing){
  if(timer){clearInterval(timer);timer=null}
+ const cinema=byId('cinema');
+ cinema.classList.toggle('playing',playing);
  byId('cinema-play').textContent=playing?'Ⅱ Pause':'▶ Play';
  if(playing)timer=setInterval(()=>cinemaStep(1),Number(byId('cinema-speed').value)||5000);
+ revealCinemaControls();
 }
 function stopCinema(){
  setPlaying(false);
- const el=byId('cinema');el.classList.remove('active');el.setAttribute('aria-hidden','true');
+ const el=byId('cinema');el.classList.remove('active','playing','controls-hidden');el.setAttribute('aria-hidden','true');
+ if(cinemaFadeTimer){clearTimeout(cinemaFadeTimer);cinemaFadeTimer=null}
  document.body.style.overflow='';
  if(document.fullscreenElement && typeof document.exitFullscreen==='function') Promise.resolve(document.exitFullscreen()).catch(()=>{});
  cinemaNativeFullscreen=false;
@@ -354,6 +423,12 @@ async function downloadPoster(a,target){
  }
 }
 function bindUI(){
+ const cinema=byId('cinema');
+ cinema.addEventListener('pointermove',revealCinemaControls);
+ cinema.addEventListener('touchstart',revealCinemaControls,{passive:true});
+ cinema.addEventListener('focusin',revealCinemaControls);
+ cinema.addEventListener('click',revealCinemaControls);
+ window.addEventListener('resize',fitArtistHeadlines);
  document.addEventListener('fullscreenchange',()=>{
   if(cinemaNativeFullscreen && !document.fullscreenElement && byId('cinema').classList.contains('active')) stopCinema();
  });
@@ -397,6 +472,7 @@ function bindUI(){
  byId('cinema-speed').addEventListener('change',()=>{if(timer)setPlaying(true)});
  document.addEventListener('keydown',event=>{
   if(byId('cinema').classList.contains('active')){
+   revealCinemaControls();
    if(byId('help-modal').open)return;
    const key=event.key;
    if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' ','Escape'].includes(key))event.preventDefault();
@@ -438,6 +514,7 @@ async function syncLatestExhibitions(){
   byId('work-count').textContent=(artists.length*20).toLocaleString();
   if(!byId('cinema').classList.contains('active'))renderRoute();
   featureWork(false);
+  scheduleHeadlineFit();
  }catch(error){console.warn('Live stats refresh deferred:',error.message)}
 }
 async function load(){
@@ -462,6 +539,7 @@ async function load(){
   byId('work-count').textContent=(artists.length*20).toLocaleString();
   renderRoute();
   featureWork(false);
+  scheduleHeadlineFit();
  }
  try{
   const response=await fetch('/artists.json?v='+Math.floor(Date.now()/900000),{cache:'no-store'});

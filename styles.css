@@ -294,3 +294,129 @@ button,input,select{font:inherit}a{color:inherit}button{cursor:pointer}button:di
  .cinema-tools{justify-content:center}
 }
 @media(prefers-reduced-motion:reduce){.cinema-viewport img#cinema-img{animation:none!important}}
+
+
+/* TWENTYX v6: kinetic, responsive sci-fi exhibition typography.
+   Oxanium is OFL-licensed; brand remains Dune Rise. */
+.feature-caption{min-width:0}
+.feature-chamber{grid-template-columns:minmax(0,1.28fr) minmax(315px,.72fr)}
+.feature-artist-name,
+.spotlight-title-wrap h1,
+.card-name{
+ font-family:'Oxanium',Inter,system-ui,sans-serif;
+ font-weight:800;
+ letter-spacing:-.065em;
+ font-kerning:normal;
+}
+.feature-artist-name{
+ font-size:clamp(2.2rem,5.7vw,7.2rem);
+ line-height:1.06;
+ overflow-wrap:normal;
+ word-break:normal;
+ text-wrap:balance;
+ background:linear-gradient(115deg,#fdfaff 4%,#f9d3ed 34%,#e7b0ef 51%,#fff9ff 70%,#f4a2c8 95%);
+ background-size:240% 100%;
+ background-clip:text;
+ color:transparent;
+ animation:artist-chrome 16s ease-in-out infinite alternate;
+}
+.feature-artist-name.single-moniker,
+.spotlight-title-wrap h1.single-moniker{white-space:nowrap;text-wrap:nowrap;overflow-wrap:normal;word-break:normal}
+.feature-artist-name.single-moniker{overflow:hidden}
+.spotlight-title-wrap{width:100%;flex:1;min-width:0}
+.spotlight-title-wrap h1{
+ font-size:clamp(3.1rem,9vw,10.4rem);
+ line-height:1.14;
+ letter-spacing:-.072em;
+ overflow-wrap:normal;
+ word-break:normal;
+}
+.spotlight-title-wrap h1.single-moniker{overflow:hidden}
+.card-name{font-size:clamp(20px,1.9vw,29px);letter-spacing:-.045em}
+@keyframes artist-chrome{
+ 0%,12%{background-position:0% 50%;filter:drop-shadow(0 0 0px transparent)}
+ 65%,100%{background-position:100% 50%;filter:drop-shadow(0 0 14px #f4a2c824)}
+}
+@keyframes art-buoyancy{
+ 0%{transform:translate3d(0,0,0)}
+ 50%{transform:translate3d(0,-10px,0)}
+ 100%{transform:translate3d(0,0,0)}
+}
+@keyframes gallery-entrance{
+ from{opacity:.35;transform:translate3d(0,34px,0) scale(.982);filter:blur(3px)}
+ to{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}
+}
+@keyframes light-trace{
+ from{background-position:0% 0%}
+ to{background-position:190% 0%}
+}
+.feature-art-wrapper{animation:art-buoyancy 12s ease-in-out infinite}
+.feature-chamber::after{
+ background:linear-gradient(112deg,transparent 0%,#f4a2c80c 37%,#cfc9ff18 49%,transparent 62%);
+ background-size:220% 100%;
+ animation:light-trace 16s linear infinite alternate;
+}
+.feature-caption{animation:gallery-entrance .9s cubic-bezier(.22,.78,.2,1) both}
+.collection-card.art-entered,
+.artist-wall .artwork-thumb.art-entered{
+ animation:gallery-entrance .82s cubic-bezier(.22,.78,.2,1) both;
+}
+.collection-card.art-entered:hover{animation-fill-mode:backwards}
+.artist-wall .artwork-thumb.art-entered:hover{animation-fill-mode:backwards}
+.card-meta{transition:background .45s ease}
+.collection-card:hover .card-meta{
+ background:linear-gradient(120deg,#f4a2c818,#d7aaf00b 60%,transparent)
+}
+/* In autoplay, gallery furniture disappears and the artwork occupies the
+   entire screen. Any pointer movement, touch or keyboard action wakes it. */
+.cinema.active{
+ transition:grid-template-rows .7s cubic-bezier(.22,.7,.2,1);
+}
+.cinema.active .cinema-top,
+.cinema.active .cinema-bottom,
+.cinema.active .cinema-arrow{
+ transition:opacity .6s ease,visibility .6s ease,transform .6s ease,
+            min-height .65s ease,padding .65s ease;
+}
+.cinema.active.playing.controls-hidden{
+ grid-template-rows:0px minmax(0,1fr) 0px;
+ cursor:none;
+}
+.cinema.active.playing.controls-hidden .cinema-top,
+.cinema.active.playing.controls-hidden .cinema-bottom{
+ opacity:0;
+ visibility:hidden;
+ pointer-events:none;
+ min-height:0;
+ height:0;
+ padding:0;
+ overflow:hidden;
+ border:0;
+}
+.cinema.active.playing.controls-hidden .cinema-arrow{
+ opacity:0;
+ visibility:hidden;
+ pointer-events:none;
+}
+.cinema.active.playing.controls-hidden .cinema-viewport{
+ padding:clamp(4px,1vh,14px) clamp(14px,2vw,36px);
+}
+@media(max-width:900px){
+ .feature-chamber{grid-template-columns:1fr}
+ .feature-artist-name{font-size:clamp(2.5rem,8vw,5.2rem)}
+}
+@media(max-width:540px){
+ .feature-artist-name{font-size:clamp(1.9rem,9vw,4.3rem)}
+ .spotlight-title-wrap h1{font-size:clamp(2.8rem,12vw,5rem)}
+ .feature-art-wrapper{animation-duration:14s}
+ .cinema.active.playing.controls-hidden .cinema-viewport{padding:5px}
+}
+@media(prefers-reduced-motion:reduce){
+ .feature-art-wrapper,.feature-chamber::after,
+ .feature-artist-name,.feature-caption,
+ .collection-card.art-entered,.artist-wall .artwork-thumb.art-entered{
+  animation:none!important;transition:none!important
+ }
+ .cinema.active .cinema-top,.cinema.active .cinema-bottom,
+ .cinema.active .cinema-arrow,.cinema.active{transition:none!important}
+}
