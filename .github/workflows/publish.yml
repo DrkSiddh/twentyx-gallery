@@ -35,6 +35,13 @@ jobs:
       - name: Install QR renderer
         if: steps.window.outputs.allowed == 'true'
         run: npm install --no-package-lock --ignore-scripts
+      - name: Discover verified TwentyX community posts
+        if: steps.window.outputs.allowed == 'true'
+        env:
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          X_COMMUNITY_ID: "1835009931231322257"
+          X_MAX_PAGES: "2"
+        run: npm run discover
       - name: Validate, merge and publish without deletions
         if: steps.window.outputs.allowed == 'true'
         run: npm run publish
@@ -43,7 +50,7 @@ jobs:
         run: |
           git config user.name "TwentyX Gallery Bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add artists.json data/collections.json data/manifest.json data/previous-posts.json welcome/
+          git add artists.json data/collections.json data/manifest.json data/inbox.json data/review-queue.json data/discovery-report.json data/previous-posts.json welcome/
           if ! git diff --cached --quiet; then
             git commit -m "Publish verified TwentyX collections"
             git push
