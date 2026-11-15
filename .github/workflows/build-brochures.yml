@@ -1,0 +1,39 @@
+name: Build TwentyX artist brochures
+on:
+  push:
+    branches: [main]
+    paths:
+      - "artists.json"
+      - "scripts/welcome.mjs"
+      - "scripts/build-site.mjs"
+      - "src/index.template.html"
+      - ".github/workflows/build-brochures.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: twentyx-publisher
+  cancel-in-progress: false
+jobs:
+  brochures:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install build and image dependencies
+        run: npm install --no-package-lock
+      - name: Always build fallback artwork brochures and artist pages
+        run: npm run build
+      - name: Make high-resolution self-contained PNG brochures where media can be retrieved
+        run: node scripts/welcome.mjs
+      - name: Commit all downloadable exhibition files
+        run: |
+          git config user.name "TwentyX Exhibition Publisher"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- index.html @*/index.html welcome/ data/previous-posts.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish artist brochures and self-contained exhibition pages"
+            git push
+          fi

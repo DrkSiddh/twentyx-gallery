@@ -207,3 +207,90 @@ button,input,select{font:inherit}a{color:inherit}button{cursor:pointer}button:di
 @media(max-width:780px){.cinema{padding:6px}.cinema-viewport{height:64vh}.cinema-filmstrip{left:40px;right:40px;height:52px}.cinema-filmstrip button{flex-basis:44px;height:41px}.cinema-viewport img#cinema-img{height:calc(100% - 64px);max-height:calc(100% - 64px)}}
 @media(max-width:540px){.cinema{padding:0}.cinema-top,.cinema-bottom,.cinema-viewport{width:100%;border-radius:0}.cinema-viewport{height:calc(100dvh - 180px);min-height:200px}.cinema-filmstrip{bottom:10px;left:45px;right:45px}.cinema-top{min-height:75px}.cinema-bottom{min-height:95px}}
 @media(prefers-reduced-motion:reduce){.feature-aura,.feature-depthline,.iridescent{animation:none!important}.feature-artwork,.feature-artwork img{transition:none!important}}
+
+
+/* V5: an unobstructed, true fullscreen cinema. The spatial carousel
+   stays the manual 3D viewer; cinema is a presentation, not a second rail. */
+.artist-brand{display:flex;flex-direction:column;align-items:flex-end;gap:5px;max-width:min(55vw,530px);text-align:right}
+.artist-brand .artist-mark{
+ display:block;font-family:'Dune Rise',Inter,sans-serif;
+ font-size:clamp(33px,4.2vw,66px);line-height:1.18;letter-spacing:-.045em;
+ white-space:nowrap;-webkit-text-fill-color:transparent
+}
+.artist-brand .artist-presenter{
+ display:block!important;font-family:'Dune Rise',Inter,sans-serif;
+ font-size:clamp(21px,2.55vw,36px);line-height:1.3;letter-spacing:.015em;
+ white-space:normal;-webkit-text-fill-color:transparent;text-transform:none
+}
+.artist-brand .artist-presenter.iridescent{background-size:270% 100%}
+.cinema.active{
+ display:grid;grid-template-rows:auto minmax(0,1fr) auto;
+ padding:0;place-items:stretch;gap:0;
+ background:#050712f2;backdrop-filter:blur(20px)
+}
+.cinema-top,.cinema-bottom,.cinema-viewport{
+ width:100%;max-width:100%;border:0;border-radius:0;
+ box-shadow:none
+}
+.cinema-top{
+ min-height:80px;padding:13px clamp(20px,3vw,55px);
+ background:linear-gradient(180deg,#080a18f2,#090a17d1)
+}
+.cinema-top h2{font-size:clamp(24px,2.8vw,43px);line-height:1.06}
+.cinema-kicker{font-size:clamp(10px,.9vw,14px)}
+#cinema-progress{font-size:clamp(12px,1vw,16px)}
+.cinema-viewport{
+ height:auto;min-height:0;min-width:0;position:relative;
+ padding:clamp(10px,1.3vh,20px) clamp(50px,6vw,115px);
+ background:radial-gradient(ellipse at center,#332848a6 0%,#080918 70%);
+ display:flex;align-items:center;justify-content:center;
+}
+.cinema-viewport img#cinema-img{
+ display:block;width:100%;height:100%;max-width:100%;max-height:100%;
+ object-fit:contain;filter:drop-shadow(0 15px 35px #000c);
+ animation:art-reveal .45s ease both;
+}
+.cinema-bottom{
+ min-height:68px;display:flex;align-items:center;justify-content:space-between;
+ gap:18px;padding:10px clamp(20px,3vw,55px);
+ background:linear-gradient(0deg,#090b18ec,#0b0d1dcc);
+ border-top:1px solid #ffffff18;
+}
+.cinema-nav{justify-content:center}
+.cinema-nav button{min-height:41px;font-size:clamp(12px,1vw,15px);border-radius:12px}
+.cinema-arrow{
+ top:50%;bottom:auto;transform:translateY(-50%);
+ width:clamp(39px,3.3vw,56px);height:clamp(52px,6vw,76px);
+ background:#10132955;border:1px solid #ffffff2b;
+ backdrop-filter:blur(7px);border-radius:15px;
+}
+.cinema-arrow.left{left:clamp(6px,1.4vw,25px)}
+.cinema-arrow.right{right:clamp(6px,1.4vw,25px)}
+.cinema-filmstrip{display:none!important}
+@media(max-width:780px){
+ .artist-brand{max-width:50vw}
+ .artist-brand .artist-mark{font-size:clamp(26px,5vw,45px)}
+ .artist-brand .artist-presenter{font-size:clamp(18px,3vw,27px)}
+ .cinema-top{min-height:70px;padding:11px 15px}
+ .cinema-viewport{height:auto;padding:8px 47px}
+ .cinema-bottom{min-height:84px;padding:10px 14px}
+ .cinema-tools{font-size:11px}
+}
+@media(max-width:540px){
+ .artist-brand{max-width:51vw;gap:2px}
+ .artist-brand .artist-mark{font-size:clamp(23px,6.2vw,37px)}
+ .artist-brand .artist-presenter{display:block!important;font-size:clamp(17px,4.2vw,24px);line-height:1.25}
+ .artist-topline{align-items:center}
+ .cinema.active{grid-template-rows:auto minmax(0,1fr) auto}
+ .cinema-top{min-height:74px}
+ .cinema-top h2{font-size:clamp(21px,5.6vw,31px)}
+ .cinema-viewport{height:auto;min-height:0;padding:8px 41px}
+ .cinema-viewport img#cinema-img{height:100%;max-height:100%}
+ .cinema-arrow{top:50%;bottom:auto;transform:translateY(-50%);height:50px;width:36px;font-size:29px}
+ .cinema-arrow.left{left:3px}.cinema-arrow.right{right:3px}
+ .cinema-bottom{min-height:107px;align-items:center;justify-content:center;gap:7px}
+ .cinema-nav{width:100%;justify-content:center}
+ .cinema-nav button{font-size:11px;min-height:35px;padding:7px}
+ .cinema-tools{justify-content:center}
+}
+@media(prefers-reduced-motion:reduce){.cinema-viewport img#cinema-img{animation:none!important}}

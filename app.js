@@ -23,15 +23,16 @@ let wallMode='wall';
 let selection=new Set();
 let featuredArtist=null,featuredIndex=0;
 let seedRecoverySource='embedded JSON';
+let cinemaNativeFullscreen=false;
 const prefersReduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const help={
   about:['What is TwentyX?','TwentyX Presented By ArtVision is a multidimensional self-evolving art exhibition. Every artist curates twenty works of art on X. Enter their solo exhibitions, experience the work in multiple dimensions, and follow the artists who made it.'],
   updates:['When does the gallery update?','TwentyX introduces newly curated exhibitions at 6:00 AM and 6:00 PM Pacific Time. Return to discover new artists and explore their twenty works.'],
   join:['How to participate','Your post must contain exactly 20 artworks to appear in TwentyX. Posts containing 1–19 are not eligible. Twenty is the maximum number allowed in a single X post. Include #TwentyX and share your work with ArtVision on X; each complete exhibition is verified before inclusion.'],
   browse:['Exploring the exhibition','Select an artist to view all twenty works on a full-width exhibition wall, or switch to the spatial carousel. Use Surprise me for a chance encounter. The slideshow studio lets you select any combination of artists, or play the entire gallery.'],
-  qr:['What does the exhibition brochure do?','Download a portrait-format exhibition invitation featuring all twenty original works, the artist’s curatorial credit, and a scannable QR code linking to their full-sized solo exhibition. The link will function on the public domain when this update is published.'],
+  qr:['What does the exhibition brochure do?','Download an artist-curated TwentyX exhibition brochure with twenty works, a curatorial credit and a scannable QR code. The full-size PNG is preferred, with an instantly downloadable vector edition as a fallback.'],
   spatial:['About the spatial carousel','A cinematic, three-panel perspective viewer. The original two-dimensional artworks remain unchanged. Use Previous or Next to cycle through all twenty; click the center image to enter the immersive viewer.'],
-  cinema:['Cinematic slideshow controls','Left and right arrows move between artworks. Up and down arrows switch between the artists you selected. On touchscreens, swipe horizontally for artwork and vertically to move between artists. Space toggles autoplay; Escape exits. Camera gestures are not required or enabled.']
+  cinema:['Cinematic slideshow controls','The fullscreen cinema shows one artwork at a time, without a thumbnail strip covering it. Use left/right arrows or swipe to change works, and up/down to switch artists. Space pauses or plays, and Escape exits. The spatial carousel remains the interactive three-dimensional viewing mode.']
 };
 function parsePost(url){
  try{
@@ -256,17 +257,28 @@ function selectAll(checked){
  selection=checked?new Set(artists.map(artistID)):new Set();
  updateSelectionCount();
 }
-function showCinema(){
- const c=byId('cinema');c.classList.add('active');c.setAttribute('aria-hidden','false');
- document.body.style.overflow='hidden';c.focus();
- // The center modal is immersive but does not seize the operating-system fullscreen state.
+function showCinema(fullscreen=false){
+ const c=byId('cinema');
+ c.classList.add('active');
+ c.setAttribute('aria-hidden','false');
+ document.body.style.overflow='hidden';
+ c.focus();
+ // Only the explicitly chosen Fullscreen Show requests native fullscreen.
+ // Artwork magnification stays in a centered, full-size gallery overlay.
+ if(fullscreen && typeof c.requestFullscreen==='function'){
+  try{
+   Promise.resolve(c.requestFullscreen({navigationUI:'hide'}))
+    .then(()=>{cinemaNativeFullscreen=Boolean(document.fullscreenElement)})
+    .catch(()=>{cinemaNativeFullscreen=false});
+  }catch{cinemaNativeFullscreen=false}
+ }
 }
 function startCinema(list,artistIndex,artIndex,autoplay){
  if(!list.length)return;
  lastFocus=document.activeElement;
  viewerArtists=list.slice();viewerArtistIndex=artistIndex||0;viewerWorkIndex=artIndex||0;
  if(byId('selection-modal').open)byId('selection-modal').close();
- showCinema();renderCinema();setPlaying(Boolean(autoplay)&&!prefersReduced);
+ showCinema(Boolean(autoplay));renderCinema();setPlaying(Boolean(autoplay)&&!prefersReduced);
 }
 function renderCinema(){
  if(!viewerArtists.length)return;
@@ -277,16 +289,7 @@ function renderCinema(){
  const image=byId('cinema-img');
  image.src=a.media[viewerWorkIndex];image.alt='Artwork '+(viewerWorkIndex+1)+' of 20 by '+a.name;
  image.style.animation='none';void image.offsetWidth;image.style.animation='';
- const rail=byId('cinema-filmstrip');rail.replaceChildren();
- a.media.forEach((src,i)=>{
-  const thumb=button('','',()=>{viewerWorkIndex=i;renderCinema()});
-  const picture=create('img');picture.src=src;picture.alt='Artwork '+(i+1);picture.loading='lazy';
-  thumb.append(picture);
-  thumb.setAttribute('aria-label','Go to artwork '+(i+1));
-  if(i===viewerWorkIndex)thumb.classList.add('active');
-  rail.append(thumb);
- });
- const focused=rail.querySelector('.active');if(focused&&focused.scrollIntoView)focused.scrollIntoView({block:'nearest',inline:'center'});
+ // No thumbnail strip in cinema: the current artwork fills the entire stage.
 }
 function cinemaStep(delta){
  viewerWorkIndex+=delta;
@@ -307,7 +310,8 @@ function stopCinema(){
  setPlaying(false);
  const el=byId('cinema');el.classList.remove('active');el.setAttribute('aria-hidden','true');
  document.body.style.overflow='';
- if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
+ if(document.fullscreenElement && typeof document.exitFullscreen==='function') Promise.resolve(document.exitFullscreen()).catch(()=>{});
+ cinemaNativeFullscreen=false;
  viewerArtists=[];
  if(lastFocus&&lastFocus.isConnected)lastFocus.focus();
 }
@@ -321,47 +325,38 @@ async function copyLink(url,target){
 }
 /* Share poster is composed from the artist's identity, never generates or changes their art. */
 async function downloadPoster(a,target){
- const original=target.textContent;target.disabled=true;target.textContent='Preparing collector brochure…';
+ const original=target.textContent;
+ target.disabled=true;
+ target.textContent='Preparing exhibition brochure…';
  try{
-  const filename='/welcome/'+artistHandle(a).toLowerCase()+'-'+artistID(a)+'.png';
-  const prepared=await fetch(filename,{method:'HEAD',cache:'no-store'}).catch(()=>null);
-  if(prepared?.ok){
-   const response=await fetch(filename);
-   if(!response.ok)throw Error('Could not retrieve collector brochure');
-   const blob=await response.blob(),objectURL=URL.createObjectURL(blob);
-   const download=document.createElement('a');download.href=objectURL;
-   download.download='TwentyX-'+artistHandle(a)+'-brochure.png';
-   document.body.append(download);download.click();download.remove();
-   setTimeout(()=>URL.revokeObjectURL(objectURL),6000);return;
-  }
-  if(!window.QRCode)throw Error('QR renderer unavailable. Please refresh while online.');
-  const c=document.createElement('canvas');c.width=1080;c.height=1350;
-  const ctx=c.getContext('2d');
-  const g=ctx.createLinearGradient(0,0,1080,1350);
-  g.addColorStop(0,'#12122c');g.addColorStop(.56,'#5a2a50');g.addColorStop(1,'#263a61');
-  ctx.fillStyle=g;ctx.fillRect(0,0,1080,1350);
-  ctx.fillStyle='#f4a2c8';ctx.font='bold 34px Inter, sans-serif';ctx.fillText('ARTVISION X  /  TWENTYX',74,114);
-  ctx.fillStyle='#ffffff';ctx.font='900 112px Inter, sans-serif';ctx.fillText('WELCOME',66,308);
-  ctx.fillStyle='#f4a2c8';ctx.fillText('TO THE 20.',66,426);
-  let fontSize=88;
-  do{ctx.font='800 '+fontSize+'px Inter, sans-serif';fontSize-=2}while(ctx.measureText(a.name).width>920&&fontSize>26);
-  ctx.fillStyle='#ffffff';ctx.fillText('CURATED BY',74,520);ctx.fillText(a.name,74,600);
-  ctx.font='32px Inter, sans-serif';ctx.fillStyle='#e3d6ee';ctx.fillText('@'+artistHandle(a)+'  ·  20 WORKS / ONE POST',76,635);
-  ctx.fillStyle='#ffffff';ctx.fillRect(76,711,445,445);
-  const qr=await window.QRCode.toDataURL(artistURL(a),{width:420,margin:2,errorCorrectionLevel:'H',color:{dark:'#1b1432',light:'#ffffff'}});
-  const img=new Image();img.src=qr;await img.decode();ctx.drawImage(img,88,724,420,420);
-  ctx.font='bold 41px Inter, sans-serif';ctx.fillStyle='#ffffff';
-  ctx.fillText('EXPLORE',552,824);ctx.fillText('THE FULL',552,880);ctx.fillText('COLLECTION',552,936);
-  ctx.font='27px Inter, sans-serif';ctx.fillStyle='#e9d6f2';
-  ctx.fillText('Scan to explore the full size',552,1010);ctx.fillText('exhibition.',552,1051);
-  ctx.font='30px Inter, sans-serif';ctx.fillStyle='#f4a2c8';
-  ctx.fillText('#TWENTYX • Twenty works of art on X',74,1255);
-  const out=document.createElement('a');out.download='TwentyX-'+artistHandle(a)+'-welcome.png';
-  out.href=c.toDataURL('image/png');document.body.append(out);out.click();out.remove();
- }catch(error){window.alert('Could not create poster: '+error.message)}
- finally{target.disabled=false;target.textContent=original}
+  const base='/welcome/'+artistHandle(a).toLowerCase()+'-'+artistID(a);
+  const png=base+'.png',svg=base+'.svg';
+  // Full-resolution, self-contained PNGs are preferred if generated.
+  // The SVG is built for every artist on every publish, so download never
+  // depends on a QR CDN, popup, browser canvas, or unavailable artwork fetch.
+  let href=svg,ext='svg';
+  try{
+   const response=await fetch(png,{method:'HEAD',cache:'no-store'});
+   if(response.ok){href=png;ext='png'}
+  }catch{ /* Use the guaranteed static brochure. */ }
+  const download=document.createElement('a');
+  download.href=href;
+  download.download='TwentyX-'+artistHandle(a)+'-exhibition.'+ext;
+  download.setAttribute('aria-label','Download exhibition brochure as '+ext.toUpperCase());
+  document.body.append(download);
+  download.click();
+  download.remove();
+ }catch(error){
+  window.alert('Brochure download unavailable. Please try again: '+error.message);
+ }finally{
+  target.disabled=false;
+  target.textContent=original;
+ }
 }
 function bindUI(){
+ document.addEventListener('fullscreenchange',()=>{
+  if(cinemaNativeFullscreen && !document.fullscreenElement && byId('cinema').classList.contains('active')) stopCinema();
+ });
  document.addEventListener('click',popFollow);
  byId('home-link').addEventListener('click',event=>{event.preventDefault();goHome()});
  byId('feature-artwork').addEventListener('click',()=>{if(featuredArtist)startCinema([featuredArtist],0,featuredIndex,false)});
