@@ -8,7 +8,7 @@
 <title>Dylan BG Dev — TwentyX Presented By ArtVision</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Oxanium:wght@500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://fonts.cdnfonts.com/css/dune-rise" rel="stylesheet">
 <style>
 
@@ -308,6 +308,132 @@ button,input,select{font:inherit}a{color:inherit}button{cursor:pointer}button:di
 }
 @media(prefers-reduced-motion:reduce){.cinema-viewport img#cinema-img{animation:none!important}}
 
+
+/* TWENTYX v6: kinetic, responsive sci-fi exhibition typography.
+   Oxanium is OFL-licensed; brand remains Dune Rise. */
+.feature-caption{min-width:0}
+.feature-chamber{grid-template-columns:minmax(0,1.28fr) minmax(315px,.72fr)}
+.feature-artist-name,
+.spotlight-title-wrap h1,
+.card-name{
+ font-family:'Oxanium',Inter,system-ui,sans-serif;
+ font-weight:800;
+ letter-spacing:-.065em;
+ font-kerning:normal;
+}
+.feature-artist-name{
+ font-size:clamp(2.2rem,5.7vw,7.2rem);
+ line-height:1.06;
+ overflow-wrap:normal;
+ word-break:normal;
+ text-wrap:balance;
+ background:linear-gradient(115deg,#fdfaff 4%,#f9d3ed 34%,#e7b0ef 51%,#fff9ff 70%,#f4a2c8 95%);
+ background-size:240% 100%;
+ background-clip:text;
+ color:transparent;
+ animation:artist-chrome 16s ease-in-out infinite alternate;
+}
+.feature-artist-name.single-moniker,
+.spotlight-title-wrap h1.single-moniker{white-space:nowrap;text-wrap:nowrap;overflow-wrap:normal;word-break:normal}
+.feature-artist-name.single-moniker{overflow:hidden}
+.spotlight-title-wrap{width:100%;flex:1;min-width:0}
+.spotlight-title-wrap h1{
+ font-size:clamp(3.1rem,9vw,10.4rem);
+ line-height:1.14;
+ letter-spacing:-.072em;
+ overflow-wrap:normal;
+ word-break:normal;
+}
+.spotlight-title-wrap h1.single-moniker{overflow:hidden}
+.card-name{font-size:clamp(20px,1.9vw,29px);letter-spacing:-.045em}
+@keyframes artist-chrome{
+ 0%,12%{background-position:0% 50%;filter:drop-shadow(0 0 0px transparent)}
+ 65%,100%{background-position:100% 50%;filter:drop-shadow(0 0 14px #f4a2c824)}
+}
+@keyframes art-buoyancy{
+ 0%{transform:translate3d(0,0,0)}
+ 50%{transform:translate3d(0,-10px,0)}
+ 100%{transform:translate3d(0,0,0)}
+}
+@keyframes gallery-entrance{
+ from{opacity:.35;transform:translate3d(0,34px,0) scale(.982);filter:blur(3px)}
+ to{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0)}
+}
+@keyframes light-trace{
+ from{background-position:0% 0%}
+ to{background-position:190% 0%}
+}
+.feature-art-wrapper{animation:art-buoyancy 12s ease-in-out infinite}
+.feature-chamber::after{
+ background:linear-gradient(112deg,transparent 0%,#f4a2c80c 37%,#cfc9ff18 49%,transparent 62%);
+ background-size:220% 100%;
+ animation:light-trace 16s linear infinite alternate;
+}
+.feature-caption{animation:gallery-entrance .9s cubic-bezier(.22,.78,.2,1) both}
+.collection-card.art-entered,
+.artist-wall .artwork-thumb.art-entered{
+ animation:gallery-entrance .82s cubic-bezier(.22,.78,.2,1) both;
+}
+.collection-card.art-entered:hover{animation-fill-mode:backwards}
+.artist-wall .artwork-thumb.art-entered:hover{animation-fill-mode:backwards}
+.card-meta{transition:background .45s ease}
+.collection-card:hover .card-meta{
+ background:linear-gradient(120deg,#f4a2c818,#d7aaf00b 60%,transparent)
+}
+/* In autoplay, gallery furniture disappears and the artwork occupies the
+   entire screen. Any pointer movement, touch or keyboard action wakes it. */
+.cinema.active{
+ transition:grid-template-rows .7s cubic-bezier(.22,.7,.2,1);
+}
+.cinema.active .cinema-top,
+.cinema.active .cinema-bottom,
+.cinema.active .cinema-arrow{
+ transition:opacity .6s ease,visibility .6s ease,transform .6s ease,
+            min-height .65s ease,padding .65s ease;
+}
+.cinema.active.playing.controls-hidden{
+ grid-template-rows:0px minmax(0,1fr) 0px;
+ cursor:none;
+}
+.cinema.active.playing.controls-hidden .cinema-top,
+.cinema.active.playing.controls-hidden .cinema-bottom{
+ opacity:0;
+ visibility:hidden;
+ pointer-events:none;
+ min-height:0;
+ height:0;
+ padding:0;
+ overflow:hidden;
+ border:0;
+}
+.cinema.active.playing.controls-hidden .cinema-arrow{
+ opacity:0;
+ visibility:hidden;
+ pointer-events:none;
+}
+.cinema.active.playing.controls-hidden .cinema-viewport{
+ padding:clamp(4px,1vh,14px) clamp(14px,2vw,36px);
+}
+@media(max-width:900px){
+ .feature-chamber{grid-template-columns:1fr}
+ .feature-artist-name{font-size:clamp(2.5rem,8vw,5.2rem)}
+}
+@media(max-width:540px){
+ .feature-artist-name{font-size:clamp(1.9rem,9vw,4.3rem)}
+ .spotlight-title-wrap h1{font-size:clamp(2.8rem,12vw,5rem)}
+ .feature-art-wrapper{animation-duration:14s}
+ .cinema.active.playing.controls-hidden .cinema-viewport{padding:5px}
+}
+@media(prefers-reduced-motion:reduce){
+ .feature-art-wrapper,.feature-chamber::after,
+ .feature-artist-name,.feature-caption,
+ .collection-card.art-entered,.artist-wall .artwork-thumb.art-entered{
+  animation:none!important;transition:none!important
+ }
+ .cinema.active .cinema-top,.cinema.active .cinema-bottom,
+ .cinema.active .cinema-arrow,.cinema.active{transition:none!important}
+}
+
 </style>
 
 <link rel="canonical" href="https://twentyx.artvision.today/@dylanbrion71545/">
@@ -461,6 +587,8 @@ let selection=new Set();
 let featuredArtist=null,featuredIndex=0;
 let seedRecoverySource='embedded JSON';
 let cinemaNativeFullscreen=false;
+let cinemaFadeTimer=null;
+let cardRevealObserver=null;
 const prefersReduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const help={
   about:['What is TwentyX?','TwentyX Presented By ArtVision is a multidimensional self-evolving art exhibition. Every artist curates twenty works of art on X. Enter their solo exhibitions, experience the work in multiple dimensions, and follow the artists who made it.'],
@@ -565,12 +693,58 @@ function featureWork(next=false){
   img.alt='Featured work '+(featuredIndex+1)+' of 20 curated by '+featuredArtist.name;
   byId('feature-number').textContent=String(featuredIndex+1).padStart(2,'0')+' / 20';
   byId('feature-title').textContent=featuredArtist.name;
+  fitArtistHeadlines();
   byId('feature-subline').textContent='An exhibition curated by '+featuredArtist.name+' · '+featuredArtist.date;
   img.classList.remove('change');
  };
  if(prefersReduced||!next)reveal();
  else window.setTimeout(reveal,220);
 }
+
+/** Preserve a single-word artist moniker on one line at any viewport size. */
+function fitArtistHeadlines(){
+ const definitions=[['feature-title',114,26],['artist-title',172,30]];
+ for(const [id,maximum,minimum] of definitions){
+  const heading=byId(id);
+  if(!heading)continue;
+  const name=heading.textContent.trim();
+  const oneWord=Boolean(name)&&!/\s/.test(name);
+  heading.classList.toggle('single-moniker',oneWord);
+  heading.style.removeProperty('font-size');
+  if(!oneWord)continue;
+  // Hidden pages and the jsdom test environment have no measurable width;
+  // CSS nowrap is the reliable fallback in those situations.
+  const available=heading.clientWidth;
+  if(available<30)continue;
+  let size=Math.min(maximum,Math.max(minimum,window.innerWidth*(id==='feature-title'?.085:.11)));
+  heading.style.fontSize=size+'px';
+  while(size>minimum && heading.scrollWidth>heading.clientWidth+1){
+   size=Math.max(minimum,size-2);
+   heading.style.fontSize=size+'px';
+  }
+ }
+}
+function scheduleHeadlineFit(){
+ fitArtistHeadlines();
+ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(fitArtistHeadlines).catch(()=>{});
+}
+function revealCards(root=document){
+ if(prefersReduced||typeof IntersectionObserver!=='function')return;
+ if(!cardRevealObserver){
+  cardRevealObserver=new IntersectionObserver(entries=>{
+   for(const entry of entries){
+    if(!entry.isIntersecting)continue;
+    entry.target.classList.add('art-entered');
+    cardRevealObserver.unobserve(entry.target);
+   }
+  },{threshold:.13,rootMargin:'0px 0px 35px 0px'});
+ }
+ root.querySelectorAll('.collection-card,.artist-wall .artwork-thumb').forEach((el,index)=>{
+  el.style.animationDelay=(index%9*65)+'ms';
+  cardRevealObserver.observe(el);
+ });
+}
+
 function sourceArtistsFromArtworkDOM(){
  // Independent fallback: the initial HTML itself contains twenty images per artist.
  const result=[];
@@ -604,6 +778,7 @@ function renderHome(){
  });
  if(!shown.length)root.append(create('div','empty','No artists match this search. Try another name or handle.'));
  byId('home-status').textContent=shown.length+' complete collections · All contain twenty artworks';
+ revealCards(root);
 }
 function changeMode(mode){
  wallMode=mode;
@@ -637,12 +812,14 @@ function renderArtist(a){
  currentArtist=a;
  document.title=a.name+' • TwentyX Gallery';
  byId('artist-title').textContent=a.name;
+ fitArtistHeadlines();
  byId('artist-handle').textContent='@'+artistHandle(a)+'  ·  20 / 20 works';
  byId('artist-date').textContent=a.date||'';
  byId('follow-link').href=followIntent(a);byId('follow-link').dataset.follow='true';
  byId('original-link').href=a.postUrl;
  const wall=byId('artist-wall');wall.replaceChildren();
  a.media.forEach((_,i)=>wall.append(makeTile(a,i)));
+ revealCards(wall);
  spatialIndex=0;
  changeMode('wall');
  const index=artists.findIndex(item=>artistID(item)===artistID(a));
@@ -738,14 +915,32 @@ function cinemaArtistStep(delta){
  viewerArtistIndex=(viewerArtistIndex+delta+viewerArtists.length)%viewerArtists.length;
  viewerWorkIndex=0;renderCinema();
 }
+function hideCinemaControls(){
+ const cinema=byId('cinema');
+ if(!prefersReduced && cinema.classList.contains('active') && cinema.classList.contains('playing')){
+  cinema.classList.add('controls-hidden');
+ }
+}
+function revealCinemaControls(){
+ const cinema=byId('cinema');
+ cinema.classList.remove('controls-hidden');
+ if(cinemaFadeTimer){clearTimeout(cinemaFadeTimer);cinemaFadeTimer=null}
+ if(!prefersReduced && cinema.classList.contains('active') && cinema.classList.contains('playing')){
+  cinemaFadeTimer=setTimeout(hideCinemaControls,2400);
+ }
+}
 function setPlaying(playing){
  if(timer){clearInterval(timer);timer=null}
+ const cinema=byId('cinema');
+ cinema.classList.toggle('playing',playing);
  byId('cinema-play').textContent=playing?'Ⅱ Pause':'▶ Play';
  if(playing)timer=setInterval(()=>cinemaStep(1),Number(byId('cinema-speed').value)||5000);
+ revealCinemaControls();
 }
 function stopCinema(){
  setPlaying(false);
- const el=byId('cinema');el.classList.remove('active');el.setAttribute('aria-hidden','true');
+ const el=byId('cinema');el.classList.remove('active','playing','controls-hidden');el.setAttribute('aria-hidden','true');
+ if(cinemaFadeTimer){clearTimeout(cinemaFadeTimer);cinemaFadeTimer=null}
  document.body.style.overflow='';
  if(document.fullscreenElement && typeof document.exitFullscreen==='function') Promise.resolve(document.exitFullscreen()).catch(()=>{});
  cinemaNativeFullscreen=false;
@@ -791,6 +986,12 @@ async function downloadPoster(a,target){
  }
 }
 function bindUI(){
+ const cinema=byId('cinema');
+ cinema.addEventListener('pointermove',revealCinemaControls);
+ cinema.addEventListener('touchstart',revealCinemaControls,{passive:true});
+ cinema.addEventListener('focusin',revealCinemaControls);
+ cinema.addEventListener('click',revealCinemaControls);
+ window.addEventListener('resize',fitArtistHeadlines);
  document.addEventListener('fullscreenchange',()=>{
   if(cinemaNativeFullscreen && !document.fullscreenElement && byId('cinema').classList.contains('active')) stopCinema();
  });
@@ -834,6 +1035,7 @@ function bindUI(){
  byId('cinema-speed').addEventListener('change',()=>{if(timer)setPlaying(true)});
  document.addEventListener('keydown',event=>{
   if(byId('cinema').classList.contains('active')){
+   revealCinemaControls();
    if(byId('help-modal').open)return;
    const key=event.key;
    if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' ','Escape'].includes(key))event.preventDefault();
@@ -875,6 +1077,7 @@ async function syncLatestExhibitions(){
   byId('work-count').textContent=(artists.length*20).toLocaleString();
   if(!byId('cinema').classList.contains('active'))renderRoute();
   featureWork(false);
+  scheduleHeadlineFit();
  }catch(error){console.warn('Live stats refresh deferred:',error.message)}
 }
 async function load(){
@@ -899,6 +1102,7 @@ async function load(){
   byId('work-count').textContent=(artists.length*20).toLocaleString();
   renderRoute();
   featureWork(false);
+  scheduleHeadlineFit();
  }
  try{
   const response=await fetch('/artists.json?v='+Math.floor(Date.now()/900000),{cache:'no-store'});
