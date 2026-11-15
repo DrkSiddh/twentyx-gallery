@@ -221,8 +221,94 @@ button,input,select{font:inherit}a{color:inherit}button{cursor:pointer}button:di
 @media(max-width:540px){.cinema{padding:0}.cinema-top,.cinema-bottom,.cinema-viewport{width:100%;border-radius:0}.cinema-viewport{height:calc(100dvh - 180px);min-height:200px}.cinema-filmstrip{bottom:10px;left:45px;right:45px}.cinema-top{min-height:75px}.cinema-bottom{min-height:95px}}
 @media(prefers-reduced-motion:reduce){.feature-aura,.feature-depthline,.iridescent{animation:none!important}.feature-artwork,.feature-artwork img{transition:none!important}}
 
+
+/* V5: an unobstructed, true fullscreen cinema. The spatial carousel
+   stays the manual 3D viewer; cinema is a presentation, not a second rail. */
+.artist-brand{display:flex;flex-direction:column;align-items:flex-end;gap:5px;max-width:min(55vw,530px);text-align:right}
+.artist-brand .artist-mark{
+ display:block;font-family:'Dune Rise',Inter,sans-serif;
+ font-size:clamp(33px,4.2vw,66px);line-height:1.18;letter-spacing:-.045em;
+ white-space:nowrap;-webkit-text-fill-color:transparent
+}
+.artist-brand .artist-presenter{
+ display:block!important;font-family:'Dune Rise',Inter,sans-serif;
+ font-size:clamp(21px,2.55vw,36px);line-height:1.3;letter-spacing:.015em;
+ white-space:normal;-webkit-text-fill-color:transparent;text-transform:none
+}
+.artist-brand .artist-presenter.iridescent{background-size:270% 100%}
+.cinema.active{
+ display:grid;grid-template-rows:auto minmax(0,1fr) auto;
+ padding:0;place-items:stretch;gap:0;
+ background:#050712f2;backdrop-filter:blur(20px)
+}
+.cinema-top,.cinema-bottom,.cinema-viewport{
+ width:100%;max-width:100%;border:0;border-radius:0;
+ box-shadow:none
+}
+.cinema-top{
+ min-height:80px;padding:13px clamp(20px,3vw,55px);
+ background:linear-gradient(180deg,#080a18f2,#090a17d1)
+}
+.cinema-top h2{font-size:clamp(24px,2.8vw,43px);line-height:1.06}
+.cinema-kicker{font-size:clamp(10px,.9vw,14px)}
+#cinema-progress{font-size:clamp(12px,1vw,16px)}
+.cinema-viewport{
+ height:auto;min-height:0;min-width:0;position:relative;
+ padding:clamp(10px,1.3vh,20px) clamp(50px,6vw,115px);
+ background:radial-gradient(ellipse at center,#332848a6 0%,#080918 70%);
+ display:flex;align-items:center;justify-content:center;
+}
+.cinema-viewport img#cinema-img{
+ display:block;width:100%;height:100%;max-width:100%;max-height:100%;
+ object-fit:contain;filter:drop-shadow(0 15px 35px #000c);
+ animation:art-reveal .45s ease both;
+}
+.cinema-bottom{
+ min-height:68px;display:flex;align-items:center;justify-content:space-between;
+ gap:18px;padding:10px clamp(20px,3vw,55px);
+ background:linear-gradient(0deg,#090b18ec,#0b0d1dcc);
+ border-top:1px solid #ffffff18;
+}
+.cinema-nav{justify-content:center}
+.cinema-nav button{min-height:41px;font-size:clamp(12px,1vw,15px);border-radius:12px}
+.cinema-arrow{
+ top:50%;bottom:auto;transform:translateY(-50%);
+ width:clamp(39px,3.3vw,56px);height:clamp(52px,6vw,76px);
+ background:#10132955;border:1px solid #ffffff2b;
+ backdrop-filter:blur(7px);border-radius:15px;
+}
+.cinema-arrow.left{left:clamp(6px,1.4vw,25px)}
+.cinema-arrow.right{right:clamp(6px,1.4vw,25px)}
+.cinema-filmstrip{display:none!important}
+@media(max-width:780px){
+ .artist-brand{max-width:50vw}
+ .artist-brand .artist-mark{font-size:clamp(26px,5vw,45px)}
+ .artist-brand .artist-presenter{font-size:clamp(18px,3vw,27px)}
+ .cinema-top{min-height:70px;padding:11px 15px}
+ .cinema-viewport{height:auto;padding:8px 47px}
+ .cinema-bottom{min-height:84px;padding:10px 14px}
+ .cinema-tools{font-size:11px}
+}
+@media(max-width:540px){
+ .artist-brand{max-width:51vw;gap:2px}
+ .artist-brand .artist-mark{font-size:clamp(23px,6.2vw,37px)}
+ .artist-brand .artist-presenter{display:block!important;font-size:clamp(17px,4.2vw,24px);line-height:1.25}
+ .artist-topline{align-items:center}
+ .cinema.active{grid-template-rows:auto minmax(0,1fr) auto}
+ .cinema-top{min-height:74px}
+ .cinema-top h2{font-size:clamp(21px,5.6vw,31px)}
+ .cinema-viewport{height:auto;min-height:0;padding:8px 41px}
+ .cinema-viewport img#cinema-img{height:100%;max-height:100%}
+ .cinema-arrow{top:50%;bottom:auto;transform:translateY(-50%);height:50px;width:36px;font-size:29px}
+ .cinema-arrow.left{left:3px}.cinema-arrow.right{right:3px}
+ .cinema-bottom{min-height:107px;align-items:center;justify-content:center;gap:7px}
+ .cinema-nav{width:100%;justify-content:center}
+ .cinema-nav button{font-size:11px;min-height:35px;padding:7px}
+ .cinema-tools{justify-content:center}
+}
+@media(prefers-reduced-motion:reduce){.cinema-viewport img#cinema-img{animation:none!important}}
+
 </style>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js" defer></script>
 
 <link rel="canonical" href="https://twentyx.artvision.today/@stunnifer/">
 <meta property="og:title" content="Stunnifer — TwentyX">
@@ -301,7 +387,7 @@ button,input,select{font:inherit}a{color:inherit}button{cursor:pointer}button:di
 <section id="artist-view" hidden aria-labelledby="artist-title">
  <div class="artist-topline">
   <button id="back-to-all" class="back-link" type="button">← Back to all artists</button>
-  <div class="artist-brand iridescent">TWENTYX<span> / SOLO EXHIBITION</span></div>
+  <div class="artist-brand"><span class="artist-mark iridescent">TWENTYX</span><span class="artist-presenter iridescent">Presented by ArtVision</span></div>
  </div>
  <div class="spotlight-heading">
   <div class="spotlight-title-wrap"><div class="overline">TWENTYX PRESENTED BY ARTVISION <span class="dash"></span> ARTIST CURATION <span class="twenty-badge">20 / 20</span></div><h1 id="artist-title">Artist</h1><div class="artist-byline"><span id="artist-handle"></span><span id="artist-date"></span></div></div>
@@ -344,7 +430,7 @@ button,input,select{font:inherit}a{color:inherit}button{cursor:pointer}button:di
 <div id="cinema" class="cinema" role="dialog" aria-modal="true" aria-label="Immersive artwork viewer" aria-hidden="true" tabindex="-1">
  <div class="cinema-background" aria-hidden="true"></div>
  <div class="cinema-top"><div><span class="cinema-kicker">ARTVISION X / TWENTYX CINEMA</span><h2 id="cinema-artist"></h2><span id="cinema-progress"></span></div><div class="cinema-top-actions"><a id="cinema-follow" target="_blank" rel="noopener noreferrer">Follow on X ↗</a><button class="cinema-icon" id="cinema-info" aria-label="Slideshow help">i</button><button class="cinema-icon" id="cinema-close" aria-label="Exit slideshow">×</button></div></div>
- <div class="cinema-viewport"><button id="cinema-previous" class="cinema-arrow left" aria-label="Previous artwork">‹</button><img id="cinema-img" alt="Art in slideshow"><div id="cinema-filmstrip" class="cinema-filmstrip" aria-label="Artwork filmstrip"></div><button id="cinema-next" class="cinema-arrow right" aria-label="Next artwork">›</button></div>
+ <div class="cinema-viewport"><button id="cinema-previous" class="cinema-arrow left" aria-label="Previous artwork">‹</button><img id="cinema-img" alt="Art in slideshow"><button id="cinema-next" class="cinema-arrow right" aria-label="Next artwork">›</button></div>
  <div class="cinema-bottom"><div class="cinema-nav"><button id="cinema-previous-artist" type="button">↑ Previous artist</button><button id="cinema-play" type="button">▶ Play</button><button id="cinema-next-artist" type="button">↓ Next artist</button></div><div class="cinema-tools"><label for="cinema-speed">Interval <select id="cinema-speed"><option value="3000">3s</option><option value="5000" selected>5s</option><option value="8000">8s</option><option value="12000">12s</option></select></label><span>← → artwork &nbsp; ↑ ↓ artist &nbsp; Space play/pause</span></div></div>
 </div>
 <script id="seeded-artists" type="application/json">[{"name":"Pepavaggio","postUrl":"https://x.com/Pepavaggio/status/2121763650881077596","date":"2026-11-14","media":["https://pbs.twimg.com/media/HXID96qaEAALnYx.jpg","https://pbs.twimg.com/media/HXID98RbYAAbP0U.jpg","https://pbs.twimg.com/media/HXID98IaIAAkuNm.jpg","https://pbs.twimg.com/media/HXID98OagAESvFs.jpg","https://pbs.twimg.com/media/HXID98PbQAAVZ-c.jpg","https://pbs.twimg.com/media/HXID98La4AAwj7d.jpg","https://pbs.twimg.com/media/HXID98NbMAAomgx.jpg","https://pbs.twimg.com/media/HXID98RbAAE6MTa.jpg","https://pbs.twimg.com/media/HXID98LaEAAvwjH.jpg","https://pbs.twimg.com/media/HXID98QbgAAwgkx.jpg","https://pbs.twimg.com/media/HXID98ObUAA6xIA.jpg","https://pbs.twimg.com/media/HXID98La0AA9ILL.jpg","https://pbs.twimg.com/media/HXID98OaUAAQrWy.jpg","https://pbs.twimg.com/media/HXID98aawAAVe_Z.jpg","https://pbs.twimg.com/media/HXID98NbUAAGGrM.jpg","https://pbs.twimg.com/media/HXID98QbMAAPP7s.jpg","https://pbs.twimg.com/media/HXID98RbAAAn4FD.jpg","https://pbs.twimg.com/media/HXID98QbwAEJ7kH.jpg","https://pbs.twimg.com/media/HXID98Ta0AAGhp1.jpg","https://pbs.twimg.com/media/HXID96raQAAfgOc.jpg"]},{"name":"Stunnifer","postUrl":"https://x.com/stunnifer/status/2121572867485626453","date":"2026-11-14","media":["https://pbs.twimg.com/media/HXFXQ35XcAAfG5t.jpg","https://pbs.twimg.com/media/HXFXQ38XYAAKFjF.jpg","https://pbs.twimg.com/media/HXFXQ38XAAAdkLK.jpg","https://pbs.twimg.com/media/HXFXQ36WMAAFxgb.jpg","https://pbs.twimg.com/media/HXFXQ39XEAASUGw.jpg","https://pbs.twimg.com/media/HXFXQ38XwAE9Bkb.jpg","https://pbs.twimg.com/media/HXFXQ3-XUAEPSY8.jpg","https://pbs.twimg.com/media/HXFXQ4CWYAAzzOe.jpg","https://pbs.twimg.com/media/HXFXQ3_WQAAjpBo.jpg","https://pbs.twimg.com/media/HXFXQ38XwAALu52.jpg","https://pbs.twimg.com/media/HXFXQ38WYAAkv-U.jpg","https://pbs.twimg.com/media/HXFXQ4AXIAANAul.jpg","https://pbs.twimg.com/media/HXFXQ4BWoAA2a6k.jpg","https://pbs.twimg.com/media/HXFXQ4iWMAE2AQU.jpg","https://pbs.twimg.com/media/HXFXQ3-XQAAPbkx.jpg","https://pbs.twimg.com/media/HXFXQ4kWEAA-r1v.jpg","https://pbs.twimg.com/media/HXFXQ4jXYAAOxdw.jpg","https://pbs.twimg.com/media/HXFXQ4iWkAAa2aZ.jpg","https://pbs.twimg.com/media/HXFXQ4iWwAA7zfQ.jpg","https://pbs.twimg.com/media/HXFXQ4iWoAAwL8E.jpg"]},{"name":"Cipher Voss","postUrl":"https://x.com/CipherVoss/status/2121401555081716009","date":"2026-11-14","media":["https://pbs.twimg.com/media/HXC7eD9WEAAHyd4.jpg","https://pbs.twimg.com/media/HXC7eD3WYAETh-c.jpg","https://pbs.twimg.com/media/HXC7eD5WYAAhFRh.jpg","https://pbs.twimg.com/media/HXC7eD6WQAAmrDf.jpg","https://pbs.twimg.com/media/HXC7eEOXoAAs81g.jpg","https://pbs.twimg.com/media/HXC7eD5WYAEDxGI.jpg","https://pbs.twimg.com/media/HXC7eD1XkAAewfq.jpg","https://pbs.twimg.com/media/HXC7eEMXUAACtDW.jpg","https://pbs.twimg.com/media/HXC7eEMWoAA38jp.jpg","https://pbs.twimg.com/media/HXC7eEIWcAEUiIR.jpg","https://pbs.twimg.com/media/HXC7eELWoAAwLj3.jpg","https://pbs.twimg.com/media/HXC7eEZWsAACI1L.jpg","https://pbs.twimg.com/media/HXC7eENW0AAy29i.jpg","https://pbs.twimg.com/media/HXC7eELWkAACyEA.jpg","https://pbs.twimg.com/media/HXC7eD4WIAAWYkp.jpg","https://pbs.twimg.com/media/HXC7eEOXEAADQ2T.jpg","https://pbs.twimg.com/media/HXC7eEYXgAEN4YZ.jpg","https://pbs.twimg.com/media/HXC7eEdW0AAM12x.jpg","https://pbs.twimg.com/media/HXC7eD6WIAE2d1o.jpg","https://pbs.twimg.com/media/HXC7eD-XwAAbREy.jpg"]},{"name":"Mint VGen Open","postUrl":"https://x.com/mintshiiii/status/2121422716037480647","date":"2026-11-14","media":["https://pbs.twimg.com/media/HXDOtGCXkAAwAk_.jpg","https://pbs.twimg.com/media/HXDOtFpXcAAYj18.jpg","https://pbs.twimg.com/media/HXDOtFkXkAA9tD5.jpg","https://pbs.twimg.com/media/HXDOtFqWYAArsiC.jpg","https://pbs.twimg.com/media/HXDOtFmWoAAotse.jpg","https://pbs.twimg.com/media/HXDOtFqW8AEMUC8.jpg","https://pbs.twimg.com/media/HXDOtFtWkAAwpyk.jpg","https://pbs.twimg.com/media/HXDOtFnXwAEcvOw.jpg","https://pbs.twimg.com/media/HXDOtFsXYAAvIug.jpg","https://pbs.twimg.com/media/HXDOtFtWMAA9V_K.jpg","https://pbs.twimg.com/media/HXDOtFuWQAAHzU1.jpg","https://pbs.twimg.com/media/HXDOtFrXMAATUKM.jpg","https://pbs.twimg.com/media/HXDOtFtXkAAhbEr.jpg","https://pbs.twimg.com/media/HXDOtFuXMAEdmS1.jpg","https://pbs.twimg.com/media/HXDOtFtXoAE4PPa.jpg","https://pbs.twimg.com/media/HXDOtFuWUAA5ZqI.jpg","https://pbs.twimg.com/media/HXDOtFtWEAAZ-su.jpg","https://pbs.twimg.com/media/HXDOtFuXAAAzmZr.jpg","https://pbs.twimg.com/media/HXDOtFvWkAEjXXA.jpg","https://pbs.twimg.com/media/HXDOtFwWUAAJhKd.jpg"]},{"name":"Dylan BG Dev","postUrl":"https://x.com/DylanBrion71545/status/2121416829780517290","date":"2026-11-14","media":["https://pbs.twimg.com/media/HXDJWd3XYAARXlF.jpg","https://pbs.twimg.com/media/HXDJWd1WAAAY4gt.jpg","https://pbs.twimg.com/media/HXDJWd1WEAIQiNg.jpg","https://pbs.twimg.com/media/HXDJWd4W4AAsVuU.jpg","https://pbs.twimg.com/media/HXDJWd2WUAAKNY-.jpg","https://pbs.twimg.com/media/HXDJWd4WgAEAV-Q.jpg","https://pbs.twimg.com/media/HXDJWd5W4AAszgM.jpg","https://pbs.twimg.com/media/HXDJWd1W4AA7sh7.jpg","https://pbs.twimg.com/media/HXDJWd1XsAI9LNN.jpg","https://pbs.twimg.com/media/HXDJWd2W4AAxwvI.jpg","https://pbs.twimg.com/media/HXDJWd0W8AAyyzJ.jpg","https://pbs.twimg.com/media/HXDJWdyWoAAFi4z.jpg","https://pbs.twimg.com/media/HXDJWd3XoAATsaz.jpg","https://pbs.twimg.com/media/HXDJWf7XAAAeHVl.jpg","https://pbs.twimg.com/media/HXDJWfRXsAAlUw9.jpg","https://pbs.twimg.com/media/HXDJWd1WEAEDJ87.jpg","https://pbs.twimg.com/media/HXDJWd3XgAATkuC.jpg","https://pbs.twimg.com/media/HXDJWd7XEAAt1yx.jpg","https://pbs.twimg.com/media/HXDJWd6WcAAt-iO.jpg","https://pbs.twimg.com/media/HXDJWd5WUAABnLu.jpg"]},{"name":"Fortune","postUrl":"https://x.com/For1un3/status/2121375550040080857","date":"2026-11-13","media":["https://pbs.twimg.com/media/HXCiHP1XUAAo5Ab.png","https://pbs.twimg.com/media/HXCiIjwXcAAW3cT.png","https://pbs.twimg.com/media/HXCiJ7CXkAEcyBC.jpg","https://pbs.twimg.com/media/HXCiWvgWoAAcu03.png","https://pbs.twimg.com/media/HXCiYjQWIAEuUzU.png","https://pbs.twimg.com/media/HXCiZr4X0AAackG.jpg","https://pbs.twimg.com/media/HXCii__XUAA9gaO.jpg","https://pbs.twimg.com/media/HXCikIFXwAEbSTU.jpg","https://pbs.twimg.com/media/HXCin1JXMAAj1Q_.png","https://pbs.twimg.com/media/HXCi2K3XUAAGASS.jpg","https://pbs.twimg.com/media/HXCi30MXIAAz7nc.jpg","https://pbs.twimg.com/media/HXCi4prWMAAaE6F.png","https://pbs.twimg.com/media/HXCi6kXWcAAcpp0.png","https://pbs.twimg.com/media/HXCi-mlWUAAH9uK.jpg","https://pbs.twimg.com/media/HXCjAQxXoAA9o2n.jpg","https://pbs.twimg.com/media/HXCjBLTW4AA-Jbl.jpg","https://pbs.twimg.com/media/HXCjDNLXoAAHbt2.jpg","https://pbs.twimg.com/media/HXCjL9AXEAAGi5p.png","https://pbs.twimg.com/media/HXCjQXTWgAEyDHl.jpg","https://pbs.twimg.com/media/HXCjbIpXoAE6_zM.jpg"]},{"name":"AyyZirly","postUrl":"https://x.com/AyyZirly/status/2121270156228014581","date":"2026-11-13","media":["https://pbs.twimg.com/media/HXBCP1wacAE5x8r.jpg","https://pbs.twimg.com/media/HXBCREqbQAAyoL9.jpg","https://pbs.twimg.com/media/HXBCW4CaYAAgo1O.jpg","https://pbs.twimg.com/media/HXBCYE7bwAAChum.jpg","https://pbs.twimg.com/media/HXBCjAabYAAhwK_.jpg","https://pbs.twimg.com/media/HXBCkRwbQAAIBDy.jpg","https://pbs.twimg.com/media/HXBCrcza4AAntap.jpg","https://pbs.twimg.com/media/HXBCt7maEAAYruv.jpg","https://pbs.twimg.com/media/HXBCwrvbQAAk7Wd.jpg","https://pbs.twimg.com/media/HXBC3rtakAAzQCF.jpg","https://pbs.twimg.com/media/HXBC6pHbMAAo0pO.jpg","https://pbs.twimg.com/media/HXBC7-pasAAFIZE.jpg","https://pbs.twimg.com/media/HXBDAQvb0AAFgQL.jpg","https://pbs.twimg.com/media/HXBDS1oa4AAkJOb.jpg","https://pbs.twimg.com/media/HXBDYf9boAEBz46.jpg","https://pbs.twimg.com/media/HXBDbbEagAEhS1g.jpg","https://pbs.twimg.com/media/HXBDgsHbAAALhwI.jpg","https://pbs.twimg.com/media/HXBDiQabAAE7gEc.jpg","https://pbs.twimg.com/media/HXBDmdwaMAEDwGv.jpg","https://pbs.twimg.com/media/HXBDrDNaQAAwqQA.jpg"]},{"name":"Blitz","postUrl":"https://x.com/PeriBlitzV2/status/2121241687746056574","date":"2026-11-13","media":["https://pbs.twimg.com/media/HW_cDZxXcAAdp2V.jpg","https://pbs.twimg.com/media/HW_cDZjW8AA27tv.jpg","https://pbs.twimg.com/media/HW_cDZnXMAAECfO.png","https://pbs.twimg.com/media/HW_cDZoWcAA05uc.jpg","https://pbs.twimg.com/media/HW_cDZ0XoAAWZlb.jpg","https://pbs.twimg.com/media/HW_cDaPW8AAbIes.jpg","https://pbs.twimg.com/media/HW_cDaRW4AE3dS3.jpg","https://pbs.twimg.com/media/HW_cDcIXgAANyww.jpg","https://pbs.twimg.com/media/HW_cDb9WoAAU8kY.jpg","https://pbs.twimg.com/media/HW_cDcYXwAAoSl4.jpg","https://pbs.twimg.com/media/HW_cDcZWIAArLe3.jpg","https://pbs.twimg.com/media/HW_cDcYXQAADywL.jpg","https://pbs.twimg.com/media/HW_cDcYX0AAtcKv.jpg","https://pbs.twimg.com/media/HW_cDcPWMAAb_F5.jpg","https://pbs.twimg.com/media/HW_cDcVW4AAUSvv.jpg","https://pbs.twimg.com/media/HW_cDcXXsAAfy7p.jpg","https://pbs.twimg.com/media/HW_cDcXWoAAzE9q.jpg","https://pbs.twimg.com/media/HW_cDchXgAAbHTc.jpg","https://pbs.twimg.com/media/HW_cDcaWUAAXY67.jpg","https://pbs.twimg.com/media/HW_cDZbWcAA5jEV.jpg"]},{"name":"DTN","postUrl":"https://x.com/artxygenishim/status/2121122167039422731","date":"2026-11-13","media":["https://pbs.twimg.com/media/HW-9Uh5WsAAaUZp.jpg","https://pbs.twimg.com/media/HW-9Uh9W0AAwQPm.jpg","https://pbs.twimg.com/media/HW-9Uh3XYAAWyfk.jpg","https://pbs.twimg.com/media/HW-9Uh5WIAAChiY.jpg","https://pbs.twimg.com/media/HW-9Uh7XQAA4k3y.jpg","https://pbs.twimg.com/media/HW-9Uh9XcAA4sTZ.jpg","https://pbs.twimg.com/media/HW-9UkPXgAAMVxw.jpg","https://pbs.twimg.com/media/HW-9UkOXYAAXKpF.jpg","https://pbs.twimg.com/media/HW-9UkUWoAAdPbD.jpg","https://pbs.twimg.com/media/HW-9UkOXoAA-NLe.jpg","https://pbs.twimg.com/media/HW-9UkSWAAAqDDa.jpg","https://pbs.twimg.com/media/HW-9UkPW0AAvRpd.jpg","https://pbs.twimg.com/media/HW-9UkQXwAAIbLC.jpg","https://pbs.twimg.com/media/HW-9UkVWoAA8vvr.jpg","https://pbs.twimg.com/media/HW-9UkcWAAAgS02.jpg","https://pbs.twimg.com/media/HW-9UkTWEAAS9FC.jpg","https://pbs.twimg.com/media/HW-9UkdXQAAsupp.jpg","https://pbs.twimg.com/media/HW-9UkZXYAAKKZL.jpg","https://pbs.twimg.com/media/HW-9UkcW8AAb-BZ.jpg","https://pbs.twimg.com/media/HW-9UkbXkAAwdwK.jpg"]}]</script>
@@ -374,15 +460,16 @@ let wallMode='wall';
 let selection=new Set();
 let featuredArtist=null,featuredIndex=0;
 let seedRecoverySource='embedded JSON';
+let cinemaNativeFullscreen=false;
 const prefersReduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const help={
   about:['What is TwentyX?','TwentyX Presented By ArtVision is a multidimensional self-evolving art exhibition. Every artist curates twenty works of art on X. Enter their solo exhibitions, experience the work in multiple dimensions, and follow the artists who made it.'],
   updates:['When does the gallery update?','TwentyX introduces newly curated exhibitions at 6:00 AM and 6:00 PM Pacific Time. Return to discover new artists and explore their twenty works.'],
   join:['How to participate','Your post must contain exactly 20 artworks to appear in TwentyX. Posts containing 1–19 are not eligible. Twenty is the maximum number allowed in a single X post. Include #TwentyX and share your work with ArtVision on X; each complete exhibition is verified before inclusion.'],
   browse:['Exploring the exhibition','Select an artist to view all twenty works on a full-width exhibition wall, or switch to the spatial carousel. Use Surprise me for a chance encounter. The slideshow studio lets you select any combination of artists, or play the entire gallery.'],
-  qr:['What does the exhibition brochure do?','Download a portrait-format exhibition invitation featuring all twenty original works, the artist’s curatorial credit, and a scannable QR code linking to their full-sized solo exhibition. The link will function on the public domain when this update is published.'],
+  qr:['What does the exhibition brochure do?','Download an artist-curated TwentyX exhibition brochure with twenty works, a curatorial credit and a scannable QR code. The full-size PNG is preferred, with an instantly downloadable vector edition as a fallback.'],
   spatial:['About the spatial carousel','A cinematic, three-panel perspective viewer. The original two-dimensional artworks remain unchanged. Use Previous or Next to cycle through all twenty; click the center image to enter the immersive viewer.'],
-  cinema:['Cinematic slideshow controls','Left and right arrows move between artworks. Up and down arrows switch between the artists you selected. On touchscreens, swipe horizontally for artwork and vertically to move between artists. Space toggles autoplay; Escape exits. Camera gestures are not required or enabled.']
+  cinema:['Cinematic slideshow controls','The fullscreen cinema shows one artwork at a time, without a thumbnail strip covering it. Use left/right arrows or swipe to change works, and up/down to switch artists. Space pauses or plays, and Escape exits. The spatial carousel remains the interactive three-dimensional viewing mode.']
 };
 function parsePost(url){
  try{
@@ -607,17 +694,28 @@ function selectAll(checked){
  selection=checked?new Set(artists.map(artistID)):new Set();
  updateSelectionCount();
 }
-function showCinema(){
- const c=byId('cinema');c.classList.add('active');c.setAttribute('aria-hidden','false');
- document.body.style.overflow='hidden';c.focus();
- // The center modal is immersive but does not seize the operating-system fullscreen state.
+function showCinema(fullscreen=false){
+ const c=byId('cinema');
+ c.classList.add('active');
+ c.setAttribute('aria-hidden','false');
+ document.body.style.overflow='hidden';
+ c.focus();
+ // Only the explicitly chosen Fullscreen Show requests native fullscreen.
+ // Artwork magnification stays in a centered, full-size gallery overlay.
+ if(fullscreen && typeof c.requestFullscreen==='function'){
+  try{
+   Promise.resolve(c.requestFullscreen({navigationUI:'hide'}))
+    .then(()=>{cinemaNativeFullscreen=Boolean(document.fullscreenElement)})
+    .catch(()=>{cinemaNativeFullscreen=false});
+  }catch{cinemaNativeFullscreen=false}
+ }
 }
 function startCinema(list,artistIndex,artIndex,autoplay){
  if(!list.length)return;
  lastFocus=document.activeElement;
  viewerArtists=list.slice();viewerArtistIndex=artistIndex||0;viewerWorkIndex=artIndex||0;
  if(byId('selection-modal').open)byId('selection-modal').close();
- showCinema();renderCinema();setPlaying(Boolean(autoplay)&&!prefersReduced);
+ showCinema(Boolean(autoplay));renderCinema();setPlaying(Boolean(autoplay)&&!prefersReduced);
 }
 function renderCinema(){
  if(!viewerArtists.length)return;
@@ -628,16 +726,7 @@ function renderCinema(){
  const image=byId('cinema-img');
  image.src=a.media[viewerWorkIndex];image.alt='Artwork '+(viewerWorkIndex+1)+' of 20 by '+a.name;
  image.style.animation='none';void image.offsetWidth;image.style.animation='';
- const rail=byId('cinema-filmstrip');rail.replaceChildren();
- a.media.forEach((src,i)=>{
-  const thumb=button('','',()=>{viewerWorkIndex=i;renderCinema()});
-  const picture=create('img');picture.src=src;picture.alt='Artwork '+(i+1);picture.loading='lazy';
-  thumb.append(picture);
-  thumb.setAttribute('aria-label','Go to artwork '+(i+1));
-  if(i===viewerWorkIndex)thumb.classList.add('active');
-  rail.append(thumb);
- });
- const focused=rail.querySelector('.active');if(focused&&focused.scrollIntoView)focused.scrollIntoView({block:'nearest',inline:'center'});
+ // No thumbnail strip in cinema: the current artwork fills the entire stage.
 }
 function cinemaStep(delta){
  viewerWorkIndex+=delta;
@@ -658,7 +747,8 @@ function stopCinema(){
  setPlaying(false);
  const el=byId('cinema');el.classList.remove('active');el.setAttribute('aria-hidden','true');
  document.body.style.overflow='';
- if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
+ if(document.fullscreenElement && typeof document.exitFullscreen==='function') Promise.resolve(document.exitFullscreen()).catch(()=>{});
+ cinemaNativeFullscreen=false;
  viewerArtists=[];
  if(lastFocus&&lastFocus.isConnected)lastFocus.focus();
 }
@@ -672,47 +762,38 @@ async function copyLink(url,target){
 }
 /* Share poster is composed from the artist's identity, never generates or changes their art. */
 async function downloadPoster(a,target){
- const original=target.textContent;target.disabled=true;target.textContent='Preparing collector brochure…';
+ const original=target.textContent;
+ target.disabled=true;
+ target.textContent='Preparing exhibition brochure…';
  try{
-  const filename='/welcome/'+artistHandle(a).toLowerCase()+'-'+artistID(a)+'.png';
-  const prepared=await fetch(filename,{method:'HEAD',cache:'no-store'}).catch(()=>null);
-  if(prepared?.ok){
-   const response=await fetch(filename);
-   if(!response.ok)throw Error('Could not retrieve collector brochure');
-   const blob=await response.blob(),objectURL=URL.createObjectURL(blob);
-   const download=document.createElement('a');download.href=objectURL;
-   download.download='TwentyX-'+artistHandle(a)+'-brochure.png';
-   document.body.append(download);download.click();download.remove();
-   setTimeout(()=>URL.revokeObjectURL(objectURL),6000);return;
-  }
-  if(!window.QRCode)throw Error('QR renderer unavailable. Please refresh while online.');
-  const c=document.createElement('canvas');c.width=1080;c.height=1350;
-  const ctx=c.getContext('2d');
-  const g=ctx.createLinearGradient(0,0,1080,1350);
-  g.addColorStop(0,'#12122c');g.addColorStop(.56,'#5a2a50');g.addColorStop(1,'#263a61');
-  ctx.fillStyle=g;ctx.fillRect(0,0,1080,1350);
-  ctx.fillStyle='#f4a2c8';ctx.font='bold 34px Inter, sans-serif';ctx.fillText('ARTVISION X  /  TWENTYX',74,114);
-  ctx.fillStyle='#ffffff';ctx.font='900 112px Inter, sans-serif';ctx.fillText('WELCOME',66,308);
-  ctx.fillStyle='#f4a2c8';ctx.fillText('TO THE 20.',66,426);
-  let fontSize=88;
-  do{ctx.font='800 '+fontSize+'px Inter, sans-serif';fontSize-=2}while(ctx.measureText(a.name).width>920&&fontSize>26);
-  ctx.fillStyle='#ffffff';ctx.fillText('CURATED BY',74,520);ctx.fillText(a.name,74,600);
-  ctx.font='32px Inter, sans-serif';ctx.fillStyle='#e3d6ee';ctx.fillText('@'+artistHandle(a)+'  ·  20 WORKS / ONE POST',76,635);
-  ctx.fillStyle='#ffffff';ctx.fillRect(76,711,445,445);
-  const qr=await window.QRCode.toDataURL(artistURL(a),{width:420,margin:2,errorCorrectionLevel:'H',color:{dark:'#1b1432',light:'#ffffff'}});
-  const img=new Image();img.src=qr;await img.decode();ctx.drawImage(img,88,724,420,420);
-  ctx.font='bold 41px Inter, sans-serif';ctx.fillStyle='#ffffff';
-  ctx.fillText('EXPLORE',552,824);ctx.fillText('THE FULL',552,880);ctx.fillText('COLLECTION',552,936);
-  ctx.font='27px Inter, sans-serif';ctx.fillStyle='#e9d6f2';
-  ctx.fillText('Scan to explore the full size',552,1010);ctx.fillText('exhibition.',552,1051);
-  ctx.font='30px Inter, sans-serif';ctx.fillStyle='#f4a2c8';
-  ctx.fillText('#TWENTYX • Twenty works of art on X',74,1255);
-  const out=document.createElement('a');out.download='TwentyX-'+artistHandle(a)+'-welcome.png';
-  out.href=c.toDataURL('image/png');document.body.append(out);out.click();out.remove();
- }catch(error){window.alert('Could not create poster: '+error.message)}
- finally{target.disabled=false;target.textContent=original}
+  const base='/welcome/'+artistHandle(a).toLowerCase()+'-'+artistID(a);
+  const png=base+'.png',svg=base+'.svg';
+  // Full-resolution, self-contained PNGs are preferred if generated.
+  // The SVG is built for every artist on every publish, so download never
+  // depends on a QR CDN, popup, browser canvas, or unavailable artwork fetch.
+  let href=svg,ext='svg';
+  try{
+   const response=await fetch(png,{method:'HEAD',cache:'no-store'});
+   if(response.ok){href=png;ext='png'}
+  }catch{ /* Use the guaranteed static brochure. */ }
+  const download=document.createElement('a');
+  download.href=href;
+  download.download='TwentyX-'+artistHandle(a)+'-exhibition.'+ext;
+  download.setAttribute('aria-label','Download exhibition brochure as '+ext.toUpperCase());
+  document.body.append(download);
+  download.click();
+  download.remove();
+ }catch(error){
+  window.alert('Brochure download unavailable. Please try again: '+error.message);
+ }finally{
+  target.disabled=false;
+  target.textContent=original;
+ }
 }
 function bindUI(){
+ document.addEventListener('fullscreenchange',()=>{
+  if(cinemaNativeFullscreen && !document.fullscreenElement && byId('cinema').classList.contains('active')) stopCinema();
+ });
  document.addEventListener('click',popFollow);
  byId('home-link').addEventListener('click',event=>{event.preventDefault();goHome()});
  byId('feature-artwork').addEventListener('click',()=>{if(featuredArtist)startCinema([featuredArtist],0,featuredIndex,false)});
