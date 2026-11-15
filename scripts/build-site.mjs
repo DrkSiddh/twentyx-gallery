@@ -11,6 +11,7 @@
  * New validated artist records are always rendered on the next publication.
  */
 import fs from 'node:fs';
+import QRCode from 'qrcode';
 
 const load=file=>fs.readFileSync(file,'utf8');
 const html=load('src/index.template.html');
@@ -83,4 +84,52 @@ for(const artist of ordered){
    .replace('</head>','<link rel="canonical" href="'+canonical+'">\n<meta property="og:title" content="'+esc(artist.name)+' — TwentyX">\n<meta property="og:description" content="A twenty-work digital art exhibition curated by '+esc(artist.name)+'.">\n</head>');
  fs.writeFileSync(path+'/index.html',artistHtml);
 }
+
+// Fallback brochures exist at every publication, even when remote artwork
+// thumbnail downloads fail. The SVG has a built-in QR and references each
+// original artist artwork, so a brochure click never points to a missing file.
+fs.mkdirSync('welcome',{recursive:true});
+const svgEsc=esc;
+for(const artist of ordered){
+ const h=handle(artist).toLowerCase();
+ const id=idOf(artist);
+ const name=svgEsc(artist.name);
+ const slug='welcome/'+h+'-'+id+'.svg';
+ const qr=await QRCode.toDataURL('https://twentyx.artvision.today/@'+h+'/',{
+   width:160,margin:2,errorCorrectionLevel:'H',
+   color:{dark:'#151329',light:'#ffffff'}
+ });
+ const qrData=qr.replace(/^data:image\/png;base64,/,'');
+ const titleSize=artist.name.length>24?39:artist.name.length>15?50:artist.name.length>10?62:76;
+ const works=artist.media.map((url,i)=>{
+   const x=76+(i%5)*187,y=399+Math.floor(i/5)*187;
+   return '<rect x="'+(x-2)+'" y="'+(y-2)+'" width="184" height="184" fill="#15182d" stroke="#fffc"/>'+
+     '<image x="'+x+'" y="'+y+'" width="180" height="180" preserveAspectRatio="xMidYMid meet" href="'+svgEsc(url)+'"/>'+
+     '<text x="'+(x+8)+'" y="'+(y+171)+'" font-family="sans-serif" font-size="15" fill="#fff" stroke="#000" stroke-width="2" paint-order="stroke">'+String(i+1).padStart(2,'0')+'</text>';
+ }).join('');
+ const poster= [
+ '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1080 1350" width="1080" height="1350">',
+ '<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0b102b"/><stop offset=".52" stop-color="#281a41"/><stop offset="1" stop-color="#090d20"/></linearGradient>'+
+ '<linearGradient id="chrome" x2="1" y2="1"><stop stop-color="#fee5f7"/><stop offset=".28" stop-color="#f4a2c8"/><stop offset=".5" stop-color="#fff"/><stop offset=".72" stop-color="#9bb8e5"/><stop offset="1" stop-color="#f4a2c8"/></linearGradient></defs>',
+ '<rect width="1080" height="1350" fill="url(#bg)"/>',
+ '<path d="M0 8H1080" stroke="url(#chrome)" stroke-width="16"/>',
+ '<rect x="22" y="22" width="1036" height="1306" rx="9" fill="none" stroke="#f4a2c8" stroke-opacity=".42"/>',
+ '<text x="64" y="74" font-family="sans-serif" font-size="22" font-weight="bold" letter-spacing="4" fill="#f4a2c8">ARTVISION / MULTIDIMENSIONAL EXHIBITION</text>',
+ '<text x="62" y="190" font-family="Dune Rise, sans-serif" font-size="115" font-weight="bold" fill="url(#chrome)">TWENTYX</text>',
+ '<line x1="65" y1="209" x2="1015" y2="209" stroke="#f4a2c8" stroke-opacity=".55"/>',
+ '<text x="65" y="253" font-family="sans-serif" font-size="23" letter-spacing="3" fill="#f4a2c8">WELCOME TO THE EXHIBITION</text>',
+ '<text x="65" y="329" font-family="sans-serif" font-size="'+titleSize+'" font-weight="bold" fill="#fff5fc">CURATED BY '+name+'.</text>',
+ '<text x="67" y="364" font-family="sans-serif" font-size="20" fill="#ddd0e8">@'+h+'  /  20 WORKS  /  '+svgEsc(artist.date||'')+'</text>',
+ '<rect x="64" y="385" width="952" height="758" rx="10" fill="#100f21" stroke="#ffffff" stroke-opacity=".2"/>',
+ works,
+ '<rect x="65" y="1168" width="146" height="146" rx="5" fill="#fff"/>',
+ '<image x="67" y="1170" width="142" height="142" href="data:image/png;base64,'+qrData+'"/>',
+ '<text x="241" y="1213" font-family="sans-serif" font-size="25" font-weight="bold" fill="#fff">TwentyX Presented By ArtVision</text>',
+ '<text x="241" y="1252" font-family="sans-serif" font-size="21" fill="#e8dbf0">Scan to explore the full size exhibition.</text>',
+ '<text x="241" y="1293" font-family="sans-serif" font-size="19" fill="#f4a2c8">#TWENTYX  &#8226;  Twenty works of art on X</text>',
+ '</svg>'
+ ].join('\n');
+ fs.writeFileSync(slug,poster);
+}
+
 console.log('Built TwentyX exhibition:',artists.length,'artist rooms;',artists.length*20,'works;',Buffer.byteLength(output),'bytes home');
