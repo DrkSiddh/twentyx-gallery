@@ -16,6 +16,7 @@ jobs:
           node-version: '22'
       - name: Check frontend and publisher syntax
         run: |
+          node --check scripts/build-site.mjs
           node --check app.js
           node --check scripts/discover.mjs
           node --check scripts/publish.mjs
