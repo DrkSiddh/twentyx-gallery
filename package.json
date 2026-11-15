@@ -1,0 +1,11 @@
+{
+  "name": "twentyx-gallery",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "publish": "node scripts/publish.mjs && node scripts/welcome.mjs"
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4"
+  }
+}
