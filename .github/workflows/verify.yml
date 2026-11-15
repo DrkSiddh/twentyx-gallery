@@ -1,0 +1,31 @@
+name: Verify TwentyX gallery and archive
+on:
+  pull_request:
+  push:
+    branches:
+      - "upgrade/**"
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check frontend and publisher syntax
+        run: |
+          node --check scripts/build-site.mjs
+          node --check app.js
+          node --check scripts/discover.mjs
+          node --check scripts/publish.mjs
+          node --check scripts/welcome.mjs
+      - name: Install render dependencies
+        run: npm install --no-package-lock
+      - name: Rebuild self-contained site with artworks
+        run: |
+          npm run build
+          node --input-type=module -e "import fs from 'node:fs'; const t=fs.readFileSync('index.html','utf8'); if(!t.includes('id=\"seeded-artists\"') || !t.includes('pbs.twimg.com/media/') || !t.includes('Stunnifer'))process.exit(1)"
+      - name: Run archive, discovery and brochure tests
+        run: node --test tests/*.test.mjs
