@@ -53,3 +53,25 @@ Send changes by pull request. Keep `main` protected with reviews and required ch
 - On-site PNG poster generation loads the `qrcode` browser library from jsDelivr. A future revision can self-host the dependency for stronger offline resilience.
 - The current collector must be connected separately. The workflow **publishes validated inputs** but does not search X automatically.
 - All new features are prepared on a separate branch for review before any production change.
+
+## Gallery v3 • editorial exhibition (review branch)
+
+The `upgrade/gallery-v2` pull request now includes an artist-first interface:
+
+- Dune Rise **ARTVISION X / TWENTYX** display typography; shimmering metallic-style gradients.
+- Local visitor time-of-day color shifts (daybreak / day / sunset / night).
+- Featured order: Pepavaggio → Stunnifer → Cipher Voss → remaining artists.
+- Cleaner hero with **Share your #TwentyX**, closely grouped helper text and a divider above the exhibition.
+- Searchable home exhibition cards; each keeps all **20 original image URLs**.
+- Full-width, responsive **5-column by 4-row artwork wall** on wide displays (3 on tablet / 2 on mobile).
+- Solo artist spotlight with large artist name, compact TwentyX side identity and one-row actions.
+- **Spatial carousel**: CSS perspective viewer; original artwork files are not turned into 3D models.
+- **Cinema**: fullscreen slideshow for a single artist, an artist selection, or everyone; adjustable autoplay, keyboard arrows, touch swipes, direct X follow links.
+- Contextual `i` help dialogs and downloadable on-demand QR welcome PNGs.
+- PR validation workflow tests that incomplete submissions cannot overwrite the published archive.
+
+Preview (read-only, third-party): https://rawcdn.githack.com/DrkSiddh/twentyx-gallery/1a807fd55d4af18fec5258b8e166cb6dd4047c90/index.html
+
+**Unfinished:** authenticated X community discovery, native video, true WebGL/3D rooms, camera-based gesture recognition. A published artist permalink QR resolves correctly after the upgraded page reaches the production domain.
+
+**Operational note:** GitHub's automated syntax and archive-safety tests pass, but there has not yet been a visual, cross-browser, or device QA pass. Keep the PR as draft until preview is reviewed.
