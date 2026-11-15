@@ -18,7 +18,8 @@ export const COMMUNITY_ID='1835009931231322257';
 const COMMUNITY_URL='https://x.com/i/communities/'+COMMUNITY_ID;
 const SEARCH_BASE='https://api.fxtwitter.com/2/search';
 const STATUS_BASE='https://api.fxtwitter.com/2/status/';
-const SEARCH_QUERIES=['#TwentyX','"PankyVT" "#TwentyX"','"Elyris" "#TwentyX"','from:ok__vision #TwentyX'];
+const VX_BASE='https://api.vxtwitter.com/Twitter/status/';
+const SEARCH_QUERIES=['#TwentyX','"PankyVT" "#TwentyX"','"Elyris" "#TwentyX"','from:ok__vision #TwentyX','from:PanksterVT #TwentyX','from:Elyris_Art #TwentyX'];
 const MAX_POSTS=70;
 const read=(p,fallback)=>fs.existsSync(p)?JSON.parse(fs.readFileSync(p,'utf8')):fallback;
 const write=(p,v)=>{fs.mkdirSync(p.slice(0,p.lastIndexOf('/'))||'.',{recursive:true});fs.writeFileSync(p,JSON.stringify(v,null,2)+'\n');};
@@ -46,7 +47,6 @@ export function checkStatus(status,source,communityId=COMMUNITY_ID){
  const text=String(status.text||status.raw_text?.text||'');
  if(!/^\d{12,22}$/.test(id)||!validHandle(handle)||!name)
    return {kind:'review',reason:'missing-post-identity',id};
- if(!hasTag(text))return {kind:'reject',reason:'missing-hashtag',id};
  if(status.reposted_by||status.type==='retweet')
    return {kind:'reject',reason:'not-original-post',id};
  // Community ID may be absent from public embeds and is not an admission rule.
@@ -62,6 +62,8 @@ export function checkStatus(status,source,communityId=COMMUNITY_ID){
  const urls=all.map(m=>m.url);
  if(new Set(urls).size!==20)
    return {kind:'review',reason:'duplicate-photo-urls',id,handle};
+ if(!text)return {kind:'review',reason:'post-text-unavailable',id,handle};
+ if(!hasTag(text))return {kind:'reject',reason:'missing-hashtag',id,handle};
  const date=new Date(status.created_timestamp?Number(status.created_timestamp)*1000:status.created_at);
  if(!Number.isFinite(date.valueOf()))
    return {kind:'review',reason:'invalid-post-date',id,handle};
@@ -104,7 +106,14 @@ async function searchFree(seen,notes){
   try{
    const url=new URL(SEARCH_BASE);url.searchParams.set('q',q);
    url.searchParams.set('feed','latest');url.searchParams.set('count','80');
-   const out=await jsonGet(url.toString());
+   let out;
+   for(let attempt=0;attempt<3;attempt++){
+    try{out=await jsonGet(url.toString());break}
+    catch(error){
+     if(attempt===2)throw error;
+     await new Promise(resolve=>setTimeout(resolve,700*(attempt+1)));
+    }
+   }
    const results=Array.isArray(out.results)?out.results:[];
    for(const item of results){
     if(!hasTag(item.text||item.raw_text?.text))continue;
@@ -115,7 +124,32 @@ async function searchFree(seen,notes){
   }catch(e){notes.push({source:'FxEmbed search',query:q,readable:false,error:String(e.message||e).slice(0,140)})}
  }
 }
-export async function run({useBrowser=true,fetchStatus=async id=>(await jsonGet(STATUS_BASE+id)).status}={}){
+function fromVx(record){
+ const media=Array.isArray(record?.media_extended)&&record.media_extended.length?record.media_extended.map(x=>({
+  type:x.type==='image'?'photo':x.type,
+  url:x.url
+ })):Array.isArray(record?.mediaURLs)?record.mediaURLs.map(url=>({
+  type:photoUrl(url)?'photo':'video',url
+ })):[];
+ const id=String(record.tweetID||'');
+ const hashtags=Array.isArray(record.hashtags)?record.hashtags:[];
+ const text=String(record.text||'')+(hashtags.some(tag=>String(tag).toLowerCase()==='twentyx')?' #TwentyX':'');
+ return {id,text,author:{name:record.user_name,screen_name:record.user_screen_name},
+  created_timestamp:record.date_epoch,media:{all:media}};
+}
+async function publicPostLookup(id){
+ let fx=null;
+ try{fx=(await jsonGet(STATUS_BASE+id)).status}catch{}
+ if(fx && checkStatus(fx,'free-search').kind==='admit')return fx;
+ try{
+  const vx=fromVx(await jsonGet(VX_BASE+id));
+  if(checkStatus(vx,'free-search').kind==='admit')return vx;
+  if(!fx)return vx;
+ }catch{}
+ if(!fx)throw Error('Public post lookups unavailable on FxEmbed and VxTwitter');
+ return fx;
+}
+export async function run({useBrowser=true,fetchStatus=publicPostLookup}={}){
  const notes=[],seen=new Map();
  const archived=read('data/collections.json',[]);
  const inbox=read('data/inbox.json',[]);
