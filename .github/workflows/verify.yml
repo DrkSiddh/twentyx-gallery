@@ -23,5 +23,9 @@ jobs:
           node --check scripts/welcome.mjs
       - name: Install render dependencies
         run: npm install --no-package-lock
+      - name: Rebuild self-contained site with artworks
+        run: |
+          npm run build
+          node --input-type=module -e "import fs from 'node:fs'; const t=fs.readFileSync('index.html','utf8'); if(!t.includes('id=\"seeded-artists\"') || !t.includes('pbs.twimg.com/media/') || !t.includes('Stunnifer'))process.exit(1)"
       - name: Run archive, discovery and brochure tests
         run: node --test tests/*.test.mjs
