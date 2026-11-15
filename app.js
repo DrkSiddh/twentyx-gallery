@@ -26,7 +26,7 @@ let seedRecoverySource='embedded JSON';
 const prefersReduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const help={
   about:['What is TwentyX?','TwentyX Presented By ArtVision is a multidimensional self-evolving art exhibition. Every artist curates twenty works of art on X. Enter their solo exhibitions, experience the work in multiple dimensions, and follow the artists who made it.'],
-  updates:['When does the gallery update?','The publishing window is 6:00 AM and 6:00 PM Pacific Time. Scheduled GitHub Actions can be delayed or skipped. New works enter the exhibition only after all twenty media references pass validation.'],
+  updates:['When does the gallery update?','TwentyX introduces newly curated exhibitions at 6:00 AM and 6:00 PM Pacific Time. Return to discover new artists and explore their twenty works.'],
   join:['How to participate','Your post must contain exactly 20 artworks to appear in TwentyX. Posts containing 1–19 are not eligible. Twenty is the maximum number allowed in a single X post. Include #TwentyX and share your work with ArtVision on X; each complete exhibition is verified before inclusion.'],
   browse:['Exploring the exhibition','Select an artist to view all twenty works on a full-width exhibition wall, or switch to the spatial carousel. Use Surprise me for a chance encounter. The slideshow studio lets you select any combination of artists, or play the entire gallery.'],
   qr:['What does the exhibition brochure do?','Download a portrait-format exhibition invitation featuring all twenty original works, the artist’s curatorial credit, and a scannable QR code linking to their full-sized solo exhibition. The link will function on the public domain when this update is published.'],
@@ -60,7 +60,8 @@ function popFollow(event){
  const popup=window.open(a.href,'twentyx_x_follow','popup=yes,width='+width+',height='+height+',left='+left+',top='+top);
  if(!popup)window.open(a.href,'_blank','noopener,noreferrer');
 }
-function artistURL(a){return CANONICAL+'?artist='+encodeURIComponent(artistID(a))}
+function artistPath(a){return '/@'+artistHandle(a).toLowerCase()+'/'}
+function artistURL(a){return CANONICAL+'@'+artistHandle(a).toLowerCase()+'/'}
 function link(label,url,className){
  const a=create('a',className,label);a.href=url;a.target='_blank';a.rel='noopener noreferrer';return a;
 }
@@ -73,13 +74,20 @@ function setDayPhase(){
  document.body.dataset.phase=phase;
  byId('phase-label').textContent='LOCAL LIGHT / '+({daybreak:'DAYBREAK',day:'DAYLIGHT',sunset:'SUNSET',night:'AFTER DARK'}[phase]);
 }
-function routeArtist(){return new URLSearchParams(location.search).get('artist')}
+function routeArtist(){
+ const legacy=new URLSearchParams(location.search).get('artist');
+ if(legacy)return legacy;
+ const match=location.pathname.match(/^\/@([a-zA-Z0-9_]{1,15})(?:\/(?:index\.html)?)?$/i);
+ if(!match)return null;
+ const selected=artists.find(a=>artistHandle(a).toLowerCase()===match[1].toLowerCase());
+ return selected?artistID(selected):null;
+}
 function goHome(){
- history.pushState(null,'',location.pathname);
+ history.pushState(null,'','/');
  renderRoute();window.scrollTo({top:0,behavior:prefersReduced?'auto':'smooth'});
 }
 function goArtist(a){
- history.pushState(null,'','?artist='+encodeURIComponent(artistID(a)));
+ history.pushState(null,'',artistPath(a));
  renderRoute();window.scrollTo({top:0,behavior:prefersReduced?'auto':'smooth'});
 }
 function makeTile(a,i,className){
@@ -315,7 +323,7 @@ async function copyLink(url,target){
 async function downloadPoster(a,target){
  const original=target.textContent;target.disabled=true;target.textContent='Preparing collector brochure…';
  try{
-  const filename='welcome/'+artistHandle(a).toLowerCase()+'-'+artistID(a)+'.png';
+  const filename='/welcome/'+artistHandle(a).toLowerCase()+'-'+artistID(a)+'.png';
   const prepared=await fetch(filename,{method:'HEAD',cache:'no-store'}).catch(()=>null);
   if(prepared?.ok){
    const response=await fetch(filename);
@@ -420,7 +428,7 @@ function bindUI(){
 }
 async function syncLatestExhibitions(){
  try{
-  const response=await fetch('./artists.json?v='+Date.now(),{cache:'no-store'});
+  const response=await fetch('/artists.json?v='+Date.now(),{cache:'no-store'});
   if(!response.ok)return;
   const data=await response.json();
   if(!Array.isArray(data))return;
@@ -461,7 +469,7 @@ async function load(){
   featureWork(false);
  }
  try{
-  const response=await fetch('./artists.json?v='+Math.floor(Date.now()/900000),{cache:'no-store'});
+  const response=await fetch('/artists.json?v='+Math.floor(Date.now()/900000),{cache:'no-store'});
   if(!response.ok)throw Error('HTTP '+response.status);
   const data=await response.json();
   if(!Array.isArray(data))throw Error('Exhibition data format error');

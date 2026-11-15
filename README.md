@@ -112,3 +112,17 @@ Website Dune Rise typography and the generated graphic's system-font fallback ma
 
 The historical artist work is not modified. Please follow the original artist's rights and X platform terms when redistributing promotional copies.
 
+
+## Human-readable artist exhibition URLs
+
+Each artist receives a generated GitHub Pages route at
+`https://twentyx.artvision.today/@<lowercase-x-handle>/`, e.g.
+`https://twentyx.artvision.today/@stunnifer/`.
+`npm run build` writes `@handle/index.html` for every qualified artist.
+All assets remain embedded, and paths to dynamic gallery data are root-relative.
+On-site links, copy-link, and new brochure QR codes use the readable routes.
+Existing `/?artist=<post-id>` links continue working.
+
+If an artist changes their X handle, maintain a static redirect page for the
+old @handle to prevent broken shared links.
+Visitor-facing help copy omits internal scheduling and publishing caveats.

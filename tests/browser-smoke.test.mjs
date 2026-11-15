@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {JSDOM,VirtualConsole} from 'jsdom';
 
-function boot(){
- const html=readFileSync('index.html','utf8');
+function boot(url='https://twentyx.artvision.today/',file='index.html'){
+ const html=readFileSync(file,'utf8');
  const errors=[];
  const console=new VirtualConsole();
  console.on('jsdomError',err=>errors.push(err.message));
@@ -13,7 +13,7 @@ function boot(){
  const seed=html.match(/<script id="seeded-artists" type="application\/json">([\s\S]*?)<\/script>/)?.[1];
  if(!seed)errors.push('MISSING SEED TAG');else try{const data=JSON.parse(seed);if(!Array.isArray(data))errors.push('SEED NOT ARRAY')}catch(e){errors.push('INVALID SEED JSON: '+e.message+' near '+seed.slice(0,120))}
  const dom=new JSDOM(html,{
-  url:'https://twentyx.artvision.today/',
+  url,
   runScripts:'dangerously',pretendToBeVisual:true,virtualConsole:console,
   beforeParse(win){
    win.matchMedia=()=>({matches:false,addListener(){},removeListener(){}});
@@ -61,4 +61,21 @@ test('slideshow selection opens and shows an actual artwork',async()=>{
   t.doc.querySelector('#cinema-next').click();
   assert.match(t.doc.querySelector('#cinema-progress').textContent,/02 \/ 20/);
  }finally{t.close()}
+});
+
+test('clean @stunnifer route opens solo exhibition and old post-ID URL remains supported',async()=>{
+ const clean=boot('https://twentyx.artvision.today/@stunnifer/','@stunnifer/index.html');
+ try{
+  await new Promise(done=>setTimeout(done,45));
+  assert.equal(clean.doc.querySelector('#artist-view').hidden,false);
+  assert.equal(clean.doc.querySelector('#artist-title').textContent,'Stunnifer');
+  assert.equal(clean.doc.querySelectorAll('#artist-wall img').length,20);
+  clean.doc.querySelector('#back-to-all').click();
+  assert.equal(clean.win.location.pathname,'/');
+ }finally{clean.close()}
+ const legacy=boot('https://twentyx.artvision.today/?artist=2121572867485626453');
+ try{
+  await new Promise(done=>setTimeout(done,45));
+  assert.equal(legacy.doc.querySelector('#artist-title').textContent,'Stunnifer');
+ }finally{legacy.close()}
 });
