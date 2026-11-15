@@ -58,7 +58,7 @@ test('slideshow selection opens and shows an actual artwork',async()=>{
   assert.ok(t.doc.querySelector('#cinema').classList.contains('active'));
   assert.match(t.doc.querySelector('#cinema-img').src,/pbs\.twimg\.com\/media/);
   assert.equal(t.doc.querySelector('#cinema-filmstrip'),null,'No thumbnail strip must obscure the artwork');
-  assert.equal(t.doc.querySelectorAll('#cinema-viewport img#cinema-img').length,1);
+  assert.equal(t.doc.querySelectorAll('.cinema-viewport img#cinema-img').length,1);
   t.doc.querySelector('#cinema-next').click();
   assert.match(t.doc.querySelector('#cinema-progress').textContent,/02 \/ 20/);
  }finally{t.close()}
