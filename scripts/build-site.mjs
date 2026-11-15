@@ -109,6 +109,7 @@ for(const artist of ordered){
  }).join('');
  const poster= [
  '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1080 1350" width="1080" height="1350">',
+ '<metadata>https://twentyx.artvision.today/@'+h+'/</metadata>',
  '<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0b102b"/><stop offset=".52" stop-color="#281a41"/><stop offset="1" stop-color="#090d20"/></linearGradient>'+
  '<linearGradient id="chrome" x2="1" y2="1"><stop stop-color="#fee5f7"/><stop offset=".28" stop-color="#f4a2c8"/><stop offset=".5" stop-color="#fff"/><stop offset=".72" stop-color="#9bb8e5"/><stop offset="1" stop-color="#f4a2c8"/></linearGradient></defs>',
  '<rect width="1080" height="1350" fill="url(#bg)"/>',
