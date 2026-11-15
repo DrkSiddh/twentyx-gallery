@@ -360,7 +360,6 @@ button,input,select{font:inherit}a{color:inherit}button{cursor:pointer}button:di
 .collection-card.art-entered,
 .artist-wall .artwork-thumb.art-entered{
  animation:gallery-entrance .82s cubic-bezier(.22,.78,.2,1) both;
- animation-delay:calc(min(var(--arrival-index,0),8) * 65ms);
 }
 .collection-card.art-entered:hover{animation-fill-mode:backwards}
 .artist-wall .artwork-thumb.art-entered:hover{animation-fill-mode:backwards}

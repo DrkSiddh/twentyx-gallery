@@ -177,7 +177,7 @@ function revealCards(root=document){
   },{threshold:.13,rootMargin:'0px 0px 35px 0px'});
  }
  root.querySelectorAll('.collection-card,.artist-wall .artwork-thumb').forEach((el,index)=>{
-  el.style.setProperty('--arrival-index',String(index%9));
+  el.style.animationDelay=(index%9*65)+'ms';
   cardRevealObserver.observe(el);
  });
 }
