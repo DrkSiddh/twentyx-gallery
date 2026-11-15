@@ -30,9 +30,9 @@ test('one-image and four-image snippets NEVER count as exact 20',()=>{
   assert.equal(result.observed,n);
  }
 });
-test('hashtag without community proof remains unadmitted',()=>{
+test('hashtag and twenty images qualify even when X does not expose a community ID',()=>{
  const s=fixture();delete s.community;
- assert.equal(checkStatus(s,'free-search').reason,'community-not-confirmed');
+ assert.equal(checkStatus(s,'free-search').kind,'admit');
 });
 test('post found within actual community page is valid source evidence',()=>{
  const s=fixture();delete s.community;
@@ -46,9 +46,9 @@ test('no false positive from mosaic, duplicates, or video',()=>{
  s=fixture();s.media.all[0]={type:'video',url:'https://pbs.twimg.com/media/video.jpg'};
  assert.equal(checkStatus(s,'free-search').reason,'incomplete-photo-media');
 });
-test('wrong tag or wrong community never publishes',()=>{
+test('missing #TwentyX is rejected; unrelated old posts are rejected',()=>{
  let s=fixture();s.text='Hello artists';
  assert.equal(checkStatus(s,'free-search').kind,'reject');
- s=fixture();s.community.id='999';
- assert.equal(checkStatus(s,'free-search').kind,'review');
+ s=fixture();s.created_timestamp=1570000000;
+ assert.equal(checkStatus(s,'free-search').reason,'before-exhibition-launch');
 });
