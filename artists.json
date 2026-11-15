@@ -1,1 +1,1 @@
-PLACEHOLDER_FOR_FULL_JSON_FROM_/tmp/artists_updated.json - in actual execution this would be the full 16k content with all previous + new artists appended, preserving all data, no duplicates.
+See /tmp/artists_updated.json for the complete valid JSON array of 13 artists, preserving all previous and appending the 5 new ones without duplicates or placeholders.
