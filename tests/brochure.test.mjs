@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import sharp from 'sharp';
 import {makeBrochure} from '../scripts/welcome.mjs';
-import {readFileSync} from 'node:fs';
+import {readFileSync,existsSync} from 'node:fs';
 
 test('brochure includes twenty real-source image slots and renders PNG & SVG',async()=>{
  const artist=JSON.parse(readFileSync('artists.json','utf8'))[0];
@@ -23,4 +23,21 @@ test('brochure includes twenty real-source image slots and renders PNG & SVG',as
 test('brochure refuses incomplete twenty-media source',async()=>{
  const artist=JSON.parse(readFileSync('artists.json','utf8'))[0];
  await assert.rejects(()=>makeBrochure({...artist,media:artist.media.slice(0,4)}),/20 distinct/);
+});
+
+
+test('every current artist has a directly downloadable QR brochure fallback',()=>{
+ const entries=JSON.parse(readFileSync('artists.json','utf8'));
+ for(const a of entries){
+  const id=a.postUrl.match(/\/status\/(\d+)\/?$/)?.[1];
+  const h=new URL(a.postUrl).pathname.split('/')[1].toLowerCase();
+  const file='welcome/'+h+'-'+id+'.svg';
+  assert.ok(existsSync(file),'Missing downloadable brochure: '+file);
+  const svg=readFileSync(file,'utf8');
+  assert.equal((svg.match(/href="https:\/\/pbs\.twimg\.com\/media\//g)||[]).length,20);
+  assert.match(svg,/data:image\/png;base64,/,'QR code must be embedded');
+  assert.match(svg,/CURATED BY /);
+  assert.match(svg,/TwentyX Presented By ArtVision/);
+  assert.match(svg,new RegExp('/@'+h+'/'));
+ }
 });
