@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080b19">
+<meta name="description" content="A multidimensional self-evolving digital art exhibition. TwentyX presented by ArtVision.">
+<title>TwentyX • ArtVision X</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.cdnfonts.com/css/dune-rise" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js" defer></script>
+<script src="./app.js" defer></script>
+</head>
+<body data-phase="night">
+<div class="ambient ambient-a" aria-hidden="true"></div><div class="ambient ambient-b" aria-hidden="true"></div>
+<div class="page-shell">
+<header class="topbar">
+ <a class="brand" href="./" id="home-link" aria-label="TwentyX gallery home"><span class="brand-mark">X</span><span>ARTVISION <em>X</em><small>A MULTIDIMENSIONAL EXHIBITION</small></span></a>
+ <div class="top-actions">
+  <span class="time-indicator" id="phase-label">A LIVING EXHIBITION</span>
+  <button class="icon-btn" type="button" data-info="about" aria-label="About TwentyX" title="About TwentyX">i</button>
+  <a class="ghost small" href="https://x.com/i/communities/1835009931231322257" target="_blank" rel="noopener noreferrer">Enter ArtVision on X ↗</a>
+ </div>
+</header>
+<main>
+<section id="home-view">
+ <div class="hero">
+  <div class="hero-superline">ARTVISION X <span class="dash"></span> A MULTIDIMENSIONAL EXHIBITION</div>
+  <h1 class="twentyx iridescent">TWENTY<span>X</span></h1>
+  <p class="hero-intro"><strong>A multidimensional self-evolving art exhibition.</strong> Twenty works of art curated by each artist on X. Explore their worlds. Follow the makers. Share their moment.</p>
+  <div class="hero-stats" aria-label="Gallery statistics">
+   <div><strong id="artist-count">—</strong><span>collections</span></div>
+   <div><strong id="work-count">—</strong><span>works</span></div>
+   <div><strong>06:00 / 18:00 PT</strong><span>publication windows <button class="tiny-info" data-info="updates" aria-label="About publishing times">i</button></span></div>
+  </div>
+  <div class="cta-cluster"><a class="pill primary" href="https://x.com/i/communities/1835009931231322257" target="_blank" rel="noopener noreferrer">Share your #TwentyX ↗</a><span class="cta-helper">Post exactly 20 works with #TwentyX on X. <button class="tiny-info" data-info="join" aria-label="How to participate">i</button></span></div>
+ </div>
+ <div class="exhibition-header">
+  <div class="exhibition-heading"><div class="overline">ENTER THE EXHIBITIONS</div><h2>Current exhibitions <button class="tiny-info" data-info="browse" aria-label="How to explore the gallery">i</button></h2></div>
+  <div class="toolbar">
+   <label class="searchbox"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="Find an artist…" aria-label="Find an artist"></label>
+   <button class="ghost" id="surprise" type="button">Surprise me ↝</button>
+   <button class="pill outline" id="choose-slideshow" type="button">◉ Slideshow <span class="desktop-only">studio</span></button>
+  </div>
+ </div>
+ <div class="section-note" id="home-status" aria-live="polite">Illuminating the exhibitions…</div>
+ <div class="home-gallery" id="home-gallery"></div>
+</section>
+
+<section id="artist-view" hidden aria-labelledby="artist-title">
+ <div class="artist-topline">
+  <button id="back-to-all" class="back-link" type="button">← Back to all artists</button>
+  <div class="artist-brand iridescent">TWENTYX<span> / SOLO EXHIBITION</span></div>
+ </div>
+ <div class="spotlight-heading">
+  <div class="spotlight-title-wrap"><div class="overline">TWENTYX PRESENTED BY ARTVISION <span class="dash"></span> ARTIST CURATION <span class="twenty-badge">20 / 20</span></div><h1 id="artist-title">Artist</h1><div class="artist-byline"><span id="artist-handle"></span><span id="artist-date"></span></div></div>
+  <div class="artist-sideword" aria-hidden="true">TWENTYX</div>
+ </div>
+ <div class="spotlight-actions">
+  <div class="spotlight-main-actions">
+   <a id="follow-link" class="pill primary" target="_blank" rel="noopener noreferrer">Follow on X ↗</a>
+   <a id="original-link" class="ghost" target="_blank" rel="noopener noreferrer">Original post ↗</a>
+   <button id="copy-artist" class="ghost" type="button">⤴ Artist page</button>
+   <button id="download-qr" class="ghost" type="button">↓ Exhibition brochure</button>
+   <button class="icon-btn" data-info="qr" type="button" aria-label="About exhibition brochures">i</button>
+  </div>
+  <div class="view-switch" aria-label="Artist viewing mode">
+   <button id="wall-mode" class="mode-btn active" aria-pressed="true" type="button">▦ Exhibition wall</button>
+   <button id="spatial-mode" class="mode-btn" aria-pressed="false" type="button">◇ Spatial carousel</button>
+   <button id="play-artist" class="pill outline" type="button">▶ Fullscreen show</button>
+  </div>
+ </div>
+ <div id="artist-wall" class="artist-wall" aria-label="Twenty artworks"></div>
+ <div id="spatial-stage" class="spatial-stage" hidden>
+  <div class="stage-topline"><div class="overline">SPATIAL VIEW <button class="tiny-info" data-info="spatial" aria-label="About spatial view">i</button></div><span id="stage-counter">01 / 20</span></div>
+  <div class="perspective-scene">
+   <button id="spatial-prev" class="spatial-side side-left" type="button" aria-label="Previous work"><img id="stage-left" alt=""></button>
+   <button id="spatial-current" class="spatial-center" type="button" aria-label="Open current artwork fullscreen"><img id="stage-main" alt=""></button>
+   <button id="spatial-next" class="spatial-side side-right" type="button" aria-label="Next work"><img id="stage-right" alt=""></button>
+  </div>
+  <div class="stage-footer"><button id="stage-prev-button" class="ghost" type="button">← Previous</button><div class="stage-dots" id="stage-dots" aria-label="Current artwork"></div><button id="stage-next-button" class="ghost" type="button">Next →</button></div>
+ </div>
+ <div class="next-artist-bar"><button class="ghost" type="button" id="previous-artist">← Previous artist</button><span>TWENTY WORKS. ONE ARTIST. NO COMPROMISES.</span><button class="ghost" type="button" id="next-artist">Next artist →</button></div>
+</section>
+</main>
+<footer class="footer"><span>TWENTYX • A multidimensional self-evolving art exhibition.</span><span>TwentyX Presented By ArtVision • Twenty works of art on X.</span></footer>
+</div>
+
+<dialog id="help-modal" class="glass-dialog"><div class="dialog-head"><div class="overline">YOUR GUIDE TO TWENTYX</div><button id="close-help" class="icon-btn" type="button" aria-label="Close information">×</button></div><h2 id="help-title"></h2><div id="help-body"></div><button id="help-done" class="pill primary" type="button">Got it ↗</button></dialog>
+
+<dialog id="selection-modal" class="glass-dialog selection-dialog"><div class="dialog-head"><div class="overline">THE TWENTYX CINEMA</div><button id="close-selection" class="icon-btn" type="button" aria-label="Close slideshow selection">×</button></div><h2>Compose your own exhibition.</h2><p class="dialog-muted">Choose one artist, a few favorites, or the entire community. Every dimension belongs to the art.</p><div class="select-actions"><button class="ghost" id="select-all" type="button">Select all</button><button class="ghost" id="select-none" type="button">Clear selection</button></div><div id="artist-checklist" class="artist-checklist"></div><div class="dialog-footer"><span id="selection-count">0 selected</span><button class="pill primary" id="launch-selection" type="button">▶ Start slideshow</button></div></dialog>
+
+<div id="cinema" class="cinema" role="dialog" aria-modal="true" aria-label="Fullscreen artwork slideshow" aria-hidden="true" tabindex="-1">
+ <div class="cinema-background" aria-hidden="true"></div>
+ <div class="cinema-top"><div><span class="cinema-kicker">ARTVISION X / TWENTYX CINEMA</span><h2 id="cinema-artist"></h2><span id="cinema-progress"></span></div><div class="cinema-top-actions"><a id="cinema-follow" target="_blank" rel="noopener noreferrer">Follow artist ↗</a><button class="cinema-icon" id="cinema-info" aria-label="Slideshow help">i</button><button class="cinema-icon" id="cinema-close" aria-label="Exit slideshow">×</button></div></div>
+ <div class="cinema-viewport"><button id="cinema-previous" class="cinema-arrow left" aria-label="Previous artwork">‹</button><img id="cinema-img" alt="Art in slideshow"><button id="cinema-next" class="cinema-arrow right" aria-label="Next artwork">›</button></div>
+ <div class="cinema-bottom"><div class="cinema-nav"><button id="cinema-previous-artist" type="button">↑ Previous artist</button><button id="cinema-play" type="button">▶ Play</button><button id="cinema-next-artist" type="button">↓ Next artist</button></div><div class="cinema-tools"><label for="cinema-speed">Interval <select id="cinema-speed"><option value="3000">3s</option><option value="5000" selected>5s</option><option value="8000">8s</option><option value="12000">12s</option></select></label><span>← → artwork &nbsp; ↑ ↓ artist &nbsp; Space play/pause</span></div></div>
+</div>
+</body>
+</html>
