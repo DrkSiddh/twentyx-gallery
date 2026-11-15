@@ -23,11 +23,11 @@ let wallMode='wall';
 let selection=new Set();
 const prefersReduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const help={
-  about:['What is TwentyX?','Twenty works. One post. No compromises. TwentyX is an independent living gallery celebrating full twenty-artwork posts shared by artists in the ArtVision X community. Explore their complete selections, follow their profiles on X, and discover the artists behind the work.'],
-  updates:['When does the gallery update?','The publishing window is 6:00 AM and 6:00 PM Pacific Time. Scheduled GitHub Actions can be delayed or skipped. New works are only published after their twenty media links are validated and admitted to the archive.'],
-  join:['How to participate','Share a post containing exactly twenty original media attachments with #TwentyX in the ArtVision X community on X. Twenty is the maximum: this exhibition is dedicated to maxis. Discovery and admission still depend on the connected collection process.'],
+  about:['What is TwentyX?','TwentyX Presented By ArtVision is a multidimensional self-evolving art exhibition. Every artist curates twenty works of art on X. Enter their solo exhibitions, experience the work in multiple dimensions, and follow the artists who made it.'],
+  updates:['When does the gallery update?','The publishing window is 6:00 AM and 6:00 PM Pacific Time. Scheduled GitHub Actions can be delayed or skipped. New works enter the exhibition only after all twenty media references pass validation.'],
+  join:['How to participate','Share exactly twenty original artworks with #TwentyX on X. For discovery, post in ArtVision's X group. Twenty is the maximum. New submissions appear only after verification.'],
   browse:['Exploring the exhibition','Select an artist to view all twenty works on a full-width exhibition wall, or switch to the spatial carousel. Use Surprise me for a chance encounter. The slideshow studio lets you select any combination of artists, or play the entire gallery.'],
-  qr:['What does the QR card do?','Download a portrait-format welcome graphic featuring the artist and a scannable QR code. It links directly to that artist’s TwentyX page. The link will function on the public domain when this update is published.'],
+  qr:['What does the exhibition brochure do?','Download a portrait-format exhibition invitation featuring all twenty original works, the artist’s curatorial credit, and a scannable QR code linking to their full-sized solo exhibition. The link will function on the public domain when this update is published.'],
   spatial:['About the spatial carousel','A cinematic, three-panel perspective viewer. The original two-dimensional artworks remain unchanged. Use Previous or Next to cycle through all twenty; click the center image to enter the immersive viewer.'],
   cinema:['Cinematic slideshow controls','Left and right arrows move between artworks. Up and down arrows switch between the artists you selected. On touchscreens, swipe horizontally for artwork and vertically to move between artists. Space toggles autoplay; Escape exits. Camera gestures are not required or enabled.']
 };
@@ -77,6 +77,15 @@ function makeTile(a,i,className){
  tile.setAttribute('aria-label','Open artwork '+(i+1)+' of 20 by '+a.name);
  const img=create('img');img.src=a.media[i];img.loading='lazy';img.decoding='async';
  img.alt='Artwork '+(i+1)+' of 20 by '+a.name;img.referrerPolicy='no-referrer';
+ img.addEventListener('error',()=>{
+  if(!img.dataset.retry){
+   img.dataset.retry='1';
+   try{const retry=new URL(a.media[i]);retry.searchParams.set('name','medium');img.src=retry.href;return}catch{}
+  }
+  const fallback=link('View work on X ↗',a.postUrl,'artwork-thumb artwork-unavailable');
+  fallback.setAttribute('aria-label','Artwork '+(i+1)+' unavailable: open original X post');
+  tile.replaceWith(fallback);
+ });
  tile.append(img);return tile;
 }
 function renderHome(){
@@ -267,7 +276,7 @@ async function downloadPoster(a,target){
   ctx.fillStyle='#f4a2c8';ctx.fillText('TO THE 20.',66,426);
   let fontSize=88;
   do{ctx.font='800 '+fontSize+'px Inter, sans-serif';fontSize-=2}while(ctx.measureText(a.name).width>920&&fontSize>26);
-  ctx.fillStyle='#ffffff';ctx.fillText(a.name,74,580);
+  ctx.fillStyle='#ffffff';ctx.fillText('CURATED BY',74,520);ctx.fillText(a.name,74,600);
   ctx.font='32px Inter, sans-serif';ctx.fillStyle='#e3d6ee';ctx.fillText('@'+artistHandle(a)+'  ·  20 WORKS / ONE POST',76,635);
   ctx.fillStyle='#ffffff';ctx.fillRect(76,711,445,445);
   const qr=await window.QRCode.toDataURL(artistURL(a),{width:420,margin:2,errorCorrectionLevel:'H',color:{dark:'#1b1432',light:'#ffffff'}});
@@ -275,9 +284,9 @@ async function downloadPoster(a,target){
   ctx.font='bold 41px Inter, sans-serif';ctx.fillStyle='#ffffff';
   ctx.fillText('EXPLORE',552,824);ctx.fillText('THE FULL',552,880);ctx.fillText('COLLECTION',552,936);
   ctx.font='27px Inter, sans-serif';ctx.fillStyle='#e9d6f2';
-  ctx.fillText('Scan to visit the artist',552,1010);ctx.fillText('in the TwentyX gallery.',552,1051);
+  ctx.fillText('Scan to explore the full size',552,1010);ctx.fillText('exhibition.',552,1051);
   ctx.font='30px Inter, sans-serif';ctx.fillStyle='#f4a2c8';
-  ctx.fillText('#TwentyX  •  Twenty is the maximum.',74,1255);
+  ctx.fillText('#TWENTYX • Twenty works of art on X',74,1255);
   const out=document.createElement('a');out.download='TwentyX-'+artistHandle(a)+'-welcome.png';
   out.href=c.toDataURL('image/png');document.body.append(out);out.click();out.remove();
  }catch(error){window.alert('Could not create poster: '+error.message)}
@@ -339,19 +348,40 @@ function bindUI(){
 }
 async function load(){
  setDayPhase();setInterval(setDayPhase,60000);bindUI();
+ let seeded=[];
+ try{
+  const el=byId('seeded-artists');
+  if(el){
+   const data=JSON.parse(el.textContent);
+   if(Array.isArray(data))seeded=sortArtists(data.filter(valid));
+  }
+ }catch(error){console.warn('Initial exhibition seed could not be read:',error)}
+ // Paint all twenty artworks immediately, without a network request.
+ if(seeded.length){
+  artists=seeded;
+  byId('artist-count').textContent=artists.length;
+  byId('work-count').textContent=(artists.length*20).toLocaleString();
+  renderRoute();
+ }
  try{
   const response=await fetch('./artists.json?v='+Math.floor(Date.now()/900000),{cache:'no-store'});
   if(!response.ok)throw Error('HTTP '+response.status);
   const data=await response.json();
-  if(!Array.isArray(data))throw Error('Archive format error');
-  artists=sortArtists(data.filter(valid));
-  if(!artists.length)throw Error('No complete twenty-artwork collections found');
+  if(!Array.isArray(data))throw Error('Exhibition data format error');
+  const fresh=sortArtists(data.filter(valid));
+  if(!fresh.length)throw Error('No complete twenty-work exhibitions found');
+  // A partial or broken live update must never erase the embedded works.
+  const retained=new Map(seeded.map(a=>[artistID(a),a]));
+  fresh.forEach(a=>retained.set(artistID(a),a));
+  artists=sortArtists([...retained.values()]);
   byId('artist-count').textContent=artists.length;
   byId('work-count').textContent=(artists.length*20).toLocaleString();
   renderRoute();
- }catch(e){
-  byId('home-status').textContent='Gallery could not load: '+e.message+'. The public archive has not been altered.';
-  byId('home-view').hidden=false;byId('artist-view').hidden=true;
+ }catch(error){
+  if(!seeded.length){
+   byId('home-status').textContent='The exhibition could not load: '+error.message;
+   byId('home-view').hidden=false;byId('artist-view').hidden=true;
+  }else console.warn('Live refresh unavailable; displaying bundled artworks:',error.message);
  }
 }
 load();
