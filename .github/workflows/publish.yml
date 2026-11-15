@@ -32,15 +32,18 @@ jobs:
         if: steps.window.outputs.allowed == 'true'
         with:
           node-version: '22'
+      - name: Install QR renderer
+        if: steps.window.outputs.allowed == 'true'
+        run: npm install --no-package-lock --ignore-scripts
       - name: Validate, merge and publish without deletions
         if: steps.window.outputs.allowed == 'true'
-        run: node scripts/publish.mjs
+        run: npm run publish
       - name: Commit only changed gallery content
         if: steps.window.outputs.allowed == 'true'
         run: |
           git config user.name "TwentyX Gallery Bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add artists.json data/collections.json data/manifest.json
+          git add artists.json data/collections.json data/manifest.json data/previous-posts.json welcome/
           if ! git diff --cached --quiet; then
             git commit -m "Publish verified TwentyX collections"
             git push
