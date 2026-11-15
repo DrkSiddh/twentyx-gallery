@@ -4,6 +4,11 @@ on:
     # Two daylight-saving-aware candidates per period; local-time gate below.
     - cron: "17 1,2,13,14 * * *"
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "artists.json"
+      - "data/inbox.json"
 permissions:
   contents: write
 concurrency:
@@ -19,7 +24,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
         run: |
           hour=$(TZ=America/Los_Angeles date +%H)
-          if [ "$EVENT_NAME" = "workflow_dispatch" ] || [ "$hour" = "06" ] || [ "$hour" = "18" ]; then
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] || [ "$EVENT_NAME" = "push" ] || [ "$hour" = "06" ] || [ "$hour" = "18" ]; then
             echo "allowed=true" >> "$GITHUB_OUTPUT"
           else
             echo "allowed=false" >> "$GITHUB_OUTPUT"
