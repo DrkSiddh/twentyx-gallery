@@ -76,6 +76,13 @@ async function getPage(token,params,nextToken){
  if(nextToken)url.searchParams.set('pagination_token',nextToken);
  const response=await fetch(url,{headers:{Authorization:'Bearer '+token,Accept:'application/json'},signal:AbortSignal.timeout(25000)});
  const body=await response.json().catch(()=>({}));
+ // Some API tiers omit the community_id field. Retry without it, but then
+ // REQUIRE MANUAL REVIEW: the missing field is never treated as proof.
+ if(response.status===400 && params['tweet.fields']?.includes('community_id')){
+  const fallback={...params,'tweet.fields':params['tweet.fields'].split(',').filter(f=>f!=='community_id').join(',')};
+  console.warn('X API does not accept community_id field; holding all candidates for review.');
+  return getPage(token,fallback,nextToken);
+ }
  if(!response.ok)throw Error('X recent search HTTP '+response.status+' '+String(body.title||body.detail||'').slice(0,140));
  if(body.errors?.length)throw Error('X returned partial search errors; refusing incomplete discovery');
  return body;
