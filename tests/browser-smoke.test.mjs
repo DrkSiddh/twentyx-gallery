@@ -57,7 +57,8 @@ test('slideshow selection opens and shows an actual artwork',async()=>{
   t.doc.querySelector('#launch-selection').click();
   assert.ok(t.doc.querySelector('#cinema').classList.contains('active'));
   assert.match(t.doc.querySelector('#cinema-img').src,/pbs\.twimg\.com\/media/);
-  assert.equal(t.doc.querySelectorAll('#cinema-filmstrip button').length,20);
+  assert.equal(t.doc.querySelector('#cinema-filmstrip'),null,'No thumbnail strip must obscure the artwork');
+  assert.equal(t.doc.querySelectorAll('#cinema-viewport img#cinema-img').length,1);
   t.doc.querySelector('#cinema-next').click();
   assert.match(t.doc.querySelector('#cinema-progress').textContent,/02 \/ 20/);
  }finally{t.close()}
@@ -78,4 +79,21 @@ test('clean @stunnifer route opens solo exhibition and old post-ID URL remains s
   await new Promise(done=>setTimeout(done,45));
   assert.equal(legacy.doc.querySelector('#artist-title').textContent,'Stunnifer');
  }finally{legacy.close()}
+});
+
+
+test('artist credits use display type; brochure download is a same-origin file',async()=>{
+ const t=boot('https://twentyx.artvision.today/@stunnifer/','@stunnifer/index.html');
+ try{
+  await new Promise(done=>setTimeout(done,45));
+  assert.equal(t.doc.querySelector('.artist-presenter').textContent,'Presented by ArtVision');
+  assert.match(t.doc.querySelector('.artist-presenter').className,/iridescent/);
+  const captures=[];
+  t.win.HTMLAnchorElement.prototype.click=function(){captures.push({href:this.href,filename:this.download})};
+  t.doc.querySelector('#download-qr').click();
+  await new Promise(done=>setTimeout(done,30));
+  assert.equal(captures.length,1);
+  assert.match(captures[0].href,/\/welcome\/stunnifer-2121572867485626453\.(svg|png)$/);
+  assert.match(captures[0].filename,/^TwentyX-stunnifer-exhibition\.(svg|png)$/i);
+ }finally{t.close()}
 });
