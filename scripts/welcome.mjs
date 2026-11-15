@@ -8,6 +8,7 @@
 import fs from 'node:fs';
 import sharp from 'sharp';
 import QRCode from 'qrcode';
+import {pathToFileURL} from 'node:url';
 const ROOT='https://twentyx.artvision.today/';
 const W=1080,H=1350;
 const ESC=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&apos;');
@@ -115,6 +116,6 @@ export async function generate(){
  console.log('Brochures created='+created+' deferred='+failed+' saved='+completed.length);
  // Never fail publication because X media CDN is temporarily unavailable.
 }
-if(process.argv[1]&&import.meta.url.endsWith('/'+process.argv[1].replaceAll('\\','/'))){
+if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
  generate().catch(e=>{console.error(e);process.exitCode=1});
 }
