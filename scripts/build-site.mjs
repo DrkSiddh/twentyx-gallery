@@ -45,7 +45,7 @@ function renderCard(a,index){
   +'<div class="card-mosaic">'+originals+'</div>'
   +'<div class="card-footer"><a class="pill primary" href="https://twitter.com/intent/follow?screen_name='+artistHandle+'" data-follow="true" target="_blank" rel="noopener noreferrer">Follow on X ↗</a>'
   +'<a class="ghost" href="'+esc(a.postUrl)+'" target="_blank" rel="noopener noreferrer">Original post ↗</a>'
-  +'<a class="ghost artist-open" href="?artist='+idOf(a)+'">Explore 20 →</a></div>'
+  +'<a class="ghost artist-open" href="/@'+artistHandle.toLowerCase()+'/">Explore 20 →</a></div>'
   +'</article>';
 }
 const initial=ordered.map(renderCard).join('\n');
@@ -71,4 +71,16 @@ if(!output.includes('id="seeded-artists"')||!output.includes('FEATURED ARTIST')|
 }
 const result='index.html';
 fs.writeFileSync(result,output);
-console.log('Built fully self-contained TwentyX exhibition:',artists.length,'artists;',artists.length*20,'artwork tiles;',Buffer.byteLength(output),'bytes');
+const slugs=new Set();
+for(const artist of ordered){
+ const slug=handle(artist).toLowerCase();
+ if(!/^[a-z0-9_]{1,15}$/.test(slug)||slugs.has(slug))throw Error('Unsafe or duplicate artist handle '+slug);
+ slugs.add(slug);
+ const path='@'+slug;
+ fs.mkdirSync(path,{recursive:true});
+ const canonical='https://twentyx.artvision.today/'+path+'/';
+ const artistHtml=output.replace('<title>TwentyX • ArtVision X</title>','<title>'+esc(artist.name)+' — TwentyX Presented By ArtVision</title>')
+   .replace('</head>','<link rel="canonical" href="'+canonical+'">\n<meta property="og:title" content="'+esc(artist.name)+' — TwentyX">\n<meta property="og:description" content="A twenty-work digital art exhibition curated by '+esc(artist.name)+'.">\n</head>');
+ fs.writeFileSync(path+'/index.html',artistHtml);
+}
+console.log('Built TwentyX exhibition:',artists.length,'artist rooms;',artists.length*20,'works;',Buffer.byteLength(output),'bytes home');

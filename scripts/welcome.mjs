@@ -48,7 +48,7 @@ export async function makeBrochure(a,{loadImage=getThumb}={}){
  if(!/^\d+$/.test(id)||!/^[a-z0-9_]{1,15}$/i.test(handle))throw Error('Invalid artist URL');
  const tiles=await Promise.all(a.media.map(loadImage));
  if(tiles.some(b=>!Buffer.isBuffer(b)))throw Error('Incomplete media retrieval');
- const code=await QRCode.toDataURL(ROOT+'?artist='+id,{margin:2,errorCorrectionLevel:'H',width:170,color:{dark:'#151329',light:'#ffffff'}});
+ const code=await QRCode.toDataURL(ROOT+'@'+handle.toLowerCase()+'/',{margin:2,errorCorrectionLevel:'H',width:170,color:{dark:'#151329',light:'#ffffff'}});
  const qrBase64=code.split(',')[1];
  const name=ESC(a.name),at=ESC(handle);
  const titleSize=a.name.length>26?36:a.name.length>18?44:a.name.length>12?52:68;
