@@ -1,10 +1,10 @@
 {
-  "completedAt": "2026-11-16T02:18:55.133Z",
+  "completedAt": "2026-11-16T14:36:28.582Z",
   "method": "public-web+FxEmbed (no paid X API)",
-  "knownExhibitions": 9,
+  "knownExhibitions": 11,
   "candidatesFound": 18,
-  "checked": 16,
-  "admitted": 2,
+  "checked": 14,
+  "admitted": 0,
   "sourceChecks": [
     {
       "source": "community",
@@ -57,26 +57,10 @@
   ],
   "results": [
     {
-      "id": "2122129896956702910",
-      "handle": "GISELXPHOTO",
-      "kind": "admit",
-      "reason": "verified-hashtag-and-20-original-photos",
-      "observed": null,
-      "source": "free-search"
-    },
-    {
       "id": "2122121913560621342",
       "handle": "GISELXPHOTO",
       "kind": "review",
       "reason": "twenty-media-not-proven",
-      "observed": null,
-      "source": "free-search"
-    },
-    {
-      "id": "2122118597472370935",
-      "handle": "HPLoveBux",
-      "kind": "admit",
-      "reason": "verified-hashtag-and-20-original-photos",
       "observed": null,
       "source": "free-search"
     },
