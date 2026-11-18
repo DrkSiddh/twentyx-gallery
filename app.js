@@ -11,7 +11,7 @@ const create=(tag,className,text)=>{
 const POSTS='https://x.com/i/communities/1835009931231322257';
 const CANONICAL='https://twentyx.artvision.today/';
 const PINNED=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim'];
-const THEME_IDS=['violet','analog','heritage'];
+const THEME_IDS=['violet','analog','heritage','nostalgia','glitch'];
 const FEATURE_HOUR_MS=3600000;
 let lastFeatureHour=null,currentTheme='violet',pendingXUrl='';
 let artists=[];
@@ -99,6 +99,86 @@ function setDayPhase(){
  const phase=clock>=16*60+20&&clock<16*60+44?'green':hour>=5&&hour<10?'daybreak':hour>=10&&hour<17?'day':hour>=17&&hour<21?'sunset':'night';
  document.body.dataset.phase=phase;
 }
+
+/* Art-responsive atmosphere: sample the actual displayed X image when CORS
+   permits; otherwise sample this artist's SAME-ORIGIN brochure collage made
+   exclusively from their twenty authentic images. No fake colors or uploads. */
+let paletteRequest=0;
+const artworkPaletteCache=new Map();
+function extractArtworkColors(rgba,width,height){
+ const bins=new Map();
+ for(let y=0;y<height;y+=1)for(let x=0;x<width;x+=1){
+  const p=(y*width+x)*4;
+  if(rgba[p+3]<224)continue;
+  const rgb=[rgba[p],rgba[p+1],rgba[p+2]];
+  const max=Math.max(...rgb),min=Math.min(...rgb),delta=max-min;
+  const saturation=max?delta/max:0;
+  const luminance=(rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722)/255;
+  if(luminance<.10||luminance>.96||saturation<.11)continue;
+  // Edges matter: a yellow painted canvas rim should warm the page.
+  const edge=x<width*.17||x>width*.83||y<height*.17||y>height*.83;
+  const weight=(edge?4:1)*(0.35+saturation*2.4);
+  const key=rgb.map(v=>Math.floor(v/40)).join(':');
+  let item=bins.get(key);if(!item){item={r:0,g:0,b:0,weight:0};bins.set(key,item)}
+  item.r+=rgb[0]*weight;item.g+=rgb[1]*weight;item.b+=rgb[2]*weight;item.weight+=weight;
+ }
+ const sorted=[...bins.values()].sort((a,b)=>b.weight-a.weight);
+ if(!sorted.length)return null;
+ const colors=sorted.map(z=>[z.r,z.g,z.b].map(v=>Math.round(v/z.weight)));
+ const edge=colors[0];
+ const accent=colors.find((v,i)=>i>0&&Math.abs(v[0]-edge[0])+Math.abs(v[1]-edge[1])+Math.abs(v[2]-edge[2])>92)||edge;
+ const asCSS=a=>'rgb('+a.join(' ')+')';
+ return {edge:asCSS(edge),accent:asCSS(accent)};
+}
+function applyPaletteColors(colors){
+ if(!colors)return;
+ document.body.style.setProperty('--art-edge',colors.edge);
+ document.body.style.setProperty('--art-accent',colors.accent);
+ document.body.dataset.artColor='ready';
+}
+function artistBrochurePaletteUrl(artist){
+ return artist?'/welcome/'+artistHandle(artist).toLowerCase()+'-'+artistID(artist)+'.png':null;
+}
+function sampleArtworkPalette(source,token,fallback,phase=0){
+ if(!source||token!==paletteRequest)return;
+ if(artworkPaletteCache.has(source)){
+  applyPaletteColors(artworkPaletteCache.get(source));return;
+ }
+ const image=new Image();
+ image.crossOrigin='anonymous';
+ image.onload=()=>{
+  if(token!==paletteRequest)return;
+  try{
+   const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});
+   if(!ctx)return;
+   canvas.width=48;canvas.height=48;
+   ctx.drawImage(image,0,0,48,48);
+   const rgba=ctx.getImageData(0,0,48,48);
+   const colors=extractArtworkColors(rgba.data,48,48);
+   if(!colors)throw Error('No useful artwork color sample');
+   artworkPaletteCache.set(source,colors);
+   applyPaletteColors(colors);
+  }catch(e){
+   if(!phase&&fallback&&source!==fallback)sampleArtworkPalette(fallback,token,null,1);
+  }
+ };
+ image.onerror=()=>{
+  if(token===paletteRequest&&!phase&&fallback&&source!==fallback)sampleArtworkPalette(fallback,token,null,1);
+ };
+ try{
+  const url=new URL(source,location.origin);
+  if(url.hostname==='pbs.twimg.com')url.searchParams.set('name','small');
+  image.src=url.href;
+ }catch{
+  if(!phase&&fallback)sampleArtworkPalette(fallback,token,null,1);
+ }
+}
+function colorFromArtwork(source,artist){
+ if(!source)return;
+ const token=++paletteRequest;
+ const fallback=artistBrochurePaletteUrl(artist);
+ sampleArtworkPalette(source,token,fallback);
+}
 function setThemeDock(open){
  const dock=byId('theme-dock');
  dock.dataset.open=String(Boolean(open));
@@ -114,6 +194,8 @@ function setTheme(theme){
  document.body.dataset.theme=theme;
  byId('theme-select').value=theme;
  try{window.localStorage.setItem('twentyx-theme-v1',theme)}catch{}
+ // Artwork palette is independent of theme selection, so a chosen theme is
+ // never silently overwritten by palette extraction.
  if(byId('theme-dock').dataset.open==='true')setThemeDock(false);
 }
 function showGuide(section='ideas'){
@@ -258,7 +340,8 @@ function featureWork(next=false){
   byId('feature-number').textContent=String(featuredIndex+1).padStart(2,'0')+' / 20';
   byId('feature-title').textContent=featuredArtist.name;
   fitArtistHeadlines();
-  byId('feature-subline').textContent='Hourly spotlight · '+featuredArtist.name+' · '+featuredArtist.date;
+  byId('feature-subline').textContent='Artist-selected · '+featuredArtist.name;
+  if(document.body.dataset.view!=='artist'&&!byId('cinema').classList.contains('active'))colorFromArtwork(src,featuredArtist);
   img.classList.remove('change');
  };
  if(prefersReduced||!next)reveal();else window.setTimeout(reveal,220);
@@ -405,6 +488,7 @@ function renderSpatial(){
  if(!currentArtist)return;
  const n=currentArtist.media.length;
  byId('stage-main').src=currentArtist.media[spatialIndex];
+ colorFromArtwork(currentArtist.media[spatialIndex],currentArtist);
  setArtBackdrop(byId('spatial-current'),currentArtist.media[spatialIndex]);
  byId('stage-main').alt='Artwork '+(spatialIndex+1)+' of 20 by '+currentArtist.name;
  byId('stage-left').src=currentArtist.media[(spatialIndex+n-1)%n];
@@ -424,9 +508,10 @@ function moveSpatial(delta){spatialIndex=(spatialIndex+delta+20)%20;renderSpatia
 function renderArtist(a){
  currentArtist=a;
  document.title=a.name+' • TwentyX Gallery';
+ colorFromArtwork(a.media[0],a);
  byId('artist-title').textContent=a.name;
  fitArtistHeadlines();
- byId('artist-handle').textContent='@'+artistHandle(a)+' on X · 20 original works';
+ byId('artist-handle').textContent='@'+artistHandle(a)+' on X · 20 works';
  byId('artist-date').textContent=curationDate(a);
  byId('follow-link').href=followIntent(a);byId('follow-link').dataset.follow='true';
  byId('original-link').href=a.postUrl;
@@ -451,10 +536,14 @@ function renderRoute(){
  const onArtist=Boolean(match);
  byId('home-view').hidden=onArtist;
  byId('artist-view').hidden=!onArtist;
+ document.body.dataset.view=onArtist?'artist':'home';
+ byId('header-subscribe').hidden=onArtist;
+ byId('opportunities').hidden=onArtist;
  if(onArtist)renderArtist(match);
  else{
   currentArtist=null;document.title='TwentyX • ArtVision X';
   renderHome();
+  if(!byId('cinema').classList.contains('active')&&featuredArtist)colorFromArtwork(featuredArtist.media[featuredIndex],featuredArtist);
  }
 }
 function openHelp(key){
@@ -515,6 +604,7 @@ function renderCinema(){
  byId('cinema-progress').textContent='WORK '+String(viewerWorkIndex+1).padStart(2,'0')+' / 20  ·  ARTIST '+String(viewerArtistIndex+1).padStart(2,'0')+' / '+String(viewerArtists.length).padStart(2,'0');
  const image=byId('cinema-img');
  image.src=a.media[viewerWorkIndex];
+ colorFromArtwork(a.media[viewerWorkIndex],a);
  setArtBackdrop(byId('cinema').querySelector('.cinema-viewport'),a.media[viewerWorkIndex]);
  image.alt='Artwork '+(viewerWorkIndex+1)+' of 20 by '+a.name;
  image.style.animation='none';void image.offsetWidth;image.style.animation='';
@@ -560,6 +650,8 @@ function stopCinema(){
  if(document.fullscreenElement && typeof document.exitFullscreen==='function') Promise.resolve(document.exitFullscreen()).catch(()=>{});
  cinemaNativeFullscreen=false;
  viewerArtists=[];
+ if(currentArtist)colorFromArtwork(currentArtist.media[spatialIndex]||currentArtist.media[0],currentArtist);
+ else if(featuredArtist)colorFromArtwork(featuredArtist.media[featuredIndex],featuredArtist);
  if(lastFocus&&lastFocus.isConnected)lastFocus.focus();
 }
 async function copyLink(url,target){
