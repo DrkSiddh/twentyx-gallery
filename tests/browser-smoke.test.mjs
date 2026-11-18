@@ -157,7 +157,7 @@ test('chronological arrival gallery and priority-first full rotation cycle',asyn
   assert.equal(new Set(scheduled.map(x=>x.postUrl)).size,cards.length,'every artist must receive an hourly feature before the cycle restarts');
   assert.equal(t.win.currentFeature((hour+cards.length)*3600000).artist.postUrl,scheduled[0].postUrl,'featured cycle repeats after all artists');
   const restart=t.win.currentFeature(0).lineup;
-  assert.deepEqual(restart.slice(0,priority.length).map(a=>a.handle.toLowerCase()),priority,'curatorial priorities lead each full featured cycle');
+  assert.deepEqual(Array.from(restart.slice(0,priority.length),a=>String(a.handle).toLowerCase()),priority,'curatorial priorities lead each full featured cycle');
   assert.equal(t.doc.querySelectorAll('#feature-ticker-track .ticker-entry').length,16);
   assert.match(t.doc.querySelector('#feature-next-change').textContent,/NEXT FEATURE IN/);
   t.doc.querySelector('#search').value='YenaArt';
