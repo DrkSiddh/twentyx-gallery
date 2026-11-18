@@ -107,7 +107,9 @@ test('single-word artist names cannot wrap and dynamic fit marks both headlines'
   const feature=t.doc.querySelector('#feature-title');
   feature.textContent='Pepavaggio';t.win.fitArtistHeadlines();
   assert.ok(feature.classList.contains('single-moniker'));
-  t.doc.querySelector('.artist-name-link').click();
+  t.doc.querySelector('#search').value='Stunnifer';
+   t.doc.querySelector('#search').dispatchEvent(new t.win.Event('input',{bubbles:true}));
+   t.doc.querySelector('.artist-name-link').click();
   assert.ok(t.doc.querySelector('#artist-title').classList.contains('single-moniker'));
   const styles=readFileSync('styles.css','utf8');
   assert.match(styles,/\.feature-artist-name\.single-moniker[^}]+white-space:nowrap/);
