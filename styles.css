@@ -2274,3 +2274,240 @@ body[data-theme="violet"]{--pink:#F4A2C8;--glass:rgba(9,17,38,.82);--gloss:linea
 @media(prefers-reduced-motion:reduce){.featured-six-card>.featured-six-cta{transition:none}}
 
 body[data-view="artist"] #header-subscribe{display:inline-flex!important}
+
+
+/* TwentyX v13: fix the spatial mode hidden-state specificity regression.
+   No masonry display rule may override the active view switch. */
+#artist-wall[hidden],
+#spatial-stage[hidden],
+.artist-room-display > [hidden]{display:none!important}
+
+/* Solo artist room: information is the compact docent, not an art obstruction. */
+body[data-view="artist"] .page-shell{width:min(calc(100% - 3vw),1900px)}
+body[data-view="artist"] #artist-view{
+ display:grid!important;
+ grid-template-columns:minmax(230px,285px) minmax(0,1fr);
+ align-items:start;gap:clamp(12px,1.5vw,24px);
+ padding:clamp(10px,1.25vw,20px)!important;
+ min-height:0!important
+}
+.artist-room-rail{
+ position:sticky;top:10px;align-self:start;
+ display:flex;flex-direction:column;gap:9px;
+ max-height:calc(100dvh - 20px);overflow-y:auto;overflow-x:hidden;
+ scrollbar-width:thin;padding:3px 7px 7px 2px;
+ min-width:0
+}
+.artist-room-display{min-width:0;width:100%;align-self:start}
+body[data-view="artist"] .artist-room-rail .artist-topline,
+body[data-view="artist"] .artist-room-rail .spotlight-heading,
+body[data-view="artist"] .artist-room-rail .spotlight-actions{
+ margin:0!important;border-radius:10px;
+ padding:clamp(10px,1.1vw,16px)!important;
+ width:100%;min-width:0
+}
+body[data-view="artist"] .artist-room-rail .artist-topline{padding:6px!important}
+body[data-view="artist"] .artist-room-rail .spotlight-heading{border-left:2px solid var(--pink)}
+body[data-view="artist"] .spotlight-title-wrap{max-width:100%;min-width:0;width:100%}
+body[data-view="artist"] .spotlight-title-wrap h1{
+ font-size:clamp(21px,2.5vw,41px)!important;
+ line-height:1.06;letter-spacing:-.035em;margin:0 0 10px!important;
+ overflow-wrap:anywhere;white-space:normal!important
+}
+body[data-view="artist"] .spotlight-title-wrap .artist-byline{
+ display:flex;flex-direction:column;align-items:flex-start;
+ gap:3px;font-size:clamp(12px,.95vw,15px);line-height:1.4;
+ overflow-wrap:anywhere
+}
+body[data-view="artist"] .artist-room-rail .spotlight-actions{
+ display:flex;flex-direction:column;align-items:stretch;
+ justify-content:flex-start;gap:12px
+}
+body[data-view="artist"] .spotlight-main-actions,
+body[data-view="artist"] .view-switch{
+ display:flex;flex-direction:column;align-items:stretch;gap:6px;width:100%;
+ padding:0;border:0;border-radius:0;background:transparent
+}
+body[data-view="artist"] .spotlight-main-actions .pill,
+body[data-view="artist"] .spotlight-main-actions .ghost,
+body[data-view="artist"] .view-switch .mode-btn,
+body[data-view="artist"] #play-artist{
+ display:flex;justify-content:center;align-items:center;
+ white-space:normal;text-align:center;width:100%;min-width:0;
+ min-height:42px;padding:9px 10px;font-size:clamp(12px,.9vw,15px)
+}
+body[data-view="artist"] .spotlight-main-actions .icon-btn{align-self:flex-end}
+body[data-view="artist"] .artist-interaction-cue{
+ display:block;margin:0;padding:8px 11px;border-radius:9px;
+ font-size:12px;line-height:1.45
+}
+body[data-view="artist"] .artist-interaction-cue strong{display:block;font-size:13px}
+body[data-view="artist"] .artist-interaction-cue .interaction-cue-symbol{display:none}
+body[data-view="artist"] .artist-interaction-cue span:last-child{font-size:12px}
+body[data-view="artist"] .next-artist-bar{
+ display:flex;flex-direction:column;align-items:stretch;
+ margin:0;padding:8px!important;gap:7px;border:0;border-radius:10px
+}
+body[data-view="artist"] .next-artist-bar span{display:none}
+body[data-view="artist"] .next-artist-bar button{
+ width:100%;min-height:40px;white-space:normal;text-align:center;
+ font-size:13px;padding:8px 10px
+}
+body[data-view="artist"] .artist-room-display .artist-wall{
+ display:block!important;column-count:3;column-gap:3px;
+ width:100%;padding:0;margin:0!important;
+ background:transparent;border:0;border-radius:0
+}
+body[data-view="artist"] .artist-room-display .artist-wall[hidden]{display:none!important}
+body[data-view="artist"] .artist-room-display .spatial-stage{
+ width:100%;min-width:0;margin:0;padding:clamp(12px,1.3vw,22px);
+ overflow:hidden;border-radius:12px;
+ background:linear-gradient(130deg,rgba(9,10,22,.77),rgba(26,16,39,.8))
+}
+body[data-view="artist"] .artist-room-display .spatial-stage[hidden]{display:none!important}
+body[data-view="artist"] .artist-room-display .perspective-scene{
+ height:min(74dvh,790px);min-height:420px;
+ padding:12px 0;gap:0;perspective:1550px;overflow:hidden
+}
+body[data-view="artist"] .artist-room-display .spatial-center{width:62%;height:94%}
+body[data-view="artist"] .artist-room-display .spatial-side{width:20%;height:74%;opacity:.78}
+body[data-view="artist"] .artist-room-display .perspective-scene img{
+ width:100%;height:100%;object-fit:contain!important
+}
+body[data-view="artist"] .artist-room-display .stage-footer{padding-top:10px}
+
+/* Single artwork cinema: the image gets the entire right-hand stage.
+   All identity, brochure, playback and navigation live on one quiet rail. */
+#cinema.active{
+ display:grid!important;
+ grid-template-columns:clamp(225px,19vw,305px) minmax(0,1fr)!important;
+ grid-template-rows:minmax(0,1fr)!important;
+ align-items:stretch;justify-items:stretch;height:100dvh;
+ overflow:hidden;padding:0!important
+}
+#cinema.active .cinema-controls-rail{
+ display:flex;flex-direction:column;gap:22px;
+ grid-column:1;grid-row:1;z-index:6;min-height:0;min-width:0;
+ padding:clamp(16px,2.5vh,30px) clamp(12px,1.55vw,24px);
+ background:rgba(9,10,23,.96);
+ border-right:1px solid rgba(244,162,200,.25);
+ overflow-y:auto;overflow-x:hidden;scrollbar-width:thin
+}
+#cinema.active .cinema-top,
+#cinema.active .cinema-bottom{
+ display:flex;flex-direction:column;align-items:flex-start;
+ justify-content:flex-start;gap:12px;
+ flex:0 0 auto;width:100%;min-width:0;
+ min-height:0!important;height:auto!important;
+ margin:0;padding:0!important;border:0!important;
+ border-radius:0!important;background:transparent!important;
+ box-shadow:none!important;backdrop-filter:none!important
+}
+#cinema.active .cinema-top>div{width:100%;min-width:0}
+#cinema.active .cinema-kicker{display:block;font-size:11px;letter-spacing:.13em;line-height:1.5}
+#cinema.active #cinema-artist{
+ max-width:100%;margin:12px 0!important;
+ font-size:clamp(24px,2.5vw,38px)!important;
+ overflow-wrap:anywhere;line-height:1.08
+}
+#cinema.active #cinema-progress{display:block;font-size:12px;line-height:1.5}
+#cinema.active .cinema-inline-help{display:none}
+#cinema.active .cinema-top-actions{
+ width:100%;display:flex;flex-wrap:wrap;gap:8px;align-items:center
+}
+#cinema.active .cinema-top-actions a{font-size:13px;white-space:normal}
+#cinema.active .cinema-brochure{min-height:38px;font-size:13px}
+#cinema.active .cinema-bottom{
+ margin-top:auto;padding-top:16px!important;
+ border-top:1px solid rgba(255,255,255,.16)!important;gap:15px
+}
+#cinema.active .cinema-nav{width:100%;display:flex;flex-direction:column;gap:7px;align-items:stretch}
+#cinema.active .cinema-nav button{
+ width:100%;min-height:41px;font-size:13px;
+ text-align:center;white-space:normal
+}
+#cinema.active .cinema-tools{display:flex;flex-direction:column;align-items:flex-start;gap:8px;font-size:12px}
+#cinema.active .cinema-tools>span{font-size:10px;line-height:1.4}
+#cinema.active .cinema-viewport{
+ grid-column:2;grid-row:1;
+ width:100%;height:100dvh!important;max-height:100dvh;
+ min-width:0;min-height:0!important;max-width:100%;
+ margin:0;padding:clamp(8px,1.5vh,19px) clamp(35px,4vw,75px)!important;
+ overflow:hidden;display:flex;align-items:center;justify-content:center
+}
+#cinema.active .cinema-viewport img#cinema-img{
+ display:block;width:100%;height:100%;max-height:100%;max-width:100%;
+ object-fit:contain!important;object-position:center;
+ margin:0;padding:0
+}
+#cinema.active .cinema-arrow{z-index:5}
+#cinema.active.playing.controls-hidden{
+ grid-template-columns:0px minmax(0,1fr)!important;
+ grid-template-rows:minmax(0,1fr)!important
+}
+#cinema.active.playing.controls-hidden .cinema-controls-rail{
+ opacity:0;visibility:hidden;pointer-events:none;padding:0;
+ border:0;overflow:hidden
+}
+#cinema.active.playing.controls-hidden .cinema-viewport{padding:5px!important}
+
+@media(max-width:900px){
+ body[data-view="artist"] #artist-view{grid-template-columns:minmax(205px,245px) minmax(0,1fr)}
+ body[data-view="artist"] .artist-room-display .artist-wall{column-count:2}
+ body[data-view="artist"] .artist-room-display .perspective-scene{height:min(64dvh,680px);min-height:310px}
+}
+@media(max-width:690px){
+ body[data-view="artist"] .page-shell{width:calc(100% - 18px)}
+ body[data-view="artist"] #artist-view{
+  display:flex!important;flex-direction:column;gap:9px;
+  padding:9px!important
+ }
+ .artist-room-rail{
+  position:static;max-height:none;overflow:visible;
+  width:100%;padding:0;gap:6px
+ }
+ body[data-view="artist"] .artist-room-rail .spotlight-heading{padding:8px 12px!important}
+ body[data-view="artist"] .spotlight-title-wrap h1{font-size:clamp(26px,8vw,42px)!important}
+ body[data-view="artist"] .artist-room-rail .spotlight-actions{padding:8px!important}
+ body[data-view="artist"] .spotlight-main-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ body[data-view="artist"] .view-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ body[data-view="artist"] #play-artist{grid-column:1/-1}
+ body[data-view="artist"] .artist-interaction-cue{display:none}
+ body[data-view="artist"] .next-artist-bar{display:flex;flex-direction:row}
+ body[data-view="artist"] .next-artist-bar button{min-width:0;font-size:12px}
+ body[data-view="artist"] .artist-room-display .artist-wall{column-count:2}
+ body[data-view="artist"] .artist-room-display .perspective-scene{min-height:290px;height:57vw}
+ #cinema.active{
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:minmax(0,1fr) auto!important
+ }
+ #cinema.active .cinema-viewport{
+  grid-column:1;grid-row:1;height:100%!important;max-height:100%;
+  padding:8px 39px!important
+ }
+ #cinema.active .cinema-controls-rail{
+  grid-column:1;grid-row:2;
+  max-height:190px;overflow-y:auto;
+  flex-direction:column;gap:8px;
+  border-right:0;border-top:1px solid #ffffff30;
+  padding:9px 12px
+ }
+ #cinema.active .cinema-top{flex-direction:row;gap:10px;justify-content:space-between;align-items:center}
+ #cinema.active .cinema-top>div{width:auto;flex:1}
+ #cinema.active .cinema-kicker{font-size:8px}
+ #cinema.active #cinema-artist{font-size:clamp(17px,4.8vw,26px)!important;margin:2px 0!important}
+ #cinema.active #cinema-progress{font-size:10px}
+ #cinema.active .cinema-top-actions{width:auto;flex:0 0 auto;gap:5px}
+ #cinema.active .cinema-top-actions a{display:none}
+ #cinema.active .cinema-brochure{font-size:10px;min-height:31px;padding:5px 8px}
+ #cinema.active .cinema-icon{width:30px;height:30px;font-size:15px}
+ #cinema.active .cinema-bottom{flex-direction:row;align-items:center;justify-content:space-between;margin:0;padding:0!important;border:0!important;gap:5px}
+ #cinema.active .cinema-nav{width:auto;display:flex;flex-direction:row;gap:4px}
+ #cinema.active .cinema-nav button{width:auto;min-height:32px;font-size:10px;padding:5px}
+ #cinema.active .cinema-tools{font-size:10px}
+ #cinema.active .cinema-tools>span{display:none}
+ #cinema.active .cinema-arrow{width:32px;height:44px;font-size:27px}
+ #cinema.active.playing.controls-hidden{grid-template-columns:1fr!important;grid-template-rows:minmax(0,1fr) 0px!important}
+ #cinema.active.playing.controls-hidden .cinema-controls-rail{padding:0}
+ #cinema.active.playing.controls-hidden .cinema-viewport{padding:4px!important}
+}
