@@ -86,8 +86,8 @@ test('artist credits use display type; brochure download is a same-origin file',
  const t=boot('https://twentyx.artvision.today/@stunnifer/','@stunnifer/index.html');
  try{
   await new Promise(done=>setTimeout(done,45));
-  assert.equal(t.doc.querySelector('.artist-presenter').textContent,'20 ORIGINAL WORKS · ONE ARTIST CURATION');
-  assert.match(t.doc.querySelector('.artist-presenter').className,/artist-presenter/);
+  assert.equal(t.doc.querySelector('.artist-presenter'),null,'repetitive presenter label is removed');
+  assert.match(t.doc.querySelector('#artist-handle').textContent,/@stunnifer on X/);
   const captures=[];
   t.win.HTMLAnchorElement.prototype.click=function(){captures.push({href:this.href,filename:this.download})};
   t.doc.querySelector('#download-qr').click();
@@ -154,11 +154,13 @@ test('newest-to-oldest arrivals and priority-first full feature rotation',async(
   assert.ok(cards.length===16);
   const hour=Math.floor(Date.now()/3600000);
   const scheduled=Array.from({length:cards.length},(_,i)=>t.win.currentFeature((hour+i)*3600000).artist);
-  assert.equal(new Set(scheduled.map(x=>x.postUrl)).size,cards.length,'every artist must receive an hourly feature before the cycle restarts');
-  assert.equal(t.win.currentFeature((hour+cards.length)*3600000).artist.postUrl,scheduled[0].postUrl,'featured cycle repeats after all artists');
+  const featuredLength=cards.length-1;
+  assert.equal(new Set(scheduled.map(x=>x.postUrl)).size,featuredLength,'the sliced Cipher Voss works remain in the gallery, not in solo XXL rotation');
+  assert.ok(!scheduled.some(a=>String(a.handle).toLowerCase()==='ciphervoss'));
+  assert.equal(t.win.currentFeature((hour+featuredLength)*3600000).artist.postUrl,scheduled[0].postUrl,'featured cycle repeats after all eligible artists');
   const restart=t.win.currentFeature(0).lineup;
   assert.deepEqual(Array.from(restart.slice(0,priority.length),a=>String(a.handle).toLowerCase()),priority,'curatorial priorities lead each full featured cycle');
-  assert.equal(t.doc.querySelectorAll('#feature-ticker-track .ticker-entry').length,2*Math.max(8,cards.length));
+  assert.equal(t.doc.querySelectorAll('#feature-ticker-track .ticker-entry').length,2*Math.max(8,featuredLength));
   assert.match(t.doc.querySelector('#feature-next-change').textContent,/NEXT FEATURE IN/);
   t.doc.querySelector('#search').value='YenaArt';
   t.doc.querySelector('#search').dispatchEvent(new t.win.Event('input',{bubbles:true}));
@@ -171,7 +173,7 @@ test('Themes switch all views and persisted selected theme routes to matching or
  try{
   await new Promise(done=>setTimeout(done,55));
   const themes=[...t.doc.querySelectorAll('#theme-select option')].map(x=>x.value);
-  assert.deepEqual(themes,['violet','analog','heritage']);
+  assert.deepEqual(themes,['violet','analog','heritage','nostalgia','glitch']);
   const select=t.doc.querySelector('#theme-select');
   assert.equal(t.doc.querySelector('#theme-dock').dataset.open,'false');
   t.doc.querySelector('#theme-dock-tab').click();
@@ -343,7 +345,10 @@ test('gallery artist cards have no artwork matte, 20 natural-size uncut images a
    assert.ok([...artworks].every(tile=>!tile.style.getPropertyValue('--artwork-source')),'artwork-grid tiles must not paint duplicate blur backgrounds');
    assert.match(card.querySelector('.card-handle').textContent,/@.* on X/);
    assert.match(card.querySelector('.card-date').textContent,/\d{2} \d{2} \d{4} curation/);
-   assert.ok(card.querySelector('.card-explore'));
+   const explore=card.querySelector('.card-explore');
+   assert.ok(explore);
+   assert.equal(explore.parentElement,card,'Explore the 20 is a direct card child pinned to the upper artwork edge');
+   assert.ok([...card.children].indexOf(explore)<[...card.children].indexOf(card.querySelector('.card-meta')),'Explore stays above metadata');
    assert.ok(card.querySelector('.card-footer a[data-follow]'));
   }
   const css=readFileSync('styles.css','utf8');
@@ -356,18 +361,21 @@ test('gallery artist cards have no artwork matte, 20 natural-size uncut images a
 });
 
 
-test('art leads: XXL then six curator picks then short editorial intro, all before gallery blocks',async()=>{
+test('featured six art comes before wordmark, ticker, wide XXL, then compact gallery introduction',async()=>{
  const t=boot();
  try{
   await new Promise(done=>setTimeout(done,65));
   const home=t.doc.querySelector('#home-view');
   const feature=home.querySelector('.feature-section');
-  const selected=home.querySelector('#featured-six');
+  const selected=t.doc.querySelector('#featured-six');
+  const header=t.doc.querySelector('.topbar');
+  const ticker=t.doc.querySelector('.top-feature-schedule');
   const hero=home.querySelector('.hero');
   const gallery=home.querySelector('#home-gallery');
-  const order=[feature,selected,hero,gallery];
+  const order=[selected,header,ticker,feature,hero,gallery];
+  assert.ok(order.every(Boolean),'all required elements must be present');
   for(let i=1;i<order.length;i++){
-   assert.ok(order[i-1].compareDocumentPosition(order[i]) & t.win.Node.DOCUMENT_POSITION_FOLLOWING,'art before editorial before archive');
+   assert.ok(order[i-1].compareDocumentPosition(order[i]) & t.win.Node.DOCUMENT_POSITION_FOLLOWING,'six feature artworks first, then wordmark, ticker, XXL and gallery');
   }
   const featured=[...t.doc.querySelectorAll('.featured-six-card')];
   assert.equal(featured.length,6);
@@ -396,5 +404,45 @@ test('theme fonts restored and permanent TwentyX logo font fixed; ticker flush e
   assert.equal(css.includes('CONSOLIDATED EDITORIAL TYPOGRAPHY'),false,'theme-level font flattening must stay removed');
   assert.ok(css.includes('border-radius:0!important'),'ticker is edge to edge');
   assert.equal(t.doc.querySelector('.top-feature-schedule .feature-ticker-track')!==null,true);
+ }finally{t.close()}
+});
+
+
+test('artwork-derived color palettes and original plus two new theme identities',async()=>{
+ const t=boot();
+ try{
+  await new Promise(done=>setTimeout(done,55));
+  const css=readFileSync('styles.css','utf8');
+  assert.ok(css.includes('body[data-art-color="ready"]'),'artwork atmosphere is styled');
+  assert.ok(css.includes('body[data-theme="violet"] .brand-wordmark'),'ArtVision identity');
+  assert.ok(css.includes("font-family:'Computerist'"),'Computerist wordmark');
+  assert.ok(css.includes("font-family:'Golden Girdle'"),'metadata Golden Girdle');
+  assert.ok(css.includes("font-family:'Analog Pixel Calculon'"),'Nostalgia ticker');
+  assert.ok(css.includes("font-family:'Analog Multivac'"),'Glitch heading');
+  assert.equal(typeof t.win.extractArtworkColors,'function','original image palette engine exists');
+  const sample=new Uint8ClampedArray(4*10*10);
+  for(let i=0;i<sample.length;i+=4){
+   sample[i]=211;sample[i+1]=177;sample[i+2]=28;sample[i+3]=255;
+  }
+  const color=t.win.extractArtworkColors(sample,10,10);
+  assert.match(color.edge,/rgb\(211 177 28\)/);
+  t.doc.querySelector('#theme-select').value='glitch';
+  t.doc.querySelector('#theme-select').dispatchEvent(new t.win.Event('change',{bubbles:true}));
+  assert.equal(t.doc.body.dataset.theme,'glitch');
+ }finally{t.close()}
+});
+
+test('no redundant XXL or ticker labels; gallery route hides opportunities and feature six',async()=>{
+ const t=boot('https://twentyx.artvision.today/@stunnifer/','@stunnifer/index.html');
+ try{
+  await new Promise(done=>setTimeout(done,55));
+  assert.equal(t.doc.body.dataset.view,'artist');
+  assert.equal(t.doc.querySelector('#opportunities').hidden,true);
+  assert.equal(t.doc.querySelector('#header-subscribe').hidden,true);
+  assert.equal(t.doc.querySelector('#featured-six').hidden,true);
+  assert.equal(t.doc.querySelector('.artist-presenter'),null);
+  assert.equal(t.doc.querySelector('.feature-program-head .overline'),null);
+  assert.equal(t.doc.querySelector('.feature-label-row .overline'),null);
+  assert.match(t.doc.querySelector('.artist-interaction-cue').textContent,/Tap or click/);
  }finally{t.close()}
 });

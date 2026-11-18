@@ -12,10 +12,27 @@
  */
 import fs from 'node:fs';
 import QRCode from 'qrcode';
+import {inflateRawSync} from 'node:zlib';
 
 const load=file=>fs.readFileSync(file,'utf8');
 const html=load('src/index.template.html');
-const css=load('styles.css');
+function loadComputeristFont(){
+ // The user supplied Computerist.ttf inside this precise existing ZIP.
+ // Extract it deterministically at build time, then embed within the
+ // fully self-contained artist pages. No font is downloaded externally.
+ const zip=fs.readFileSync('Themes/Default theme (unstated)/H3/computerist.zip');
+ if(zip.readUInt32LE(0)!==0x04034b50)throw Error('Computerist ZIP header missing');
+ const method=zip.readUInt16LE(8),compressed=zip.readUInt32LE(18);
+ const filenameSize=zip.readUInt16LE(26),extraSize=zip.readUInt16LE(28);
+ const from=30+filenameSize+extraSize;
+ if(compressed<1000||from+compressed>zip.length)throw Error('Computerist ZIP data corrupt');
+ const font=method===8?inflateRawSync(zip.subarray(from,from+compressed)):
+  method===0?zip.subarray(from,from+compressed):null;
+ if(!font||font.length<10000||font.length>1000000)throw Error('Computerist font invalid');
+ return '@font-face{font-family:"Computerist";src:url("data:font/ttf;base64,'+
+  font.toString('base64')+'") format("truetype");font-display:swap}\n';
+}
+const css=load('styles.css')+'\n'+loadComputeristFont();
 const javascript=load('app.js');
 const artists=JSON.parse(load('artists.json'));
 const esc=value=>String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
@@ -42,9 +59,9 @@ function renderCard(a){
  const originals=a.media.map((u,i)=>'<a class="artwork-thumb" href="'+esc(a.postUrl)+'" target="_blank" rel="noopener noreferrer" aria-label="Work '+(i+1)+' of 20 by '+title+'"><img src="'+esc(u)+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="Artwork '+(i+1)+' by '+title+'"></a>').join('');
  return '<article class="collection-card" id="artist-'+idOf(a)+'">'
   +'<div class="card-mosaic">'+originals+'</div>'
+  +'<a class="pill primary artist-open card-explore" href="/@'+artistHandle.toLowerCase()+'/">Explore the 20 ↗</a>'
   +'<div class="card-meta"><div class="card-heading">'
-  +'<h3 class="card-name">'+title+'</h3><div class="card-labels"><span class="card-handle">@'+artistHandle+' on X</span><span class="card-count">20 ORIGINAL WORKS</span></div></div>'
-  +'<a class="pill primary artist-open card-explore" href="/@'+artistHandle.toLowerCase()+'/">Explore the 20 ↗</a></div>'
+  +'<h3 class="card-name">'+title+'</h3><div class="card-labels"><span class="card-handle">@'+artistHandle+' on X</span><span class="card-count">20 works</span></div></div></div>'
   +'<div class="card-footer"><span class="card-date" data-raw-date="'+date+'">'+esc(formatCuration(a.date))+'</span>'
   +'<div class="card-link-actions"><a class="pill primary" href="https://twitter.com/intent/follow?screen_name='+artistHandle+'" data-follow="true" target="_blank" rel="noopener noreferrer">Follow on X ↗</a>'
   +'<a class="ghost" href="'+esc(a.postUrl)+'" target="_blank" rel="noopener noreferrer">Original post ↗</a></div></div>'
