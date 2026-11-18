@@ -31,22 +31,23 @@ for(const a of artists){
  if(a.media.some(u=>!validMedia(u)))throw Error('Unsafe media source for '+a.name);
  ids.add(id);
 }
-const rank=a=>['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim'].indexOf(handle(a).toLowerCase());
-const ordered=[...artists].sort((a,b)=>{
- const ra=rank(a),rb=rank(b);
- if(ra>=0||rb>=0)return (ra<0?99:ra)-(rb<0?99:rb);
- return idOf(b).localeCompare(idOf(a));
-});
-function renderCard(a,index){
+// Gallery arrivals are chronological, independent of feature priority.
+const ordered=[...artists].sort((a,b)=>idOf(a).localeCompare(idOf(b)));
+const formatCuration=date=>{
+ const [y,m,d]=String(date||'').split('-');
+ return d&&m&&y?d+' '+m+' '+y+' curation':'Artist curation';
+};
+function renderCard(a){
  const title=esc(a.name),artistHandle=esc(handle(a)),date=esc(a.date||'');
- const originals=a.media.map((u,i)=>'<a class="artwork-thumb" href="'+esc(a.postUrl)+'" target="_blank" rel="noopener noreferrer" aria-label="Work '+(i+1)+' of 20 by '+title+'"><img src="'+esc(u)+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="Artwork '+(i+1)+' by '+title+'"></a>').join('');
+ const originals=a.media.map((u,i)=>'<a class="artwork-thumb" href="'+esc(a.postUrl)+'" target="_blank" rel="noopener noreferrer" style="--artwork-source:url(\\''+esc(u)+'\\')" aria-label="Work '+(i+1)+' of 20 by '+title+'"><img src="'+esc(u)+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="Artwork '+(i+1)+' by '+title+'"></a>').join('');
  return '<article class="collection-card" id="artist-'+idOf(a)+'">'
-  +'<div class="card-meta"><div>'+(index<3?'<div class="card-overline">FEATURED ARTIST / '+String(index+1).padStart(2,'0')+'</div>':'')
-  +'<h3 class="card-name">'+title+'</h3><div class="card-handle">@'+artistHandle+' · 20 / 20</div></div><span class="card-date">'+date+'</span></div>'
   +'<div class="card-mosaic">'+originals+'</div>'
-  +'<div class="card-footer"><a class="pill primary" href="https://twitter.com/intent/follow?screen_name='+artistHandle+'" data-follow="true" target="_blank" rel="noopener noreferrer">Follow on X ↗</a>'
-  +'<a class="ghost" href="'+esc(a.postUrl)+'" target="_blank" rel="noopener noreferrer">Original post ↗</a>'
-  +'<a class="ghost artist-open" href="/@'+artistHandle.toLowerCase()+'/">Explore 20 →</a></div>'
+  +'<div class="card-meta"><div class="card-heading"><div class="card-overline">ARTIST-CURATED EXHIBITION</div>'
+  +'<h3 class="card-name">'+title+'</h3><div class="card-labels"><span class="card-handle">@'+artistHandle+' on X</span><span class="card-count">20 ORIGINAL WORKS</span></div></div>'
+  +'<a class="pill primary artist-open card-explore" href="/@'+artistHandle.toLowerCase()+'/">Explore the 20 ↗</a></div>'
+  +'<div class="card-footer"><span class="card-date" data-raw-date="'+date+'">'+esc(formatCuration(a.date))+'</span>'
+  +'<div class="card-link-actions"><a class="pill primary" href="https://twitter.com/intent/follow?screen_name='+artistHandle+'" data-follow="true" target="_blank" rel="noopener noreferrer">Follow on X ↗</a>'
+  +'<a class="ghost" href="'+esc(a.postUrl)+'" target="_blank" rel="noopener noreferrer">Original post ↗</a></div></div>'
   +'</article>';
 }
 const initial=ordered.map(renderCard).join('\n');
@@ -66,9 +67,9 @@ requireReplace('<link rel="stylesheet" href="./styles.css">','<style>\n'+css+'\n
 requireReplace('<script src="./app.js" defer></script>','');
 requireReplace('<div class="home-gallery" id="home-gallery"></div>','<div class="home-gallery" id="home-gallery">\n'+initial+'\n</div>');
 requireReplace('</body>','<script id="seeded-artists" type="application/json">'+seed+'</script>\n<script>\n'+javascript.replaceAll('</script','<\\/script')+'\n</script>\n</body>');
-if(!output.includes('id="seeded-artists"')||!output.includes('FEATURED ARTIST')||!output.includes('CURATED')) {
+if(!output.includes('id="seeded-artists"')||!output.includes('ARTIST-CURATED EXHIBITION')||!output.includes('CURATED')) {
  // CURATED lives in brochure copy, not necessarily in site — don't require it here.
- if(!output.includes('id="seeded-artists"')||!output.includes('FEATURED ARTIST'))throw Error('Missing seeded artwork proof');
+ if(!output.includes('id="seeded-artists"')||!output.includes('ARTIST-CURATED EXHIBITION'))throw Error('Missing seeded artwork proof');
 }
 const result='index.html';
 fs.writeFileSync(result,output);
