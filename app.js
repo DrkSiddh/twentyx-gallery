@@ -568,8 +568,31 @@ function bindUI(){
   if(prefersReduced||e.pointerType==='touch')return;
   const r=chamber.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
   chamber.style.setProperty('--tiltX',(-y*4).toFixed(2)+'deg');chamber.style.setProperty('--tiltY',(x*5).toFixed(2)+'deg');
+  byId('feature-artwork').style.setProperty('--parallax-x',(x*18).toFixed(1)+'px');
+  byId('feature-artwork').style.setProperty('--parallax-y',(y*18).toFixed(1)+'px');
  });
- chamber.addEventListener('pointerleave',()=>{chamber.style.setProperty('--tiltX','0deg');chamber.style.setProperty('--tiltY','0deg')});
+ chamber.addEventListener('pointerleave',()=>{
+  chamber.style.setProperty('--tiltX','0deg');chamber.style.setProperty('--tiltY','0deg');
+  byId('feature-artwork').style.setProperty('--parallax-x','0px');
+  byId('feature-artwork').style.setProperty('--parallax-y','0px');
+ });
+ const spatial=byId('spatial-stage');
+ spatial.addEventListener('pointermove',event=>{
+  if(prefersReduced||event.pointerType==='touch')return;
+  const bounds=spatial.getBoundingClientRect(),x=(event.clientX-bounds.left)/Math.max(1,bounds.width)-.5;
+  for(const id of ['spatial-prev','spatial-current','spatial-next']){
+   byId(id).style.setProperty('--parallax-x',(x*12).toFixed(1)+'px');
+  }
+ });
+ spatial.addEventListener('pointerleave',()=>{
+  for(const id of ['spatial-prev','spatial-current','spatial-next'])byId(id).style.setProperty('--parallax-x','0px');
+ });
+ cinema.querySelector('.cinema-viewport').addEventListener('pointermove',event=>{
+  if(prefersReduced||event.pointerType==='touch')return;
+  const frame=cinema.querySelector('.cinema-viewport'),box=frame.getBoundingClientRect();
+  frame.style.setProperty('--parallax-x',(((event.clientX-box.left)/Math.max(1,box.width)-.5)*15).toFixed(1)+'px');
+  frame.style.setProperty('--parallax-y',(((event.clientY-box.top)/Math.max(1,box.height)-.5)*15).toFixed(1)+'px');
+ });
  byId('back-to-all').addEventListener('click',goHome);
  byId('search').addEventListener('input',renderHome);
  byId('surprise').addEventListener('click',()=>{if(artists.length)goArtist(artists[Math.floor(Math.random()*artists.length)])});
