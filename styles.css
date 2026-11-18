@@ -2154,3 +2154,68 @@ body[data-theme="glitch"] .collection-card{
 @media(prefers-reduced-motion:reduce){
  .home-gallery .collection-card > .card-explore{animation:none}
 }
+
+
+/* v11.1 polish — every featured image has an obvious TOP-RIGHT Explore action.
+   These featured cards are already buttons; the label is decorative text,
+   not a nested interactive control. */
+.featured-six-card{position:relative!important}
+.featured-six-card>.featured-six-cta{
+ position:absolute!important;z-index:9!important;
+ top:clamp(10px,1.2vw,21px);right:clamp(10px,1.2vw,21px);
+ bottom:auto!important;left:auto!important;
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:51px;padding:11px clamp(13px,1.3vw,23px);
+ border-radius:999px;
+ border:1.5px solid rgba(255,255,255,.82);
+ background:var(--gloss);background-size:220% 100%;
+ box-shadow:0 11px 32px rgba(0,0,0,.64),0 0 19px color-mix(in srgb,var(--pink) 28%,transparent);
+ color:var(--bg);
+ font:900 clamp(15px,1.1vw,20px)/1.2 Inter,system-ui,sans-serif;
+ pointer-events:none;
+ animation:card-cta-shine 13s linear infinite
+}
+.featured-six-card:hover>.featured-six-cta,
+.featured-six-card:focus-visible>.featured-six-cta{
+ background-position:100% 50%;
+ box-shadow:0 9px 33px rgba(0,0,0,.68),0 0 0 4px color-mix(in srgb,var(--pink) 58%,transparent);
+}
+/* The XXL presentation itself reaches the viewport edges. The original
+   image is still completely contained: only the SAME ART fills the matte. */
+.feature-section{padding:0!important}
+.feature-chamber{
+ width:100%!important;max-width:100%!important;
+ padding:0!important;gap:0!important;
+ border-radius:0!important;border-left:0!important;border-right:0!important;
+ overflow:hidden!important
+}
+.feature-art-wrapper{
+ padding:0!important;margin:0!important;
+ min-width:0;display:flex;align-items:stretch!important;
+}
+.feature-artwork{
+ margin:0!important;padding:0!important;flex:1 1 auto;
+ width:100%!important;height:clamp(580px,62vw,900px)!important;
+ border:0!important;border-radius:0!important;
+ box-shadow:none!important;overflow:hidden
+}
+.feature-artwork>img{
+ display:block;width:100%!important;height:100%!important;
+ object-fit:contain!important;object-position:center!important;
+ border-radius:0!important
+}
+.feature-caption{padding:clamp(16px,2.3vw,39px);align-self:center}
+@media(max-width:1100px){
+ .feature-artwork{height:clamp(430px,70vw,750px)!important}
+}
+@media(max-width:720px){
+ .featured-six-card>.featured-six-cta{
+  top:9px;right:9px;min-height:45px;padding:9px 12px;
+  font-size:15px
+ }
+ .feature-artwork{height:clamp(335px,90vw,590px)!important}
+ .feature-caption{padding:18px}
+}
+@media(prefers-reduced-motion:reduce){
+ .featured-six-card>.featured-six-cta{animation:none!important}
+}
