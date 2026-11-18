@@ -266,8 +266,8 @@ test('site offers readable retractable vertical theme dock and slide-out curated
   t.doc.querySelector('#guide-close').click();
   assert.equal(guide.open,false);
   const css=readFileSync('styles.css','utf8');
-  assert.match(css,/\\.theme-dock\\[data-open="true"\\]/);
-  assert.match(css,/\\.guide-drawer\\[open\\]/);
+  assert.ok(css.includes('.theme-dock[data-open="true"]'));
+  assert.ok(css.includes('.guide-drawer[open]'));
   assert.equal(css.includes('font-size:clamp(19px'),true,'readable mobile body type');
  }finally{t.close()}
 });
@@ -303,9 +303,9 @@ test('negative space derives from the current artwork in all three presentation 
   const theater=t.doc.querySelector('#cinema-img');
   assert.ok(t.doc.querySelector('.cinema-viewport').style.getPropertyValue('--artwork-source').includes(theater.src));
   const css=readFileSync('styles.css','utf8');
-  assert.match(css,/\\.feature-artwork::before/);
-  assert.match(css,/\\.perspective-scene button::before/);
-  assert.match(css,/\\.cinema-viewport::before/);
+  assert.ok(css.includes('.feature-artwork::before'));
+  assert.ok(css.includes('.perspective-scene button::before'));
+  assert.ok(css.includes('.cinema-viewport::before'));
   assert.match(css,/object-fit:contain/);
  }finally{t.close()}
 });
