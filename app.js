@@ -254,11 +254,12 @@ function newestArtist(){
  return [...artists].sort((a,b)=>artistID(b).localeCompare(artistID(a)))[0]||null;
 }
 function featureArtists(list=artists){
- // Every cycle begins with all requested artists, then gives ALL other artists
- // their own one-hour slot before restarting at @skelevaggio.
- const priority=PINNED.map(handle=>list.find(a=>artistHandle(a).toLowerCase()===handle)).filter(Boolean);
+ // Cipher Voss's twenty intentionally sliced pictures depend on the mosaic
+ // to be understood. Keep the exhibition intact but not in solo XXL rotation.
+ const eligible=list.filter(a=>artistHandle(a).toLowerCase()!=='ciphervoss');
+ const priority=PINNED.map(handle=>eligible.find(a=>artistHandle(a).toLowerCase()===handle)).filter(Boolean);
  const pinnedIds=new Set(priority.map(artistID));
- return [...priority,...sortArtists(list.filter(a=>!pinnedIds.has(artistID(a))))];
+ return [...priority,...sortArtists(eligible.filter(a=>!pinnedIds.has(artistID(a))))];
 }
 function featureHour(now=Date.now()){return Math.floor(now/FEATURE_HOUR_MS)}
 function currentFeature(now=Date.now()){
@@ -340,7 +341,7 @@ function featureWork(next=false){
   byId('feature-number').textContent=String(featuredIndex+1).padStart(2,'0')+' / 20';
   byId('feature-title').textContent=featuredArtist.name;
   fitArtistHeadlines();
-  byId('feature-subline').textContent='Artist-selected · '+featuredArtist.name;
+  byId('feature-subline').textContent='20 original artworks';
   if(document.body.dataset.view!=='artist'&&!byId('cinema').classList.contains('active'))colorFromArtwork(src,featuredArtist);
   img.classList.remove('change');
  };
@@ -539,6 +540,7 @@ function renderRoute(){
  document.body.dataset.view=onArtist?'artist':'home';
  byId('header-subscribe').hidden=onArtist;
  byId('opportunities').hidden=onArtist;
+ byId('featured-six').hidden=onArtist;
  if(onArtist)renderArtist(match);
  else{
   currentArtist=null;document.title='TwentyX • ArtVision X';
