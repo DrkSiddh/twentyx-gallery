@@ -205,6 +205,11 @@ function renderFeatureTicker(){
   }
  }
 }
+/** The backdrop is always sampled from the identical original art, never a stock fill. */
+function setArtBackdrop(surface,imageUrl){
+ if(!surface||!imageUrl)return;
+ surface.style.setProperty('--artwork-source','url("'+String(imageUrl).replace(/["\\]/g,'')+'")');
+}
 function featureWork(next=false){
  const state=currentFeature();
  if(!state)return;
@@ -221,6 +226,7 @@ function featureWork(next=false){
  const src=featuredArtist.media[featuredIndex];
  const reveal=()=>{
   img.src=src;
+  setArtBackdrop(byId('feature-artwork'),src);
   img.alt='Featured work '+(featuredIndex+1)+' of 20 curated by '+featuredArtist.name;
   byId('feature-number').textContent=String(featuredIndex+1).padStart(2,'0')+' / 20';
   byId('feature-title').textContent=featuredArtist.name;
@@ -325,9 +331,12 @@ function renderSpatial(){
  if(!currentArtist)return;
  const n=currentArtist.media.length;
  byId('stage-main').src=currentArtist.media[spatialIndex];
+ setArtBackdrop(byId('spatial-current'),currentArtist.media[spatialIndex]);
  byId('stage-main').alt='Artwork '+(spatialIndex+1)+' of 20 by '+currentArtist.name;
  byId('stage-left').src=currentArtist.media[(spatialIndex+n-1)%n];
  byId('stage-right').src=currentArtist.media[(spatialIndex+1)%n];
+ setArtBackdrop(byId('spatial-prev'),currentArtist.media[(spatialIndex+n-1)%n]);
+ setArtBackdrop(byId('spatial-next'),currentArtist.media[(spatialIndex+1)%n]);
  byId('stage-counter').textContent=String(spatialIndex+1).padStart(2,'0')+' / 20';
  const dots=byId('stage-dots');dots.replaceChildren();
  for(let i=0;i<n;i++){
@@ -431,7 +440,9 @@ function renderCinema(){
  byId('cinema-follow').href=followIntent(a);byId('cinema-follow').dataset.follow='true';
  byId('cinema-progress').textContent='WORK '+String(viewerWorkIndex+1).padStart(2,'0')+' / 20  ·  ARTIST '+String(viewerArtistIndex+1).padStart(2,'0')+' / '+String(viewerArtists.length).padStart(2,'0');
  const image=byId('cinema-img');
- image.src=a.media[viewerWorkIndex];image.alt='Artwork '+(viewerWorkIndex+1)+' of 20 by '+a.name;
+ image.src=a.media[viewerWorkIndex];
+ setArtBackdrop(byId('cinema').querySelector('.cinema-viewport'),a.media[viewerWorkIndex]);
+ image.alt='Artwork '+(viewerWorkIndex+1)+' of 20 by '+a.name;
  image.style.animation='none';void image.offsetWidth;image.style.animation='';
  // No thumbnail strip in cinema: the current artwork fills the entire stage.
 }
