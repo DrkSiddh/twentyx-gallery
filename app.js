@@ -450,15 +450,17 @@ function renderHome(){
   const grid=create('div','card-mosaic');
   a.media.forEach((_,i)=>grid.append(makeTile(a,i)));
   card.append(grid);
+  // The gallery image begins at the very top; the main action stays in
+  // its upper-right corner rather than following the entire image wall.
+  card.append(button('Explore the 20 ↗','pill primary artist-open card-explore',()=>goArtist(a)));
   const head=create('div','card-meta');
   const titleWrap=create('div','card-heading');
   titleWrap.append(create('h3','card-name',a.name));
   const labels=create('div','card-labels');
   labels.append(create('div','card-handle','@'+artistHandle(a)+' on X'));
-  labels.append(create('span','card-count','20 ORIGINAL WORKS'));
+  labels.append(create('span','card-count','20 works'));
   titleWrap.append(labels);
   head.append(titleWrap);
-  head.append(button('Explore the 20 ↗','pill primary artist-open card-explore',()=>goArtist(a)));
   card.append(head);
   const actions=create('div','card-footer');
   const date=create('span','card-date',curationDate(a));
