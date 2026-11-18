@@ -190,7 +190,7 @@ test('Themes switch all views and persisted selected theme routes to matching or
   const css=readFileSync('styles.css','utf8');
   assert.match(css,/#7400B8/);
   assert.match(css,/#FFCAD4/);
-  assert.doesNotMatch(css,/--theme-image:\\s*url\\(/,'no displayed colorway image');
+  assert.equal(css.includes('--theme-image:url('),false,'no displayed colorway image');
  }finally{t.close()}
 });
 
