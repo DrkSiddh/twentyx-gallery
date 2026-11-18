@@ -51,8 +51,9 @@ function valid(a){
  return a.media.every(url=>{try{const u=new URL(url);return u.protocol==='https:'&&u.hostname==='pbs.twimg.com'&&u.pathname.startsWith('/media/')}catch{return false}});
 }
 function sortArtists(list){
- const rank=a=>{const p=parsePost(a.postUrl);const handle=p.handle.toLowerCase();const found=PINNED.indexOf(handle);return found<0?99:found};
- return [...list].sort((a,b)=>rank(a)-rank(b)||parsePost(b.postUrl).id.localeCompare(parsePost(a.postUrl).id));
+ // Exhibition blocks always follow their original X arrival: oldest first.
+ // Curatorial preference is used ONLY by the hourly feature rotation.
+ return [...list].sort((a,b)=>artistID(a).localeCompare(artistID(b)));
 }
 function artistID(a){return parsePost(a.postUrl).id}
 function artistHandle(a){return parsePost(a.postUrl).handle}
@@ -98,7 +99,6 @@ function setDayPhase(){
  // Local wall-clock time; 4:20 PM through the end of 4:43 PM.
  const phase=clock>=16*60+20&&clock<16*60+44?'green':hour>=5&&hour<10?'daybreak':hour>=10&&hour<17?'day':hour>=17&&hour<21?'sunset':'night';
  document.body.dataset.phase=phase;
- byId('phase-label').textContent='LOCAL LIGHT / '+({daybreak:'VIOLET DAWN',day:'DAYLIGHT',sunset:'VIOLET DUSK',night:'MIDNIGHT',green:'4:20 GREEN HOUR'}[phase]);
 }
 function setThemeDock(open){
  const dock=byId('theme-dock');
@@ -156,6 +156,7 @@ function makeTile(a,i,className){
  tile.dataset.n=String(i+1).padStart(2,'0');
  tile.setAttribute('aria-label','Open artwork '+(i+1)+' of 20 by '+a.name);
  const img=create('img');img.src=a.media[i];img.loading='lazy';img.decoding='async';
+ setArtBackdrop(tile,a.media[i]);
  img.alt='Artwork '+(i+1)+' of 20 by '+a.name;img.referrerPolicy='no-referrer';
  img.addEventListener('error',()=>{
   if(!img.dataset.retry){
@@ -173,9 +174,11 @@ function newestArtist(){
  return [...artists].sort((a,b)=>artistID(b).localeCompare(artistID(a)))[0]||null;
 }
 function featureArtists(list=artists){
+ // Every cycle begins with all requested artists, then gives ALL other artists
+ // their own one-hour slot before restarting at @skelevaggio.
  const priority=PINNED.map(handle=>list.find(a=>artistHandle(a).toLowerCase()===handle)).filter(Boolean);
- // Do not invent Skelevaggio media; it joins automatically once verified.
- return priority.length?priority:list;
+ const pinnedIds=new Set(priority.map(artistID));
+ return [...priority,...sortArtists(list.filter(a=>!pinnedIds.has(artistID(a))))];
 }
 function featureHour(now=Date.now()){return Math.floor(now/FEATURE_HOUR_MS)}
 function currentFeature(now=Date.now()){
@@ -294,26 +297,74 @@ function sourceArtistsFromArtworkDOM(){
  });
  return sortArtists(result);
 }
+function curationDate(a){
+ const [year,month,day]=String(a.date||'').split('-');
+ return year&&month&&day?day+' '+month+' '+year+' curation':'Artist curation';
+}
+function attachCardTilt(root){
+ if(root.dataset.tiltBound)return;
+ root.dataset.tiltBound='true';
+ const reset=card=>{
+  if(!card)return;
+  card.style.setProperty('--tilt-x','0deg');
+  card.style.setProperty('--tilt-y','0deg');
+  card.style.setProperty('--shine-x','50%');
+  card.style.setProperty('--shine-y','50%');
+ };
+ root.addEventListener('pointermove',e=>{
+  if(prefersReduced||e.pointerType==='touch'||!window.matchMedia('(hover:hover)').matches)return;
+  const card=e.target.closest?.('.collection-card');
+  if(!card)return;
+  const box=card.getBoundingClientRect();
+  if(!box.width||!box.height)return;
+  const x=(e.clientX-box.left)/box.width-.5;
+  const y=(e.clientY-box.top)/box.height-.5;
+  card.style.setProperty('--tilt-x',(-y*4).toFixed(2)+'deg');
+  card.style.setProperty('--tilt-y',(x*5).toFixed(2)+'deg');
+  card.style.setProperty('--shine-x',((x+.5)*100).toFixed(1)+'%');
+  card.style.setProperty('--shine-y',((y+.5)*100).toFixed(1)+'%');
+ });
+ root.addEventListener('pointerout',e=>{
+  const card=e.target.closest?.('.collection-card');
+  if(card&&!card.contains(e.relatedTarget))reset(card);
+ });
+ root.addEventListener('focusout',e=>{
+  const card=e.target.closest?.('.collection-card');
+  if(card&&!card.contains(e.relatedTarget))reset(card);
+ });
+}
 function renderHome(){
  const q=byId('search').value.trim().toLowerCase();
- const shown=artists.filter(a=>(a.name+' '+artistHandle(a)).toLowerCase().includes(q));
+ const shown=sortArtists(artists.filter(a=>(a.name+' '+artistHandle(a)).toLowerCase().includes(q)));
  const root=byId('home-gallery');root.replaceChildren();
- shown.forEach((a,idx)=>{
+ shown.forEach(a=>{
   const card=create('article','collection-card');card.id='artist-'+artistID(a);
+  const grid=create('div','card-mosaic');
+  a.media.forEach((_,i)=>grid.append(makeTile(a,i)));
+  card.append(grid);
   const head=create('div','card-meta');
-  const titleWrap=create('div');
-  if(idx<3&&!q)titleWrap.append(create('div','card-overline','FEATURED ARTIST  /  '+String(idx+1).padStart(2,'0')));
-  const title=create('h3','card-name',a.name);titleWrap.append(title,create('div','card-handle','@'+artistHandle(a)+' · 20 / 20'));
-  head.append(titleWrap,create('span','card-date',a.date||''));card.append(head);
-  const grid=create('div','card-mosaic');a.media.forEach((_,i)=>grid.append(makeTile(a,i)));card.append(grid);
+  const titleWrap=create('div','card-heading');
+  titleWrap.append(create('div','card-overline','ARTIST-CURATED EXHIBITION'));
+  titleWrap.append(create('h3','card-name',a.name));
+  const labels=create('div','card-labels');
+  labels.append(create('div','card-handle','@'+artistHandle(a)+' on X'));
+  labels.append(create('span','card-count','20 ORIGINAL WORKS'));
+  titleWrap.append(labels);
+  head.append(titleWrap);
+  head.append(button('Explore the 20 ↗','pill primary artist-open card-explore',()=>goArtist(a)));
+  card.append(head);
   const actions=create('div','card-footer');
-  const follow=link('Follow on X ↗',followIntent(a),'pill primary');follow.dataset.follow='true';actions.append(follow);
-  actions.append(link('Original post ↗',a.postUrl,'ghost'));
-  actions.append(button('Explore 20 →','ghost artist-open',()=>goArtist(a)));
+  const date=create('span','card-date',curationDate(a));
+  actions.append(date);
+  const links=create('div','card-link-actions');
+  const follow=link('Follow on X ↗',followIntent(a),'pill primary');follow.dataset.follow='true';links.append(follow);
+  links.append(link('Original post ↗',a.postUrl,'ghost'));
+  actions.append(links);
   card.append(actions);root.append(card);
  });
  if(!shown.length)root.append(create('div','empty','No artists match this search. Try another name or handle.'));
- byId('home-status').textContent=shown.length+' complete collections · All contain twenty artworks';
+ byId('home-status').textContent=shown.length+' complete collections · Artist arrivals, oldest first · All contain twenty artworks';
+ attachCardTilt(root);
  revealCards(root);
 }
 function changeMode(mode){
@@ -352,8 +403,8 @@ function renderArtist(a){
  document.title=a.name+' • TwentyX Gallery';
  byId('artist-title').textContent=a.name;
  fitArtistHeadlines();
- byId('artist-handle').textContent='@'+artistHandle(a)+'  ·  20 / 20 works';
- byId('artist-date').textContent=a.date||'';
+ byId('artist-handle').textContent='@'+artistHandle(a)+' on X · 20 original works';
+ byId('artist-date').textContent=curationDate(a);
  byId('follow-link').href=followIntent(a);byId('follow-link').dataset.follow='true';
  byId('original-link').href=a.postUrl;
  const wall=byId('artist-wall');wall.replaceChildren();
@@ -527,7 +578,32 @@ async function downloadPoster(a,target){
   target.textContent=original;
  }
 }
+async function subscribeOpportunities(event){
+ event.preventDefault();
+ const form=byId('opportunity-signup'),input=byId('subscribe-email'),status=byId('subscribe-status'),submit=byId('subscribe-submit');
+ const email=input.value.trim(),cadence=form.querySelector('input[name="cadence"]:checked')?.value;
+ const website=form.querySelector('input[name="website"]')?.value||'';
+ status.textContent='';
+ if(!input.validity.valid){input.focus();status.textContent='Please enter a valid email address.';return}
+ if(!byId('subscribe-consent').checked){status.textContent='Please confirm that you want ArtVision opportunity emails.';byId('subscribe-consent').focus();return}
+ if(!['weekday','weekly','weekend'].includes(cadence)){status.textContent='Please choose how often you want updates.';return}
+ submit.disabled=true;submit.textContent='Saving your preference…';
+ try{
+  const response=await fetch('https://xtkdnyqjheewsqnvugaj.supabase.co/functions/v1/artvision-subscribe',{
+   method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({email,cadence,consent:true,website,source:'twentyx.artvision.today'})
+  });
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok||!payload.ok)throw Error(payload.error||'The subscription service is temporarily unavailable.');
+  status.textContent='You’re on the ArtVision list. Your '+({weekday:'weekday',weekly:'weekly',weekend:'weekend'}[cadence])+' preference has been saved. Welcome.';
+  form.reset();
+ }catch(error){
+  status.textContent='We could not save your email yet. Please try again.';
+  console.warn('Opportunity subscription could not be saved:',error.message);
+ }finally{submit.disabled=false;submit.textContent='Join the ArtVision list ↗'}
+}
 function bindUI(){
+ byId('opportunity-signup').addEventListener('submit',subscribeOpportunities);
  byId('theme-dock-panel').setAttribute('aria-hidden','true');
  if('inert' in byId('theme-dock-panel'))byId('theme-dock-panel').inert=true;
  byId('theme-dock-tab').addEventListener('click',()=>setThemeDock(byId('theme-dock').dataset.open!=='true'));
