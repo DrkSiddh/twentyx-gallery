@@ -51,9 +51,8 @@ function valid(a){
  return a.media.every(url=>{try{const u=new URL(url);return u.protocol==='https:'&&u.hostname==='pbs.twimg.com'&&u.pathname.startsWith('/media/')}catch{return false}});
 }
 function sortArtists(list){
- // Exhibition blocks always follow their original X arrival: oldest first.
- // Curatorial preference is used ONLY by the hourly feature rotation.
- return [...list].sort((a,b)=>artistID(a).localeCompare(artistID(b)));
+ // Newly posted exhibitions lead; feature curation remains independent.
+ return [...list].sort((a,b)=>artistID(b).localeCompare(artistID(a)));
 }
 function artistID(a){return parsePost(a.postUrl).id}
 function artistHandle(a){return parsePost(a.postUrl).handle}
@@ -156,7 +155,6 @@ function makeTile(a,i,className){
  tile.dataset.n=String(i+1).padStart(2,'0');
  tile.setAttribute('aria-label','Open artwork '+(i+1)+' of 20 by '+a.name);
  const img=create('img');img.src=a.media[i];img.loading='lazy';img.decoding='async';
- setArtBackdrop(tile,a.media[i]);
  img.alt='Artwork '+(i+1)+' of 20 by '+a.name;img.referrerPolicy='no-referrer';
  img.addEventListener('error',()=>{
   if(!img.dataset.retry){
@@ -208,6 +206,31 @@ function renderFeatureTicker(){
   }
  }
 }
+let featuredSixSignature='';
+/** A dedicated, large second art display: only the six requested priority artists. */
+function renderFeaturedSix(){
+ const gallery=byId('featured-six-gallery');if(!gallery)return;
+ const highlighted=PINNED.map(handle=>artists.find(a=>artistHandle(a).toLowerCase()===handle)).filter(Boolean);
+ const signature=highlighted.map(a=>artistID(a)).join(',');
+ if(signature===featuredSixSignature&&gallery.children.length===highlighted.length)return;
+ featuredSixSignature=signature;
+ gallery.replaceChildren();
+ highlighted.forEach((a,index)=>{
+  const tile=button('','featured-six-card',()=>goArtist(a));
+  tile.setAttribute('aria-label','Enter '+a.name+'—twenty original artworks');
+  const artwork=create('span','featured-six-art');
+  const src=a.media[0];
+  setArtBackdrop(artwork,src);
+  const img=create('img');img.src=src;img.alt='Original work from '+a.name+' exhibition';
+  img.loading=index<3?'eager':'lazy';img.decoding='async';img.referrerPolicy='no-referrer';
+  artwork.append(img);
+  const label=create('span','featured-six-label');
+  label.append(create('strong','featured-six-name',a.name));
+  label.append(create('span','featured-six-arrow','↗'));
+  tile.append(artwork,label);
+  gallery.append(tile);
+ });
+}
 /** The backdrop is always sampled from the identical original art, never a stock fill. */
 function setArtBackdrop(surface,imageUrl){
  if(!surface||!imageUrl)return;
@@ -216,6 +239,7 @@ function setArtBackdrop(surface,imageUrl){
 function featureWork(next=false){
  const state=currentFeature();
  if(!state)return;
+ renderFeaturedSix();
  renderFeatureTicker();
  const selected=state.artist;
  const artistChanged=!featuredArtist||artistID(featuredArtist)!==artistID(selected)||lastFeatureHour!==state.hour;
@@ -344,7 +368,6 @@ function renderHome(){
   card.append(grid);
   const head=create('div','card-meta');
   const titleWrap=create('div','card-heading');
-  titleWrap.append(create('div','card-overline','ARTIST-CURATED EXHIBITION'));
   titleWrap.append(create('h3','card-name',a.name));
   const labels=create('div','card-labels');
   labels.append(create('div','card-handle','@'+artistHandle(a)+' on X'));
@@ -363,7 +386,7 @@ function renderHome(){
   card.append(actions);root.append(card);
  });
  if(!shown.length)root.append(create('div','empty','No artists match this search. Try another name or handle.'));
- byId('home-status').textContent=shown.length+' complete collections · Artist arrivals, oldest first · All contain twenty artworks';
+ byId('home-status').textContent=shown.length+' exhibitions · Newest first · 20 works each';
  attachCardTilt(root);
  revealCards(root);
 }
