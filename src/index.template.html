@@ -23,7 +23,7 @@
   <strong class="theme-dock-title">Change the atmosphere.</strong>
   <p>One choice styles the gallery, cinema, and your exhibition brochure.</p>
   <label class="theme-toggle" for="theme-select"><span>EXHIBITION COLORWAY</span>
-   <select id="theme-select" aria-label="Choose your exhibition theme"><option value="violet">ArtVision Violet</option><option value="analog">Analog Nostalgia</option><option value="heritage">Minimalist Heritage</option></select>
+   <select id="theme-select" aria-label="Choose your exhibition theme"><option value="violet">ArtVision · Chrome</option><option value="analog">Analog Nostalgia</option><option value="heritage">Minimalist Heritage</option><option value="nostalgia">Nostalgia</option><option value="glitch">Glitch · Redlight</option></select>
   </label>
   <p class="theme-dock-hint">Select a theme to tuck this panel away.</p>
  </div>
@@ -40,7 +40,7 @@
 </header>
 <div class="top-feature-schedule" aria-label="Featured artists schedule">
   <div class="feature-program" aria-label="Hourly TwentyX featured artist schedule">
-   <div class="feature-program-head"><span class="overline">THE FEATURE ROTATION · YOUR LOCAL TIME</span><span id="feature-next-change" class="feature-next-change">NEW ARTIST EVERY HOUR</span></div>
+   <div class="feature-program-head"><span id="feature-next-change" class="feature-next-change">NEW ARTIST EVERY HOUR</span></div>
    <div class="feature-ticker-window"><div class="feature-ticker-track" id="feature-ticker-track" aria-live="off"><span class="ticker-placeholder">Curating the upcoming artists…</span></div></div>
   </div>
 </div>
@@ -48,7 +48,7 @@
 <section id="home-view">
  <section class="feature-section" aria-labelledby="feature-title">
   <div class="feature-label-row">
-   <span class="overline">XXL / ON VIEW <span class="dash"></span> ONE ARTIST · TWENTY WORKS</span>
+   <span class="feature-viewing-tip">Tap artwork to enlarge <span aria-hidden="true">↗</span></span>
    <span class="feature-number" id="feature-number">01 / 20</span>
   </div>
   <div class="feature-chamber" id="feature-chamber">
@@ -124,11 +124,10 @@
 
 <section id="artist-view" hidden aria-labelledby="artist-title">
  <div class="artist-topline">
-  <button id="back-to-all" class="back-link" type="button">← Back to all artists</button>
-  <div class="artist-brand"><span class="artist-presenter">20 ORIGINAL WORKS · ONE ARTIST CURATION</span></div>
+  <button id="back-to-all" class="back-link" type="button">← All exhibitions</button>
  </div>
  <div class="spotlight-heading">
-  <div class="spotlight-title-wrap"><div class="overline">THE ARTIST’S EXHIBITION <span class="dash"></span> ARTIST CURATION <span class="twenty-badge">20 WORKS</span></div><h1 id="artist-title">Artist</h1><div class="artist-byline"><span id="artist-handle"></span><span id="artist-date"></span></div></div>
+  <div class="spotlight-title-wrap"><h1 id="artist-title">Artist</h1><div class="artist-byline"><span id="artist-handle"></span><span id="artist-date"></span></div></div>
   
  </div>
  <div class="spotlight-actions">
@@ -145,6 +144,7 @@
    <button id="play-artist" class="pill outline" type="button">▶ Fullscreen show</button>
   </div>
  </div>
+ <div class="artist-interaction-cue"><span class="interaction-cue-symbol" aria-hidden="true">⌕</span><strong>Explore the artwork</strong><span>Hover to preview · Tap or click any piece to enlarge · Swipe or use arrow keys in cinema</span></div>
  <div id="artist-wall" class="artist-wall" aria-label="Twenty artworks"></div>
  <div id="spatial-stage" class="spatial-stage" hidden>
   <div class="stage-topline"><div class="overline">SPATIAL VIEW <button class="tiny-info" data-info="spatial" aria-label="About spatial view">i</button></div><span id="stage-counter">01 / 20</span></div>
@@ -221,7 +221,7 @@
 
 <div id="cinema" class="cinema" role="dialog" aria-modal="true" aria-label="Immersive artwork viewer" aria-hidden="true" tabindex="-1">
  <div class="cinema-background" aria-hidden="true"></div>
- <div class="cinema-top"><div><span class="cinema-kicker">ARTVISION X / TWENTYX CINEMA</span><h2 id="cinema-artist"></h2><span id="cinema-progress"></span></div><div class="cinema-top-actions"><a id="cinema-follow" target="_blank" rel="noopener noreferrer">Follow on X ↗</a><button class="cinema-icon" id="cinema-info" aria-label="Slideshow help">i</button><button class="cinema-icon" id="cinema-close" aria-label="Exit slideshow">×</button></div></div>
+ <div class="cinema-top"><div><span class="cinema-kicker">ARTVISION X / TWENTYX CINEMA</span><h2 id="cinema-artist"></h2><span id="cinema-progress"></span><span class="cinema-inline-help">Tap or click to examine · ← → to change artwork</span></div><div class="cinema-top-actions"><a id="cinema-follow" target="_blank" rel="noopener noreferrer">Follow on X ↗</a><button class="cinema-icon" id="cinema-info" aria-label="Slideshow help">i</button><button class="cinema-icon" id="cinema-close" aria-label="Exit slideshow">×</button></div></div>
  <div class="cinema-viewport"><button id="cinema-previous" class="cinema-arrow left" aria-label="Previous artwork">‹</button><img id="cinema-img" alt="Art in slideshow"><button id="cinema-next" class="cinema-arrow right" aria-label="Next artwork">›</button></div>
  <div class="cinema-bottom"><div class="cinema-nav"><button id="cinema-previous-artist" type="button">↑ Previous artist</button><button id="cinema-play" type="button">▶ Play</button><button id="cinema-next-artist" type="button">↓ Next artist</button></div><div class="cinema-tools"><label for="cinema-speed">Interval <select id="cinema-speed"><option value="3000">3s</option><option value="5000" selected>5s</option><option value="8000">8s</option><option value="12000">12s</option></select></label><span>← → artwork &nbsp; ↑ ↓ artist &nbsp; Space play/pause</span></div></div>
 </div>
