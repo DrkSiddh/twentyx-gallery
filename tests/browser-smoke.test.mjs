@@ -32,12 +32,12 @@ test('inline script boots with live statistics and working search',async()=>{
  try{
   await new Promise(done=>setTimeout(done,40));
   assert.deepEqual(t.errors.filter(e=>!e.startsWith('WARN: Live refresh unavailable')),[],t.errors.join('\n'));
-  assert.equal(t.doc.getElementById('artist-count').textContent,'15');
-  assert.equal(t.doc.getElementById('work-count').textContent,'300');
-  assert.equal(t.doc.querySelectorAll('.collection-card').length,15);
+  assert.equal(t.doc.getElementById('artist-count').textContent,'16');
+  assert.equal(t.doc.getElementById('work-count').textContent,'320');
+  assert.equal(t.doc.querySelectorAll('.collection-card').length,16);
   assert.match(t.doc.querySelector('#feature-image').src,/pbs\.twimg\.com\/media/);
-  assert.ok(['Stunnifer','Pepavaggio','WEB3GISEL','HPLoveBux #postAmericana FineArt Illustration','DTN'].includes(t.doc.querySelector('#feature-title').textContent));
-  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,300);
+  assert.ok(['Skelevaggio','Stunnifer','Pepavaggio','WEB3GISEL','HPLoveBux #postAmericana FineArt Illustration','DTN'].includes(t.doc.querySelector('#feature-title').textContent));
+  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,320);
   const input=t.doc.querySelector('#search');
   input.value='Stunnifer';input.dispatchEvent(new t.win.Event('input',{bubbles:true}));
   assert.equal(t.doc.querySelectorAll('.collection-card').length,1,'search should filter the exhibit');
@@ -53,7 +53,7 @@ test('slideshow selection opens and shows an actual artwork',async()=>{
   await new Promise(done=>setTimeout(done,40));
   t.doc.querySelector('#choose-slideshow').click();
   assert.ok(t.doc.querySelector('#selection-modal').open,'selection dialog should open');
-  assert.equal(t.doc.querySelectorAll('.checkartist').length,15);
+  assert.equal(t.doc.querySelectorAll('.checkartist').length,16);
   t.doc.querySelector('#launch-selection').click();
   assert.ok(t.doc.querySelector('#cinema').classList.contains('active'));
   assert.match(t.doc.querySelector('#cinema-img').src,/pbs\.twimg\.com\/media/);
@@ -146,13 +146,13 @@ test('priority lineup leads every unfiltered gallery and cycles each hour',async
  const t=boot();
  try{
   await new Promise(done=>setTimeout(done,60));
-  const priority=['stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim'];
+  const priority=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim'];
   const cards=[...t.doc.querySelectorAll('.collection-card')].map(x=>x.querySelector('.card-handle').textContent.toLowerCase());
-  for(const name of priority) assert.ok(cards.slice(0,5).some(c=>c.includes('@'+name)),'missing front-row priority '+name);
+  for(const name of priority) assert.ok(cards.slice(0,6).some(c=>c.includes('@'+name)),'missing front-row priority '+name);
   const hour=Math.floor(Date.now()/3600000);
   const scheduled=priority.map((_,i)=>t.win.currentFeature((hour+i)*3600000).artist);
-  assert.equal(new Set(scheduled.map(x=>x.postUrl)).size,5,'no artist should hold an adjacent hourly slot');
-  assert.equal(t.win.currentFeature((hour+5)*3600000).artist.postUrl,scheduled[0].postUrl,'feature queue repeats');
+  assert.equal(new Set(scheduled.map(x=>x.postUrl)).size,6,'no artist should hold an adjacent hourly slot');
+  assert.equal(t.win.currentFeature((hour+6)*3600000).artist.postUrl,scheduled[0].postUrl,'feature queue repeats');
   assert.equal(t.doc.querySelectorAll('#feature-ticker-track .ticker-entry').length,16);
   assert.match(t.doc.querySelector('#feature-next-change').textContent,/NEXT FEATURE IN/);
   t.doc.querySelector('#search').value='YenaArt';
@@ -168,9 +168,13 @@ test('Themes switch all views and persisted selected theme routes to matching or
   const themes=[...t.doc.querySelectorAll('#theme-select option')].map(x=>x.value);
   assert.deepEqual(themes,['violet','analog','heritage']);
   const select=t.doc.querySelector('#theme-select');
+  assert.equal(t.doc.querySelector('#theme-dock').dataset.open,'false');
+  t.doc.querySelector('#theme-dock-tab').click();
+  assert.equal(t.doc.querySelector('#theme-dock').dataset.open,'true');
   select.value='analog';
   select.dispatchEvent(new t.win.Event('change',{bubbles:true}));
   assert.equal(t.doc.body.dataset.theme,'analog');
+  assert.equal(t.doc.querySelector('#theme-dock').dataset.open,'false','theme dock automatically retracts');
   assert.equal(t.win.localStorage.getItem('twentyx-theme-v1'),'analog');
   const downloaded=[];
   t.win.fetch=async()=>({ok:true});
@@ -184,8 +188,9 @@ test('Themes switch all views and persisted selected theme routes to matching or
   await new Promise(done=>setTimeout(done,35));
   assert.match(downloaded[1].href,/--heritage\.png$/);
   const css=readFileSync('styles.css','utf8');
-  assert.match(css,/Themes\/Analog%20Nostalgia/);
-  assert.match(css,/Themes\/Minimalist%20Heritage/);
+  assert.match(css,/#7400B8/);
+  assert.match(css,/#FFCAD4/);
+  assert.doesNotMatch(css,/--theme-image:\\s*url\\(/,'no displayed colorway image');
  }finally{t.close()}
 });
 
@@ -210,7 +215,7 @@ test('X community and follow actions open centered site dialogs, not navigate aw
   const before=t.win.location.href;
   t.doc.querySelector('#enter-artvision').click();
   assert.ok(t.doc.querySelector('#x-action-modal').open);
-  assert.match(t.doc.querySelector('#x-action-title').textContent,/Enter ArtVision/);
+  assert.match(t.doc.querySelector('#x-action-title').textContent,/ArtVision community/);
   t.doc.querySelector('#x-action-done').click();
   assert.equal(t.doc.querySelector('#x-action-modal').open,false);
   t.doc.querySelector('#follow-link').click();
@@ -221,5 +226,86 @@ test('X community and follow actions open centered site dialogs, not navigate aw
   t.doc.querySelector('#x-action-continue').click();
   assert.match(opened,/intent\/follow/);
   assert.equal(t.win.location.href,before,'original exhibition stays in current page');
+ }finally{t.close()}
+});
+
+
+test('Skelevaggio enters as top priority with 20 authentic images and a dedicated permalink',async()=>{
+ const t=boot('https://twentyx.artvision.today/@skelevaggio/','@skelevaggio/index.html');
+ try{
+  await new Promise(done=>setTimeout(done,45));
+  assert.equal(t.doc.querySelector('#artist-title').textContent,'Skelevaggio');
+  assert.equal(t.doc.querySelectorAll('#artist-wall img').length,20);
+  assert.equal(t.doc.querySelector('#original-link').href,'https://x.com/skelevaggio/status/2122828926619992070');
+  const seed=JSON.parse(t.doc.querySelector('#seeded-artists').textContent);
+  const skelevaggio=seed.find(x=>x.handle==='skelevaggio');
+  assert.equal(skelevaggio.media.length,20);
+  assert.equal(new Set(skelevaggio.media).size,20);
+  assert.match(skelevaggio.media[0],/HXXKTlKbAAASVo4/);
+ }finally{t.close()}
+});
+
+test('site offers readable retractable vertical theme dock and slide-out curated guide',async()=>{
+ const t=boot();
+ try{
+  await new Promise(done=>setTimeout(done,45));
+  assert.equal(t.doc.querySelector('#theme-dock').dataset.open,'false');
+  assert.equal(t.doc.querySelectorAll('.theme-toggle select').length,1,'only one compact theme selector');
+  const button=t.doc.querySelector('#theme-dock-tab');
+  button.click();
+  assert.equal(button.getAttribute('aria-expanded'),'true');
+  t.doc.querySelector('#theme-dock-close').click();
+  assert.equal(button.getAttribute('aria-expanded'),'false');
+  t.doc.querySelector('#header-guide').click();
+  const guide=t.doc.querySelector('#guide-drawer');
+  assert.ok(guide.open,'curation drawer opens');
+  for(const tab of ['faq','terms','ideas']){
+   guide.querySelector('[data-guide-tab="'+tab+'"]').click();
+   assert.equal(guide.querySelector('[data-guide-panel="'+tab+'"]').hidden,false);
+  }
+  t.doc.querySelector('#guide-close').click();
+  assert.equal(guide.open,false);
+  const css=readFileSync('styles.css','utf8');
+  assert.match(css,/\\.theme-dock\\[data-open="true"\\]/);
+  assert.match(css,/\\.guide-drawer\\[open\\]/);
+  assert.match(css,/font-size:clamp\\(19px/);
+ }finally{t.close()}
+});
+
+test('ArtVision invite contains complete 20-image hashtag instructions and curation actions',async()=>{
+ const t=boot();
+ try{
+  await new Promise(done=>setTimeout(done,45));
+  t.doc.querySelector('#enter-artvision').click();
+  const modal=t.doc.querySelector('#x-action-modal');
+  assert.equal(modal.open,true);
+  assert.equal(t.doc.querySelector('#x-action-copy').textContent,
+   'join the artVision community and post twenty images with the hashtag #TwentyX to join this exhibition.');
+  t.doc.querySelector('#x-action-guide').click();
+  assert.equal(modal.open,false);
+  assert.equal(t.doc.querySelector('#guide-drawer').open,true);
+  t.doc.querySelector('#guide-community').click();
+  assert.equal(modal.open,true);
+ }finally{t.close()}
+});
+
+test('negative space derives from the current artwork in all three presentation modes',async()=>{
+ const t=boot();
+ try{
+  await new Promise(done=>setTimeout(done,45));
+  const heroSrc=t.doc.querySelector('#feature-image').src;
+  assert.ok(t.doc.querySelector('#feature-artwork').style.getPropertyValue('--artwork-source').includes(heroSrc));
+  t.doc.querySelector('.artist-open').click();
+  t.doc.querySelector('#spatial-mode').click();
+  const stage=t.doc.querySelector('#stage-main');
+  assert.ok(t.doc.querySelector('#spatial-current').style.getPropertyValue('--artwork-source').includes(stage.src));
+  t.doc.querySelector('#play-artist').click();
+  const theater=t.doc.querySelector('#cinema-img');
+  assert.ok(t.doc.querySelector('.cinema-viewport').style.getPropertyValue('--artwork-source').includes(theater.src));
+  const css=readFileSync('styles.css','utf8');
+  assert.match(css,/\\.feature-artwork::before/);
+  assert.match(css,/\\.perspective-scene button::before/);
+  assert.match(css,/\\.cinema-viewport::before/);
+  assert.match(css,/object-fit:contain/);
  }finally{t.close()}
 });
