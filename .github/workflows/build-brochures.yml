@@ -41,5 +41,10 @@ jobs:
           git add -A -- index.html @*/index.html welcome/ data/previous-posts.json
           if ! git diff --cached --quiet; then
             git commit -m "Publish artist brochures and self-contained exhibition pages"
-            git push
+            if ! git push; then
+              echo "Upstream advanced during brochure generation; safely rebasing generated pages."
+              git fetch origin main
+              git rebase origin/main
+              git push
+            fi
           fi
