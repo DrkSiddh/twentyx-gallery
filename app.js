@@ -10,7 +10,10 @@ const create=(tag,className,text)=>{
 };
 const POSTS='https://x.com/i/communities/1835009931231322257';
 const CANONICAL='https://twentyx.artvision.today/';
-const PINNED=['pepavaggio','stunnifer','ciphervoss'];
+const PINNED=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim'];
+const THEME_IDS=['violet','analog','heritage'];
+const FEATURE_HOUR_MS=3600000;
+let lastFeatureHour=null,currentTheme='violet',pendingXUrl='';
 let artists=[];
 let currentArtist=null;
 let spatialIndex=0;
@@ -55,13 +58,29 @@ function artistID(a){return parsePost(a.postUrl).id}
 function artistHandle(a){return parsePost(a.postUrl).handle}
 function artistX(a){return 'https://x.com/'+artistHandle(a)}
 function followIntent(a){return 'https://twitter.com/intent/follow?screen_name='+encodeURIComponent(artistHandle(a))}
+function openXAction(mode,artist){
+ pendingXUrl=mode==='follow'?followIntent(artist):POSTS;
+ byId('x-action-title').textContent=mode==='follow'?'Follow @'+artistHandle(artist)+' on X':'Enter ArtVision on X';
+ byId('x-action-copy').textContent=mode==='follow'
+  ?'Following is authorized by X in a separate window. Your TwentyX exhibition stays open and unchanged.'
+  :'Explore the ArtVision community in a separate X window. Close this dialog to return to the same place in the gallery.';
+ byId('x-action-continue').textContent=mode==='follow'?'Follow on X ↗':'Open ArtVision on X ↗';
+ if(!byId('x-action-modal').open)byId('x-action-modal').showModal();
+}
+function openPendingX(){
+ if(!pendingXUrl)return;
+ const width=640,height=790;
+ const left=Math.max(0,Math.round((window.screen.width-width)/2));
+ const top=Math.max(0,Math.round((window.screen.height-height)/2));
+ const popup=window.open(pendingXUrl,'twentyx_x_action','popup=yes,width='+width+',height='+height+',left='+left+',top='+top);
+ if(!popup)window.open(pendingXUrl,'_blank','noopener,noreferrer');
+}
 function popFollow(event){
  const a=event.target.closest('a[data-follow]');if(!a)return;
  event.preventDefault();
- const width=510,height=660;
- const left=Math.max(0,Math.round((window.screen.width-width)/2)),top=Math.max(0,Math.round((window.screen.height-height)/2));
- const popup=window.open(a.href,'twentyx_x_follow','popup=yes,width='+width+',height='+height+',left='+left+',top='+top);
- if(!popup)window.open(a.href,'_blank','noopener,noreferrer');
+ const handle=new URL(a.href).searchParams.get('screen_name');
+ const artist=artists.find(a=>artistHandle(a).toLowerCase()===String(handle||'').toLowerCase());
+ if(artist)openXAction('follow',artist);
 }
 function artistPath(a){return '/@'+artistHandle(a).toLowerCase()+'/'}
 function artistURL(a){return CANONICAL+'@'+artistHandle(a).toLowerCase()+'/'}
@@ -72,10 +91,24 @@ function button(label,className,callback){
  const b=create('button',className,label);b.type='button';b.addEventListener('click',callback);return b;
 }
 function setDayPhase(){
- const hour=new Date().getHours();
- const phase=hour>=5&&hour<10?'daybreak':hour>=10&&hour<17?'day':hour>=17&&hour<21?'sunset':'night';
+ const now=new Date(),hour=now.getHours(),minute=now.getMinutes();
+ const clock=hour*60+minute;
+ // Local wall-clock time; 4:20 PM through the end of 4:43 PM.
+ const phase=clock>=16*60+20&&clock<16*60+44?'green':hour>=5&&hour<10?'daybreak':hour>=10&&hour<17?'day':hour>=17&&hour<21?'sunset':'night';
  document.body.dataset.phase=phase;
- byId('phase-label').textContent='LOCAL LIGHT / '+({daybreak:'DAYBREAK',day:'DAYLIGHT',sunset:'SUNSET',night:'AFTER DARK'}[phase]);
+ byId('phase-label').textContent='LOCAL LIGHT / '+({daybreak:'VIOLET DAWN',day:'DAYLIGHT',sunset:'VIOLET DUSK',night:'MIDNIGHT',green:'4:20 GREEN HOUR'}[phase]);
+}
+function setTheme(theme){
+ if(!THEME_IDS.includes(theme))theme='violet';
+ currentTheme=theme;
+ document.body.dataset.theme=theme;
+ byId('theme-select').value=theme;
+ try{window.localStorage.setItem('twentyx-theme-v1',theme)}catch{}
+}
+function initializeTheme(){
+ let choice='violet';
+ try{choice=window.localStorage.getItem('twentyx-theme-v1')||'violet'}catch{}
+ setTheme(choice);
 }
 function routeArtist(){
  const legacy=new URLSearchParams(location.search).get('artist');
@@ -114,12 +147,48 @@ function makeTile(a,i,className){
 function newestArtist(){
  return [...artists].sort((a,b)=>artistID(b).localeCompare(artistID(a)))[0]||null;
 }
+function featureArtists(list=artists){
+ const priority=PINNED.map(handle=>list.find(a=>artistHandle(a).toLowerCase()===handle)).filter(Boolean);
+ // Do not invent Skelevaggio media; it joins automatically once verified.
+ return priority.length?priority:list;
+}
+function featureHour(now=Date.now()){return Math.floor(now/FEATURE_HOUR_MS)}
+function currentFeature(now=Date.now()){
+ const lineup=featureArtists();
+ if(!lineup.length)return null;
+ const hour=featureHour(now);
+ return {artist:lineup[hour%lineup.length],hour,lineup};
+}
+function renderFeatureTicker(){
+ const state=currentFeature(),track=byId('feature-ticker-track');
+ if(!track||!state)return;
+ track.replaceChildren();
+ const nextTime=new Date((state.hour+1)*FEATURE_HOUR_MS);
+ const minutes=Math.max(1,Math.ceil(((state.hour+1)*FEATURE_HOUR_MS-Date.now())/60000));
+ byId('feature-next-change').textContent='NEXT FEATURE IN '+minutes+' MIN · '+nextTime.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+ for(let copy=0;copy<2;copy++){
+  for(let offset=0;offset<Math.max(8,state.lineup.length);offset++){
+   const artist=state.lineup[(state.hour+offset)%state.lineup.length];
+   const label=create('span','ticker-entry');
+   if(offset===0)label.classList.add('on-now');
+   const time=offset===0?'NOW':new Date((state.hour+offset)*FEATURE_HOUR_MS).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+   const timeSpan=create('b','ticker-time',time);
+   const handleSpan=create('span','ticker-artist','@'+artistHandle(artist));
+   label.append(timeSpan,handleSpan);
+   if(copy)label.setAttribute('aria-hidden','true');
+   track.append(label);
+  }
+ }
+}
 function featureWork(next=false){
- if(!artists.length)return;
- const latest=newestArtist();
- const artistChanged=!featuredArtist||artistID(featuredArtist)!==artistID(latest);
- featuredArtist=latest;
- if(artistChanged)featuredIndex=Math.floor(Math.random()*20);
+ const state=currentFeature();
+ if(!state)return;
+ renderFeatureTicker();
+ const selected=state.artist;
+ const artistChanged=!featuredArtist||artistID(featuredArtist)!==artistID(selected)||lastFeatureHour!==state.hour;
+ if(!next&&!artistChanged)return;
+ featuredArtist=selected;lastFeatureHour=state.hour;
+ if(artistChanged)featuredIndex=(state.hour*7+Number(artistID(selected).slice(-2)))%20;
  else if(next)featuredIndex=(featuredIndex+1+Math.floor(Math.random()*19))%20;
  const img=byId('feature-image');
  if(!img)return;
@@ -131,11 +200,10 @@ function featureWork(next=false){
   byId('feature-number').textContent=String(featuredIndex+1).padStart(2,'0')+' / 20';
   byId('feature-title').textContent=featuredArtist.name;
   fitArtistHeadlines();
-  byId('feature-subline').textContent='An exhibition curated by '+featuredArtist.name+' · '+featuredArtist.date;
+  byId('feature-subline').textContent='Hourly spotlight · '+featuredArtist.name+' · '+featuredArtist.date;
   img.classList.remove('change');
  };
- if(prefersReduced||!next)reveal();
- else window.setTimeout(reveal,220);
+ if(prefersReduced||!next)reveal();else window.setTimeout(reveal,220);
 }
 
 /** Preserve a single-word artist moniker on one line at any viewport size. */
@@ -399,7 +467,8 @@ async function downloadPoster(a,target){
  target.textContent='Preparing exhibition brochure…';
  try{
   const base='/welcome/'+artistHandle(a).toLowerCase()+'-'+artistID(a);
-  const png=base+'.png',svg=base+'.svg';
+  const suffix=currentTheme==='violet'?'':'--'+currentTheme;
+  const png=base+suffix+'.png',svg=base+suffix+'.svg';
   // Full-resolution, self-contained PNGs are preferred if generated.
   // The SVG is built for every artist on every publish, so download never
   // depends on a QR CDN, popup, browser canvas, or unavailable artwork fetch.
@@ -423,6 +492,12 @@ async function downloadPoster(a,target){
  }
 }
 function bindUI(){
+ byId('theme-select').addEventListener('change',event=>setTheme(event.target.value));
+ byId('enter-artvision').addEventListener('click',()=>openXAction('community'));
+ byId('share-artvision').addEventListener('click',()=>openXAction('community'));
+ byId('x-action-continue').addEventListener('click',openPendingX);
+ byId('x-action-close').addEventListener('click',()=>byId('x-action-modal').close());
+ byId('x-action-done').addEventListener('click',()=>byId('x-action-modal').close());
  const cinema=byId('cinema');
  cinema.addEventListener('pointermove',revealCinemaControls);
  cinema.addEventListener('touchstart',revealCinemaControls,{passive:true});
@@ -518,7 +593,7 @@ async function syncLatestExhibitions(){
  }catch(error){console.warn('Live stats refresh deferred:',error.message)}
 }
 async function load(){
- setDayPhase();setInterval(setDayPhase,60000);bindUI();
+ setDayPhase();initializeTheme();setInterval(()=>{setDayPhase();featureWork(false)},60000);bindUI();
  window.setInterval(syncLatestExhibitions,120000);
  let seeded=[];
  try{
