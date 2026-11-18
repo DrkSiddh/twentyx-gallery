@@ -36,7 +36,7 @@ test('inline script boots with live statistics and working search',async()=>{
   assert.equal(t.doc.getElementById('work-count').textContent,'320');
   assert.equal(t.doc.querySelectorAll('.collection-card').length,16);
   assert.match(t.doc.querySelector('#feature-image').src,/pbs\.twimg\.com\/media/);
-  assert.ok(['Skelevaggio','Stunnifer','Pepavaggio','WEB3GISEL','HPLoveBux #postAmericana FineArt Illustration','DTN'].includes(t.doc.querySelector('#feature-title').textContent));
+  assert.ok(JSON.parse(t.doc.querySelector('#seeded-artists').textContent).some(a=>a.name===t.doc.querySelector('#feature-title').textContent),'featured work is from an actual artist');
   assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,320);
   const input=t.doc.querySelector('#search');
   input.value='Stunnifer';input.dispatchEvent(new t.win.Event('input',{bubbles:true}));
@@ -86,8 +86,8 @@ test('artist credits use display type; brochure download is a same-origin file',
  const t=boot('https://twentyx.artvision.today/@stunnifer/','@stunnifer/index.html');
  try{
   await new Promise(done=>setTimeout(done,45));
-  assert.equal(t.doc.querySelector('.artist-presenter').textContent,'Presented by ArtVision');
-  assert.match(t.doc.querySelector('.artist-presenter').className,/iridescent/);
+  assert.equal(t.doc.querySelector('.artist-presenter').textContent,'20 ORIGINAL WORKS · ONE ARTIST CURATION');
+  assert.match(t.doc.querySelector('.artist-presenter').className,/artist-presenter/);
   const captures=[];
   t.win.HTMLAnchorElement.prototype.click=function(){captures.push({href:this.href,filename:this.download})};
   t.doc.querySelector('#download-qr').click();
@@ -142,18 +142,23 @@ test('fullscreen autoplay hides controls but restores them on interaction or pau
 });
 
 
-test('priority lineup leads every unfiltered gallery and cycles each hour',async()=>{
+test('chronological arrival gallery and priority-first full rotation cycle',async()=>{
  const t=boot();
  try{
   await new Promise(done=>setTimeout(done,60));
   const priority=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim'];
   const cards=[...t.doc.querySelectorAll('.collection-card')].map(x=>x.querySelector('.card-handle').textContent.toLowerCase());
-  for(const name of priority) assert.ok(cards.slice(0,6).some(c=>c.includes('@'+name)),'missing front-row priority '+name);
+  const seed=JSON.parse(t.doc.querySelector('#seeded-artists').textContent);
+  const chronological=[...seed].sort((a,b)=>a.postId.localeCompare(b.postId)).map(a=>'@'+a.handle.toLowerCase()+' on x');
+  assert.deepEqual(cards,chronological,'gallery block order must match first-arrived X posts');
+  assert.ok(cards.length===16);
   const hour=Math.floor(Date.now()/3600000);
-  const scheduled=priority.map((_,i)=>t.win.currentFeature((hour+i)*3600000).artist);
-  assert.equal(new Set(scheduled.map(x=>x.postUrl)).size,6,'no artist should hold an adjacent hourly slot');
-  assert.equal(t.win.currentFeature((hour+6)*3600000).artist.postUrl,scheduled[0].postUrl,'feature queue repeats');
-  assert.equal(t.doc.querySelectorAll('#feature-ticker-track .ticker-entry').length,16);
+  const scheduled=Array.from({length:cards.length},(_,i)=>t.win.currentFeature((hour+i)*3600000).artist);
+  assert.equal(new Set(scheduled.map(x=>x.postUrl)).size,cards.length,'every artist must receive an hourly feature before the cycle restarts');
+  assert.equal(t.win.currentFeature((hour+cards.length)*3600000).artist.postUrl,scheduled[0].postUrl,'featured cycle repeats after all artists');
+  const restart=t.win.currentFeature(0).lineup;
+  assert.deepEqual(Array.from(restart.slice(0,priority.length),a=>String(a.handle).toLowerCase()),priority,'curatorial priorities lead each full featured cycle');
+  assert.equal(t.doc.querySelectorAll('#feature-ticker-track .ticker-entry').length,2*Math.max(8,cards.length));
   assert.match(t.doc.querySelector('#feature-next-change').textContent,/NEXT FEATURE IN/);
   t.doc.querySelector('#search').value='YenaArt';
   t.doc.querySelector('#search').dispatchEvent(new t.win.Event('input',{bubbles:true}));
@@ -307,5 +312,44 @@ test('negative space derives from the current artwork in all three presentation 
   assert.ok(css.includes('.perspective-scene button::before'));
   assert.ok(css.includes('.cinema-viewport::before'));
   assert.match(css,/object-fit:contain/);
+ }finally{t.close()}
+});
+
+test('ArtVision branding is not duplicated, ticker is above hero, and mailing list has explicit choices',async()=>{
+ const t=boot();
+ try{
+  await new Promise(done=>setTimeout(done,40));
+  const logo=t.doc.querySelector('#home-link');
+  assert.match(logo.textContent,/TwentyX/);
+  assert.match(logo.textContent,/Presented by ArtVision/);
+  assert.equal(t.doc.querySelectorAll('#phase-label').length,0);
+  assert.ok(t.doc.querySelector('.top-feature-schedule').compareDocumentPosition(t.doc.querySelector('.hero')) & t.win.Node.DOCUMENT_POSITION_FOLLOWING);
+  const form=t.doc.querySelector('#opportunity-signup');
+  assert.ok(form);
+  assert.deepEqual([...form.querySelectorAll('input[name="cadence"]')].map(x=>x.value),['weekday','weekly','weekend']);
+  assert.equal(form.querySelector('#subscribe-consent').required,true);
+ }finally{t.close()}
+});
+
+test('every complete artist card has same-art backdrop, 20 uncropped tiles, date label and usable calls to action',async()=>{
+ const t=boot();
+ try{
+  await new Promise(done=>setTimeout(done,40));
+  const cards=[...t.doc.querySelectorAll('.collection-card')];
+  assert.equal(cards.length,16);
+  for(const card of cards){
+   const artworks=card.querySelectorAll('.card-mosaic .artwork-thumb');
+   assert.equal(artworks.length,20);
+   assert.ok([...artworks].every(tile=>tile.style.getPropertyValue('--artwork-source').includes('pbs.twimg.com/media/')));
+   assert.match(card.querySelector('.card-handle').textContent,/@.* on X/);
+   assert.match(card.querySelector('.card-date').textContent,/\d{2} \d{2} \d{4} curation/);
+   assert.ok(card.querySelector('.card-explore'));
+   assert.ok(card.querySelector('.card-footer a[data-follow]'));
+  }
+  const css=readFileSync('styles.css','utf8');
+  assert.match(css,/\.card-mosaic \.artwork-thumb img/);
+  assert.match(css,/object-fit:contain/);
+  assert.match(css,/perspective:1000px/);
+  assert.match(css,/translateZ\(20px\)/);
  }finally{t.close()}
 });

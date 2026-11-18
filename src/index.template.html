@@ -30,19 +30,25 @@
 </aside>
 <div class="page-shell">
 <header class="topbar">
- <a class="brand" href="/" id="home-link" aria-label="TwentyX gallery home"><span class="brand-mark">X</span><span>ARTVISION <em>X</em><small>A MULTIDIMENSIONAL EXHIBITION</small></span></a>
+ <a class="brand" href="/" id="home-link" aria-label="TwentyX — Presented by ArtVision, gallery home"><span class="brand-wordmark">Twenty<span>X</span></span><span class="brand-divider" aria-hidden="true">—</span><span class="brand-presenter">Presented by ArtVision</span></a>
  <div class="top-actions">
-  <span class="time-indicator" id="phase-label">A LIVING EXHIBITION</span>
   <button class="ghost small guide-opener" id="header-guide" type="button" data-open-guide="ideas">Curation guide <span aria-hidden="true">↗</span></button>
+  <a class="ghost small header-subscribe" href="#opportunities" id="header-subscribe">Art opportunities <span aria-hidden="true">↗</span></a>
   <button class="icon-btn" type="button" data-info="about" aria-label="About TwentyX" title="About TwentyX">i</button>
   <button class="ghost small" id="enter-artvision" type="button">Enter ArtVision on X ↗</button>
  </div>
 </header>
+<div class="top-feature-schedule" aria-label="Featured artists schedule">
+  <div class="feature-program" aria-label="Hourly TwentyX featured artist schedule">
+   <div class="feature-program-head"><span class="overline">THE FEATURE ROTATION · YOUR LOCAL TIME</span><span id="feature-next-change" class="feature-next-change">NEW ARTIST EVERY HOUR</span></div>
+   <div class="feature-ticker-window"><div class="feature-ticker-track" id="feature-ticker-track" aria-live="off"><span class="ticker-placeholder">Curating the upcoming artists…</span></div></div>
+  </div>
+</div>
 <main>
 <section id="home-view">
  <div class="hero">
-  <div class="hero-superline">ARTVISION <span class="hero-x">X</span> <span class="dash"></span> A MULTIDIMENSIONAL EXHIBITION</div>
-  <h1 class="twentyx iridescent">TWENTY<span>X</span></h1>
+  <div class="hero-superline">TWENTY WORKS PER ARTIST <span class="dash"></span> NO TWO VISIONS ALIKE</div>
+  <h1 class="twentyx iridescent hero-editorial">An exhibition that keeps unfolding.</h1>
   <p class="hero-intro"><strong>A multidimensional self-evolving art exhibition.</strong> Twenty works of art curated by each artist on X. Explore their worlds. Follow the makers. Share their moment.</p>
   <div class="hero-stats" aria-label="Gallery statistics">
    <div><strong id="artist-count">0</strong><span>collections</span></div>
@@ -74,10 +80,7 @@
    </div>
    <span class="feature-orbit-label" aria-hidden="true">EXPLORE THE ART · NOT THE INTERFACE</span>
   </div>
-  <div class="feature-program" aria-label="Hourly TwentyX featured artist schedule">
-   <div class="feature-program-head"><span class="overline">THE FEATURE ROTATION · YOUR LOCAL TIME</span><span id="feature-next-change" class="feature-next-change">NEW ARTIST EVERY HOUR</span></div>
-   <div class="feature-ticker-window"><div class="feature-ticker-track" id="feature-ticker-track" aria-live="off"><span class="ticker-placeholder">Curating the upcoming artists…</span></div></div>
-  </div>
+
  </section>
  <div class="exhibition-header">
   <div class="exhibition-heading"><div class="overline">ENTER THE EXHIBITIONS</div><h2>Current exhibitions <button class="tiny-info" data-info="browse" aria-label="How to explore the gallery">i</button></h2></div>
@@ -89,16 +92,39 @@
  </div>
  <div class="section-note" id="home-status" aria-live="polite">Illuminating the exhibitions…</div>
  <div class="home-gallery" id="home-gallery"></div>
+
+<section class="opportunity-newsletter" id="opportunities" aria-labelledby="opportunities-title">
+ <div class="opportunity-newsletter-intro">
+  <p class="overline">ARTVISION / FUNDED ART OPPORTUNITIES</p>
+  <h2 id="opportunities-title">Get the opportunities. Make the work.</h2>
+  <p>Grants. Open calls. Residencies. Commissions. Funded projects worth knowing about—curated for artists, delivered on your schedule.</p>
+  <p class="opportunity-fineprint">One focused email per chosen delivery window. No daily noise unless you ask for it.</p>
+ </div>
+ <form id="opportunity-signup" class="opportunity-signup" novalidate>
+  <label class="subscribe-email-label" for="subscribe-email">EMAIL ADDRESS</label>
+  <input id="subscribe-email" name="email" autocomplete="email" inputmode="email" type="email" placeholder="you@example.com" maxlength="254" required>
+  <fieldset class="subscribe-cadence">
+   <legend>HOW OFTEN SHOULD WE WRITE?</legend>
+   <label class="cadence-choice"><input type="radio" name="cadence" value="weekday" required><span><strong>1× each weekday</strong><small>Monday–Friday</small></span></label>
+   <label class="cadence-choice"><input type="radio" name="cadence" value="weekly" checked><span><strong>1× weekly</strong><small>One curated weekly edition</small></span></label>
+   <label class="cadence-choice"><input type="radio" name="cadence" value="weekend"><span><strong>1× each weekend</strong><small>One Saturday or Sunday edition</small></span></label>
+  </fieldset>
+  <label class="subscribe-consent"><input id="subscribe-consent" type="checkbox" required><span>Yes, email me ArtVision's funded opportunities in the arts at my selected frequency. I can unsubscribe or update my preferences at any time.</span></label>
+  <div class="subscribe-bottom"><button id="subscribe-submit" class="pill primary subscribe-submit" type="submit">Join the ArtVision list <span aria-hidden="true">↗</span></button><span class="subscribe-tag">FOR ARTISTS WHO BUILD WHAT'S NEXT</span></div>
+  <p id="subscribe-status" class="subscribe-status" role="status" aria-live="polite"></p>
+  <input type="text" name="website" class="subscribe-honeypot" autocomplete="off" tabindex="-1" aria-hidden="true">
+ </form>
+</section>
 </section>
 
 <section id="artist-view" hidden aria-labelledby="artist-title">
  <div class="artist-topline">
   <button id="back-to-all" class="back-link" type="button">← Back to all artists</button>
-  <div class="artist-brand"><span class="artist-mark iridescent">TWENTYX</span><span class="artist-presenter iridescent">Presented by ArtVision</span></div>
+  <div class="artist-brand"><span class="artist-presenter">20 ORIGINAL WORKS · ONE ARTIST CURATION</span></div>
  </div>
  <div class="spotlight-heading">
-  <div class="spotlight-title-wrap"><div class="overline">TWENTYX PRESENTED BY ARTVISION <span class="dash"></span> ARTIST CURATION <span class="twenty-badge">20 / 20</span></div><h1 id="artist-title">Artist</h1><div class="artist-byline"><span id="artist-handle"></span><span id="artist-date"></span></div></div>
-  <div class="artist-sideword" aria-hidden="true">TWENTYX</div>
+  <div class="spotlight-title-wrap"><div class="overline">THE ARTIST’S EXHIBITION <span class="dash"></span> ARTIST CURATION <span class="twenty-badge">20 WORKS</span></div><h1 id="artist-title">Artist</h1><div class="artist-byline"><span id="artist-handle"></span><span id="artist-date"></span></div></div>
+  
  </div>
  <div class="spotlight-actions">
   <div class="spotlight-main-actions">
@@ -127,7 +153,7 @@
  <div class="next-artist-bar"><button class="ghost" type="button" id="previous-artist">← Previous artist</button><span>EXACTLY TWENTY WORKS, CURATED BY THE ARTIST.</span><button class="ghost" type="button" id="next-artist">Next artist →</button></div>
 </section>
 </main>
-<footer class="footer"><span>TWENTYX • A multidimensional self-evolving art exhibition.</span><span>TwentyX Presented By ArtVision • Twenty works of art on X.</span></footer>
+<footer class="footer"><span>Twenty works. Infinite perspectives.</span><span>Artist-curated. ArtVision-presented.</span></footer>
 </div>
 
 <dialog id="x-action-modal" class="glass-dialog x-action-dialog" aria-labelledby="x-action-title">
