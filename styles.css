@@ -2219,3 +2219,56 @@ body[data-theme="glitch"] .collection-card{
 @media(prefers-reduced-motion:reduce){
  .featured-six-card>.featured-six-cta{animation:none!important}
 }
+
+/* V12 — visual discipline: the art arrives before navigation. */
+body[data-theme="violet"]{--pink:#F4A2C8;--glass:rgba(9,17,38,.82);--gloss:linear-gradient(110deg,#b5d5f0,#fff8fd 19%,#f4a2c8 35%,#fff 49%,#a9b5e4 70%,#ffd6e9 85%,#d4f5ff)}
+.arrival-image{width:100%;margin:0;padding:0;position:relative;background:#0a1021;overflow:hidden}
+.arrival-image[hidden]{display:none!important}
+.arrival-artwork{display:block;width:100%;margin:0;padding:0;border:0;background:transparent;line-height:0;cursor:zoom-in}
+.arrival-artwork img{display:block;width:100%;height:auto;max-height:none;object-fit:contain;object-position:center}
+.arrival-caption{display:flex;align-items:center;justify-content:space-between;gap:17px;flex-wrap:wrap;padding:clamp(15px,2.5vw,32px) clamp(18px,4vw,70px);background:linear-gradient(105deg,#0b142be9,#271932e9);border-bottom:1px solid #f4a2c85b}
+.arrival-introduction{display:flex;flex-direction:column;gap:4px}
+.arrival-overline{font:800 11px Inter,sans-serif;letter-spacing:.22em;color:#f4a2c8}
+.arrival-introduction strong{font:850 clamp(24px,3vw,46px)/1.18 'Dune Rise',Oxanium,sans-serif;color:#fff5fa}
+.arrival-introduction>span:last-child{font-size:clamp(12px,1.1vw,17px);color:#e8dce6}
+.arrival-author{display:flex;align-items:center;gap:16px;flex-wrap:wrap;color:#f8e3ee;font-weight:750}
+.arrival-enter{padding:10px 16px;border:1px solid #f4a2c892;border-radius:999px;background:#ffffff12;color:#fff;font-weight:850}
+.arrival-enter:hover{background:#f4a2c83b}
+.featured-six-heading{justify-content:space-between;margin:0;background:linear-gradient(90deg,#0b142be4,#281b35e8)}
+.featured-six-wordmark,body[data-theme="violet"] .brand-wordmark{font-family:'Computerist','Dune Rise',Oxanium,sans-serif!important;font-weight:900!important;letter-spacing:.022em!important;background:linear-gradient(160deg,#fff,#bbd5f2 16%,#fff 33%,#f4a2c8 46%,#fff 58%,#9aaad9 76%,#fff4fb 96%)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important;filter:drop-shadow(0 3px 10px #f4a2c822)}
+.featured-six-wordmark{font-size:clamp(2.4rem,5.7vw,5.5rem);line-height:1.1}
+.featured-six-intro{font:700 clamp(12px,1.08vw,18px)/1.5 Inter,sans-serif;color:#f3ddea}
+.featured-six-card>.featured-six-cta{opacity:0;visibility:hidden;transform:translateY(-8px);transition:opacity .2s,visibility .2s,transform .2s}
+.featured-six-card:hover>.featured-six-cta,.featured-six-card:focus-visible>.featured-six-cta{opacity:1;visibility:visible;transform:translateY(0)}
+.topbar{height:auto;min-height:77px;padding:13px 0;gap:16px}
+.top-actions{gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.top-actions .theme-dock,.top-actions .theme-dock[data-open="true"]{position:relative!important;top:auto!important;right:auto!important;inset:auto!important;display:block;max-width:none;transform:none!important;filter:none;z-index:65}
+.top-actions .theme-dock-tab{width:auto;height:42px;min-height:42px;flex:auto;padding:9px 12px;display:flex;flex-direction:row;gap:7px;border:1px solid #f4a2c89a;border-radius:999px;font:850 12px Inter,sans-serif;letter-spacing:.06em;box-shadow:none}
+.top-actions .theme-dock-tab>span:last-child{writing-mode:horizontal-tb;text-orientation:mixed}
+.top-actions .theme-tab-icon{font-size:15px}
+.top-actions .theme-dock-panel{position:absolute;top:calc(100% + 10px);right:0;z-index:80;width:min(340px,calc(100vw - 24px));padding:20px;border-radius:16px;box-shadow:0 19px 50px #0009}
+.top-actions .theme-dock:not([data-open="true"]) .theme-dock-panel{display:none}
+.top-actions .ghost.small{min-height:42px;padding:8px 13px;font-size:clamp(12px,.9vw,15px)}
+.brand{flex-shrink:0}.brand-wordmark{font-size:clamp(23px,2.7vw,43px)!important}
+.brand-presenter{font-size:clamp(11px,.95vw,16px)!important}
+.newsletter-drawer:not([open]){display:none!important}
+.newsletter-drawer[open]{display:block;position:fixed!important;z-index:220;top:0;right:0;left:auto;bottom:0;margin:0;width:min(520px,100vw);max-width:100vw;height:100dvh;max-height:100dvh;padding:70px 24px 30px;overflow:auto;border:0;border-left:1px solid #f4a2c899;border-radius:0;background:linear-gradient(150deg,#10172c,#27162f 58%,#121127);color:#fff;box-shadow:-22px 0 90px #0009}
+.newsletter-drawer::backdrop{background:#020613aa;backdrop-filter:blur(6px)}
+.newsletter-close{position:absolute;top:16px;right:18px;width:42px;height:42px;border:1px solid #fff7;border-radius:50%;background:#ffffff15;color:#fff;font-size:29px}
+.newsletter-drawer .opportunity-newsletter-intro,.newsletter-drawer .opportunity-signup{width:100%;max-width:100%;min-width:0}
+.newsletter-drawer .opportunity-newsletter-intro h2{font-size:clamp(24px,2.4vw,35px)}
+.newsletter-drawer .opportunity-newsletter-intro p{font-size:clamp(14px,1vw,17px)}
+.newsletter-drawer .subscribe-cadence{grid-template-columns:1fr}
+.newsletter-drawer .opportunity-signup{padding:0}
+#header-subscribe{display:inline-flex!important}
+.cinema-brochure{padding:8px 12px;border:1px solid #fff6;border-radius:999px;background:#ffffff14;color:#fff;font-weight:800}
+.cinema-brochure:hover{background:#f4a2c833}
+.home-gallery .collection-card>.card-explore{display:none!important}
+.artist-name-link{display:block;width:100%;padding:0;border:0;background:none;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.artist-name-link:hover,.artist-name-link:focus-visible{text-decoration:underline;text-underline-offset:4px;color:#ffe0f0}
+.home-gallery .collection-card[data-artist-handle="ciphervoss"]{display:inline-flex!important;break-inside:avoid-column!important;max-width:100%;overflow:hidden}
+.home-gallery .collection-card[data-artist-handle="ciphervoss"] .card-mosaic{display:grid!important;columns:auto!important;column-count:auto!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:2px;overflow:hidden}
+.home-gallery .collection-card[data-artist-handle="ciphervoss"] .artwork-thumb{display:flex!important;align-items:center;justify-content:center;aspect-ratio:1!important;width:100%;height:auto!important;margin:0!important}
+.home-gallery .collection-card[data-artist-handle="ciphervoss"] .artwork-thumb img{width:100%!important;height:100%!important;max-height:100%!important;object-fit:contain!important}
+@media(max-width:720px){.arrival-caption{padding:14px 17px}.featured-six-wordmark{font-size:clamp(2.2rem,10vw,4rem)}.topbar{flex-wrap:wrap;align-items:flex-start}.top-actions{justify-content:flex-start;width:100%}.top-actions .ghost.small,#header-subscribe{display:inline-flex!important;font-size:12px!important}.newsletter-drawer[open]{padding:67px 18px 24px}.cinema-brochure{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.featured-six-card>.featured-six-cta{transition:none}}
