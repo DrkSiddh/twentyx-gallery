@@ -420,3 +420,174 @@ button,input,select{font:inherit}a{color:inherit}button{cursor:pointer}button:di
  .cinema.active .cinema-top,.cinema.active .cinema-bottom,
  .cinema.active .cinema-arrow,.cinema.active{transition:none!important}
 }
+
+
+/* TWENTYX v7 — the supplied Themes/ assets are canonical. Never crop art. */
+@property --bg{syntax:"<color>";inherits:true;initial-value:#12091d}
+@property --a{syntax:"<color>";inherits:true;initial-value:#54246c}
+@property --b{syntax:"<color>";inherits:true;initial-value:#963fb5}
+@property --c{syntax:"<color>";inherits:true;initial-value:#d78bf8}
+@property --pink{syntax:"<color>";inherits:true;initial-value:#d7a7f9}
+@font-face{
+ font-family:'Analog Pixel Calculon';
+ src:url('/Themes/Analog%20Nostalgia/Analog%20Nostalgia%20Fonts/Pixel%20Calculon.otf') format('opentype');
+ font-display:swap
+}
+@font-face{
+ font-family:'Analog Multivac';
+ src:url('/Themes/Analog%20Nostalgia/Analog%20Nostalgia%20Fonts/multivac-ghost.ttf') format('truetype');
+ font-display:swap
+}
+@font-face{
+ font-family:'Heritage Stellari';
+ src:url('/Themes/Minimalist%20Heritage/Minimalist%20Heritage_Fonts/ep-stellari-display.ttf') format('truetype');
+ font-display:swap
+}
+@font-face{
+ font-family:'Heritage SAIBA';
+ src:url('/Themes/Minimalist%20Heritage/Minimalist%20Heritage_Fonts/SAIBA-45.woff') format('woff');
+ font-display:swap
+}
+body{
+ --theme-image:linear-gradient(120deg,#170a2a,#320f3f);
+ transition:--bg 28s ease,--a 28s ease,--b 28s ease,--c 28s ease,--pink 28s ease,background-color 28s ease;
+}
+body::before{transition:background-image 28s ease,opacity 28s ease;opacity:.74}
+body::after{
+ background-image:linear-gradient(125deg,#08040eea 6%,#180824ad 45%,#140720e8 95%),var(--theme-image);
+ background-position:center;background-size:cover;
+ opacity:.62;transition:opacity 22s ease,background 22s ease;
+}
+body[data-theme="violet"]{
+ --bg:#10091b;--a:#562774;--b:#953caf;--c:#d293f2;--pink:#d9a7fa;
+ --glass:rgba(25,13,37,.76);
+ --gloss:linear-gradient(105deg,#fff8ff 4%,#c691fb 26%,#f7d6ff 44%,#ae7ce5 62%,#e5b5f1 80%,#fff1ff 96%);
+}
+body[data-theme="violet"][data-phase="daybreak"]{--bg:#1a1026;--a:#70418c;--b:#ae70a6;--c:#e1a6d6}
+body[data-theme="violet"][data-phase="day"]{--bg:#1b0f2a;--a:#693687;--b:#a25ac4;--c:#d9a9ee}
+body[data-theme="violet"][data-phase="sunset"]{--bg:#1b0c27;--a:#743a92;--b:#b15e9d;--c:#db84b4}
+body[data-theme="violet"][data-phase="night"]{--bg:#11091a;--a:#3c1b57;--b:#672875;--c:#b270d0}
+body[data-theme="analog"]{
+ --bg:#210f23;--a:#6b2146;--b:#b24a66;--c:#e6a17e;--pink:#f5b68c;
+ --glass:rgba(39,19,34,.79);
+ --gloss:linear-gradient(108deg,#fff0d8,#e5a57d 24%,#fff9ed 50%,#d8749a 75%,#ffd4a6);
+ --theme-image:url('/Themes/Analog%20Nostalgia/Analog%20Nostalgia%20Colorways/TwentyX%20Daylight.png');
+}
+body[data-theme="analog"][data-phase="sunset"],
+body[data-theme="analog"][data-phase="night"]{
+ --theme-image:url('/Themes/Analog%20Nostalgia/Analog%20Nostalgia%20Colorways/TwentyX%20420%20PM.png');
+}
+body[data-theme="analog"][data-phase="daybreak"]{--bg:#24151d;--a:#a65c75;--b:#d57c90;--c:#e7ac87}
+body[data-theme="analog"][data-phase="night"]{--bg:#1a0e22;--a:#552b54;--b:#864568;--c:#b5758a}
+body[data-theme="heritage"]{
+ --bg:#111222;--a:#4e376f;--b:#805591;--c:#baa2d5;--pink:#dbc8e9;
+ --glass:rgba(18,18,32,.78);
+ --gloss:linear-gradient(105deg,#faf5ff,#b7a8d8 27%,#fff 49%,#9c8cc4 73%,#e9d8f4);
+ --theme-image:url('/Themes/Minimalist%20Heritage/Minimalist%20Heritage_Colorways/TwentyX%20GM.png');
+}
+body[data-theme="heritage"][data-phase="sunset"],
+body[data-theme="heritage"][data-phase="night"]{
+ --theme-image:url('/Themes/Minimalist%20Heritage/Minimalist%20Heritage_Colorways/TwentyX%20Sunset.png');
+}
+body[data-theme="heritage"][data-phase="sunset"]{--bg:#160e23;--a:#644e77;--b:#967c9b;--c:#d3bdd6}
+body[data-theme="heritage"][data-phase="night"]{--bg:#0e1020;--a:#342b50;--b:#5b496c;--c:#ad91bf}
+/* 4:20–4:43 PM local: a violet gallery turns into a living green world. */
+body[data-phase="green"],body[data-theme="analog"][data-phase="green"],
+body[data-theme="heritage"][data-phase="green"],
+body[data-theme="violet"][data-phase="green"]{
+ --bg:#091a13;--a:#1b673b;--b:#3e9363;--c:#a6d69a;--pink:#b6efad;
+ --gloss:linear-gradient(100deg,#efffe6,#79dda3 30%,#ebffe9 50%,#76cf9c 76%,#e2ffd2);
+}
+body[data-phase="green"]::after{
+ background-image:linear-gradient(125deg,#061e10de,#153c2eb0,#041b0de6),var(--theme-image);
+}
+body[data-theme="analog"] .feature-artist-name,
+body[data-theme="analog"] .spotlight-title-wrap h1,
+body[data-theme="analog"] .card-name,
+body[data-theme="analog"] .exhibition-heading h2{
+ font-family:'Analog Pixel Calculon',Oxanium,Inter,sans-serif;letter-spacing:-.025em
+}
+body[data-theme="analog"] .brand,
+body[data-theme="analog"] .twentyx,
+body[data-theme="analog"] .artist-mark{font-family:'Analog Multivac','Dune Rise',Inter,sans-serif}
+body[data-theme="heritage"] .feature-artist-name,
+body[data-theme="heritage"] .spotlight-title-wrap h1,
+body[data-theme="heritage"] .card-name,
+body[data-theme="heritage"] .exhibition-heading h2{
+ font-family:'Heritage Stellari',Oxanium,Inter,sans-serif;letter-spacing:-.03em
+}
+body[data-theme="heritage"] .brand,
+body[data-theme="heritage"] .twentyx,
+body[data-theme="heritage"] .artist-mark{
+ font-family:'Heritage SAIBA','Dune Rise',Inter,sans-serif
+}
+body[data-theme="analog"] .feature-artist-name,
+body[data-theme="heritage"] .feature-artist-name{
+ background:var(--gloss);background-size:240% 100%;background-clip:text;color:transparent
+}
+body[data-theme="heritage"] .artist-presenter,
+body[data-theme="analog"] .artist-presenter{font-family:inherit}
+/* Selected whole-exhibition mode is shared by the home, artist and cinema views. */
+.theme-toggle{display:inline-flex;flex-direction:column;gap:2px;font-size:9px;letter-spacing:.15em;color:var(--muted);font-weight:800}
+.theme-toggle select{
+ max-width:210px;min-width:150px;min-height:36px;padding:7px 30px 7px 13px;
+ color:var(--ink);background:#2b1737;border:1px solid #b384da6e;
+ border-radius:11px;font-family:Inter,system-ui,sans-serif;font-size:12px;
+ color-scheme:dark;
+}
+body[data-theme="analog"] .theme-toggle select{background:#3a2030;border-color:#e6ab95}
+body[data-theme="heritage"] .theme-toggle select{background:#29213e;border-color:#b7a2d5}
+.feature-program{
+ margin:20px 0 10px;overflow:hidden;border:1px solid color-mix(in srgb,var(--pink) 32%,transparent);
+ border-radius:18px;background:linear-gradient(105deg,var(--glass),#0b061d89);
+ box-shadow:inset 0 0 30px #ffffff03;backdrop-filter:blur(16px)
+}
+.feature-program-head{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:16px 21px 12px}
+.feature-next-change{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:.11em}
+.feature-ticker-window{overflow:hidden;border-top:1px solid #ffffff12;padding:11px 0 14px}
+.feature-ticker-track{
+ width:max-content;display:flex;align-items:center;gap:0;white-space:nowrap;
+ animation:feature-parade 54s linear infinite;
+}
+.feature-ticker-window:hover .feature-ticker-track,
+.feature-ticker-window:focus-within .feature-ticker-track{animation-play-state:paused}
+.ticker-entry{
+ display:inline-flex;align-items:center;gap:13px;padding:0 25px;
+ border-right:1px solid #ffffff2d;font-size:12px;letter-spacing:.035em;color:var(--ink)
+}
+.ticker-time{font-family:'Oxanium',Inter,sans-serif;color:var(--pink);font-size:13px}
+.ticker-entry.on-now{color:#fff;font-weight:850}
+.ticker-entry.on-now .ticker-time{background:var(--pink);color:#210e2a;padding:3px 10px;border-radius:20px}
+.ticker-artist{font-weight:800}
+@keyframes feature-parade{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+.x-action-dialog{
+ max-width:min(630px,92vw);text-align:center;padding:34px;overflow:hidden;
+ background:linear-gradient(140deg,#1b0d2d,#35184d 57%,#1b0a32);
+ border:1px solid #cb98fa6b;box-shadow:0 26px 100px #0009
+}
+.x-action-orbit{
+ width:110px;height:110px;border-radius:50%;display:grid;place-items:center;
+ margin:15px auto;font:500 70px 'Dune Rise',Oxanium,sans-serif;
+ color:#f9e3ff;box-shadow:0 0 0 18px #a75be013,0 0 0 38px #a75be00e;
+ animation:art-buoyancy 8s ease-in-out infinite
+}
+.x-action-dialog h2{font:800 clamp(27px,5vw,42px) Oxanium,Inter,sans-serif}
+.x-action-dialog .dialog-muted{max-width:490px;margin:20px auto;line-height:1.7}
+.x-action-buttons{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:24px}
+.x-action-dialog::backdrop{background:#110922b5;backdrop-filter:blur(12px)}
+@media(max-width:960px){
+ .topbar{height:auto;min-height:112px;padding:19px 0}
+ .top-actions{flex-wrap:wrap;justify-content:flex-end}
+}
+@media(max-width:640px){
+ .topbar{gap:12px;align-items:flex-start;flex-wrap:wrap}
+ .top-actions{width:100%;justify-content:space-between;gap:8px}
+ .theme-toggle select{min-width:142px;max-width:185px}
+ .time-indicator{font-size:9px;max-width:105px}
+ .feature-program-head{padding:14px 15px}
+ .ticker-entry{padding:0 16px}
+}
+@media(prefers-reduced-motion:reduce){
+ .feature-ticker-track,.x-action-orbit{animation:none!important}
+ body{transition:none!important}
+}
