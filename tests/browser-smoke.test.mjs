@@ -385,6 +385,10 @@ test('featured six art comes before wordmark, ticker, wide XXL, then compact gal
   assert.deepEqual(featured.map(x=>x.querySelector('.featured-six-name').textContent),expected);
   assert.ok(featured.every(x=>x.querySelector('.featured-six-art img')));
   assert.ok(featured.every(x=>x.querySelector('.featured-six-art').style.getPropertyValue('--artwork-source')));
+  assert.ok(featured.every(x=>x.querySelector('.featured-six-cta')?.textContent.includes('Explore the 20')),'featured tile CTA visibly sits above artwork');
+  const css=readFileSync('styles.css','utf8');
+  assert.ok(css.includes('.featured-six-card>.featured-six-cta'),'featured CTA has an absolute artwork overlay');
+  assert.ok(css.includes('height:clamp(580px,62vw,900px)!important'),'XXL artwork frame uses its full edge-to-edge viewport area');
   featured[0].click();
   assert.equal(t.doc.querySelector('#artist-title').textContent,'Skelevaggio');
  }finally{t.close()}
