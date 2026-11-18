@@ -39,7 +39,7 @@ const formatCuration=date=>{
 };
 function renderCard(a){
  const title=esc(a.name),artistHandle=esc(handle(a)),date=esc(a.date||'');
- const originals=a.media.map((u,i)=>'<a class="artwork-thumb" href="'+esc(a.postUrl)+'" target="_blank" rel="noopener noreferrer" style="--artwork-source:url(\\''+esc(u)+'\\')" aria-label="Work '+(i+1)+' of 20 by '+title+'"><img src="'+esc(u)+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="Artwork '+(i+1)+' by '+title+'"></a>').join('');
+ const originals=a.media.map((u,i)=>'<a class="artwork-thumb" href="'+esc(a.postUrl)+'" target="_blank" rel="noopener noreferrer" style="--artwork-source:url(&quot;'+esc(u)+'&quot;)" aria-label="Work '+(i+1)+' of 20 by '+title+'"><img src="'+esc(u)+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="Artwork '+(i+1)+' by '+title+'"></a>').join('');
  return '<article class="collection-card" id="artist-'+idOf(a)+'">'
   +'<div class="card-mosaic">'+originals+'</div>'
   +'<div class="card-meta"><div class="card-heading"><div class="card-overline">ARTIST-CURATED EXHIBITION</div>'
