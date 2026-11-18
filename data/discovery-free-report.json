@@ -1,8 +1,8 @@
 {
-  "completedAt": "2026-11-17T02:25:21.437Z",
+  "completedAt": "2026-11-18T01:00:04.863Z",
   "method": "public-web+FxEmbed (no paid X API)",
-  "knownExhibitions": 12,
-  "candidatesFound": 18,
+  "knownExhibitions": 16,
+  "candidatesFound": 19,
   "checked": 14,
   "admitted": 0,
   "sourceChecks": [
@@ -21,7 +21,7 @@
     {
       "source": "FxEmbed search",
       "query": "#TwentyX",
-      "returned": 17,
+      "returned": 18,
       "readable": true
     },
     {
