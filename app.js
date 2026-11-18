@@ -512,10 +512,14 @@ function renderHome(){
  revealCards(root);
 }
 function changeMode(mode){
+ if(mode!=='wall'&&mode!=='spatial')return;
  wallMode=mode;
  const isWall=mode==='wall';
- byId('artist-wall').hidden=!isWall;
- byId('spatial-stage').hidden=isWall;
+ const wall=byId('artist-wall'),stage=byId('spatial-stage');
+ // Explicit hidden state works with the high-priority masonry CSS.
+ wall.hidden=!isWall;stage.hidden=isWall;
+ wall.setAttribute('aria-hidden',String(!isWall));
+ stage.setAttribute('aria-hidden',String(isWall));
  byId('wall-mode').classList.toggle('active',isWall);
  byId('spatial-mode').classList.toggle('active',!isWall);
  byId('wall-mode').setAttribute('aria-pressed',String(isWall));
@@ -525,6 +529,9 @@ function changeMode(mode){
 function renderSpatial(){
  if(!currentArtist)return;
  const n=currentArtist.media.length;
+ for(const imageId of ['stage-main','stage-left','stage-right']){
+  byId(imageId).referrerPolicy='no-referrer';
+ }
  byId('stage-main').src=currentArtist.media[spatialIndex];
  colorFromArtwork(currentArtist.media[spatialIndex],currentArtist);
  setArtBackdrop(byId('spatial-current'),currentArtist.media[spatialIndex]);

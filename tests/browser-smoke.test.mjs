@@ -469,3 +469,60 @@ test('landscape-first ordering, newsletter drawer and cross-artist cinema naviga
   assert.ok(t.doc.getElementById('cinema-download'));
  }finally{t.close()}
 });
+
+test('spatial carousel restores exclusive visibility and artwork navigation',async()=>{
+ const t=boot();
+ try{
+  await new Promise(done=>setTimeout(done,50));
+  t.doc.querySelector('.artist-name-link').click();
+  const wall=t.doc.getElementById('artist-wall');
+  const stage=t.doc.getElementById('spatial-stage');
+  assert.equal(wall.hidden,false,'artist room starts on its exhibition wall');
+  assert.equal(stage.hidden,true);
+  t.doc.getElementById('spatial-mode').click();
+  assert.equal(wall.hidden,true,'masonry wall must be fully hidden when spatial is active');
+  assert.equal(wall.getAttribute('aria-hidden'),'true');
+  assert.equal(stage.hidden,false,'spatial stage becomes visible');
+  assert.equal(stage.getAttribute('aria-hidden'),'false');
+  const original=t.doc.getElementById('stage-main').src;
+  assert.match(original,/pbs\.twimg\.com\/media/);
+  t.doc.getElementById('spatial-next').click();
+  const next=t.doc.getElementById('stage-main').src;
+  assert.notEqual(next,original,'next side artwork advances original work');
+  assert.match(t.doc.getElementById('stage-counter').textContent,/02 \/ 20/);
+  t.doc.getElementById('spatial-prev').click();
+  assert.equal(t.doc.getElementById('stage-main').src,original,'previous artwork restores selected piece');
+  t.doc.getElementById('spatial-current').click();
+  assert.equal(t.doc.getElementById('cinema').classList.contains('active'),true,'center artwork opens cinema');
+  assert.equal(t.doc.getElementById('cinema-img').src,original);
+  const rail=t.doc.querySelector('#cinema .cinema-controls-rail');
+  assert.ok(rail,'cinema has one dedicated control rail');
+  assert.ok(rail.contains(t.doc.querySelector('.cinema-top')));
+  assert.ok(rail.contains(t.doc.querySelector('.cinema-bottom')));
+  assert.equal(rail.contains(t.doc.querySelector('.cinema-viewport')),false,'large artwork is outside the controls rail');
+  t.doc.getElementById('cinema-close').click();
+  t.doc.getElementById('wall-mode').click();
+  assert.equal(wall.hidden,false);
+  assert.equal(stage.hidden,true);
+  const css=readFileSync('styles.css','utf8');
+  assert.match(css,/#artist-wall\[hidden\]/,'specific hidden rule defeats column masonry');
+  assert.match(css,/#cinema\.active \.cinema-controls-rail/,'control rail is styled');
+ }finally{t.close()}
+});
+
+test('artist title and actions are on one side of uncropped artwork',async()=>{
+ const t=boot('https://twentyx.artvision.today/@stunnifer/','@stunnifer/index.html');
+ try{
+  await new Promise(done=>setTimeout(done,50));
+  const room=t.doc.getElementById('artist-view');
+  const rail=room.querySelector('.artist-room-rail');
+  const art=room.querySelector('.artist-room-display');
+  assert.ok(rail&&art);
+  assert.ok(rail.contains(t.doc.getElementById('artist-title')));
+  assert.ok(rail.contains(t.doc.getElementById('download-qr')));
+  assert.ok(rail.contains(t.doc.getElementById('previous-artist')));
+  assert.ok(art.contains(t.doc.getElementById('artist-wall')));
+  assert.ok(art.contains(t.doc.getElementById('spatial-stage')));
+  assert.equal(art.querySelectorAll('.artist-wall img').length,20);
+ }finally{t.close()}
+});

@@ -107,6 +107,7 @@
 </section>
 
 <section id="artist-view" hidden aria-labelledby="artist-title">
+ <aside class="artist-room-rail" aria-label="Artist information and exhibition controls">
  <div class="artist-topline">
   <button id="back-to-all" class="back-link" type="button">← All exhibitions</button>
  </div>
@@ -129,6 +130,9 @@
   </div>
  </div>
  <div class="artist-interaction-cue"><span class="interaction-cue-symbol" aria-hidden="true">⌕</span><strong>Explore the artwork</strong><span>Hover to preview · Tap or click any piece to enlarge · Swipe or use arrow keys in cinema</span></div>
+  <div class="next-artist-bar"><button class="ghost" type="button" id="previous-artist">← Previous artist</button><span>EXACTLY TWENTY WORKS, CURATED BY THE ARTIST.</span><button class="ghost" type="button" id="next-artist">Next artist →</button></div>
+ </aside>
+ <div class="artist-room-display" aria-label="Twenty original artworks">
  <div id="artist-wall" class="artist-wall" aria-label="Twenty artworks"></div>
  <div id="spatial-stage" class="spatial-stage" hidden>
   <div class="stage-topline"><div class="overline">SPATIAL VIEW <button class="tiny-info" data-info="spatial" aria-label="About spatial view">i</button></div><span id="stage-counter">01 / 20</span></div>
@@ -139,7 +143,7 @@
   </div>
   <div class="stage-footer"><button id="stage-prev-button" class="ghost" type="button">← Previous</button><div class="stage-dots" id="stage-dots" aria-label="Current artwork"></div><button id="stage-next-button" class="ghost" type="button">Next →</button></div>
  </div>
- <div class="next-artist-bar"><button class="ghost" type="button" id="previous-artist">← Previous artist</button><span>EXACTLY TWENTY WORKS, CURATED BY THE ARTIST.</span><button class="ghost" type="button" id="next-artist">Next artist →</button></div>
+ </div>
 </section>
 </main>
 <footer class="footer"><span>Twenty works. Infinite perspectives.</span><span>Artist-curated. ArtVision-presented.</span></footer>
@@ -227,9 +231,11 @@
 
 <div id="cinema" class="cinema" role="dialog" aria-modal="true" aria-label="Immersive artwork viewer" aria-hidden="true" tabindex="-1">
  <div class="cinema-background" aria-hidden="true"></div>
- <div class="cinema-top"><div><span class="cinema-kicker">ARTVISION Presents TWENTYX</span><h2 id="cinema-artist"></h2><span id="cinema-progress"></span><span class="cinema-inline-help">Tap or click to examine · ← → to change artwork</span></div><div class="cinema-top-actions"><a id="cinema-follow" target="_blank" rel="noopener noreferrer">Follow on X ↗</a><button class="cinema-brochure" type="button" id="cinema-download">↓ Brochure</button><button class="cinema-icon" id="cinema-info" aria-label="Slideshow help">i</button><button class="cinema-icon" id="cinema-close" aria-label="Exit slideshow">×</button></div></div>
+ <div class="cinema-controls-rail" aria-label="Artist and cinema controls">
+  <div class="cinema-top"><div><span class="cinema-kicker">ARTVISION Presents TWENTYX</span><h2 id="cinema-artist"></h2><span id="cinema-progress"></span><span class="cinema-inline-help">Tap or click to examine · ← → to change artwork</span></div><div class="cinema-top-actions"><a id="cinema-follow" target="_blank" rel="noopener noreferrer">Follow on X ↗</a><button class="cinema-brochure" type="button" id="cinema-download">↓ Brochure</button><button class="cinema-icon" id="cinema-info" aria-label="Slideshow help">i</button><button class="cinema-icon" id="cinema-close" aria-label="Exit slideshow">×</button></div></div>
+  <div class="cinema-bottom"><div class="cinema-nav"><button id="cinema-previous-artist" type="button">↑ Previous artist</button><button id="cinema-play" type="button">▶ Play</button><button id="cinema-next-artist" type="button">↓ Next artist</button></div><div class="cinema-tools"><label for="cinema-speed">Interval <select id="cinema-speed"><option value="3000">3s</option><option value="5000" selected>5s</option><option value="8000">8s</option><option value="12000">12s</option></select></label><span>← → artwork &nbsp; ↑ ↓ artist &nbsp; Space play/pause</span></div></div>
+ </div>
  <div class="cinema-viewport"><button id="cinema-previous" class="cinema-arrow left" aria-label="Previous artwork">‹</button><img id="cinema-img" alt="Art in slideshow"><button id="cinema-next" class="cinema-arrow right" aria-label="Next artwork">›</button></div>
- <div class="cinema-bottom"><div class="cinema-nav"><button id="cinema-previous-artist" type="button">↑ Previous artist</button><button id="cinema-play" type="button">▶ Play</button><button id="cinema-next-artist" type="button">↓ Next artist</button></div><div class="cinema-tools"><label for="cinema-speed">Interval <select id="cinema-speed"><option value="3000">3s</option><option value="5000" selected>5s</option><option value="8000">8s</option><option value="12000">12s</option></select></label><span>← → artwork &nbsp; ↑ ↓ artist &nbsp; Space play/pause</span></div></div>
 </div>
 </body>
 </html>
