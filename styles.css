@@ -2272,3 +2272,5 @@ body[data-theme="violet"]{--pink:#F4A2C8;--glass:rgba(9,17,38,.82);--gloss:linea
 .home-gallery .collection-card[data-artist-handle="ciphervoss"] .artwork-thumb img{width:100%!important;height:100%!important;max-height:100%!important;object-fit:contain!important}
 @media(max-width:720px){.arrival-caption{padding:14px 17px}.featured-six-wordmark{font-size:clamp(2.2rem,10vw,4rem)}.topbar{flex-wrap:wrap;align-items:flex-start}.top-actions{justify-content:flex-start;width:100%}.top-actions .ghost.small,#header-subscribe{display:inline-flex!important;font-size:12px!important}.newsletter-drawer[open]{padding:67px 18px 24px}.cinema-brochure{font-size:11px}}
 @media(prefers-reduced-motion:reduce){.featured-six-card>.featured-six-cta{transition:none}}
+
+body[data-view="artist"] #header-subscribe{display:inline-flex!important}
