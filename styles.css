@@ -1755,3 +1755,273 @@ body[data-theme="heritage"] .brand-presenter{font-family:'Heritage SAIBA','Dune 
  .featured-six-card,.featured-six-art>img{transition:none}
  .featured-six-card:hover .featured-six-art>img{transform:none}
 }
+
+
+/* TWENTYX v11 — identity comes from the cover, atmosphere comes from the art.
+   All artist media remains untouched; all previously supplied themes remain. */
+@font-face{
+ font-family:'Golden Girdle';
+ src:url('/Themes/Analog%20Nostalgia/Analog%20Nostalgia%20Fonts/Golden%20Girdle.otf') format('opentype');
+ font-display:swap
+}
+/* Computerist is embedded at build time from the existing Themes/ ZIP. */
+:root{
+ --art-edge:rgb(183 113 70);
+ --art-accent:rgb(94 159 190);
+}
+body[data-theme="violet"]:not([data-phase="green"]){
+ --bg:#121619;--a:#323b42;--b:#b66c48;--c:#d0bdaf;
+ --pink:#ecae82;--glass:rgba(18,20,25,.82);
+ --gloss:linear-gradient(110deg,#fbfcfe 0%,#a8b4bd 17%,#f5f5f3 32%,#b9a6a1 45%,#dc9576 62%,#fcf5ee 76%,#9ba5ad 91%,#f4f7fa 100%);
+ --theme-image:linear-gradient(135deg,#0c0f12,#29323b 37%,#151b20 61%,#78432d 84%,#0e1114)
+}
+body[data-theme="violet"]:not([data-art-color="ready"])::after{
+ background-image:
+  repeating-linear-gradient(125deg,transparent 0,transparent 65px,rgba(211,221,223,.11) 66px,transparent 67px,transparent 124px),
+  repeating-linear-gradient(32deg,transparent 0,transparent 180px,rgba(205,126,87,.07) 182px,transparent 184px),
+  radial-gradient(ellipse at 81% 13%,rgba(191,111,73,.19),transparent 42%),
+  radial-gradient(ellipse at 19% 74%,rgba(169,177,195,.19),transparent 48%),
+  linear-gradient(130deg,#10161b,#24292f 45%,#14181b 87%);
+ opacity:.92
+}
+/* The dominant page field draws its hues from the real, sampled artwork.
+   Colored side edges are intentionally present, not buried under black. */
+body[data-art-color="ready"]{
+ background:linear-gradient(115deg,
+  color-mix(in srgb,var(--art-edge) 73%,#101116) 0%,
+  color-mix(in srgb,var(--art-edge) 38%,#101116) 21%,
+  color-mix(in srgb,var(--art-accent) 49%,#181822) 67%,
+  color-mix(in srgb,var(--art-edge) 71%,#101116) 100%) fixed!important;
+ color:var(--ink);
+}
+body[data-art-color="ready"]::before{
+ opacity:.75;
+ background:radial-gradient(ellipse at 12% 12%,color-mix(in srgb,var(--art-edge) 82%,transparent),transparent 51%),
+            radial-gradient(ellipse at 91% 58%,color-mix(in srgb,var(--art-accent) 77%,transparent),transparent 53%);
+ transition:background 1.5s ease,opacity 1.5s ease
+}
+body[data-art-color="ready"]::after{
+ opacity:1;
+ background-image:
+  radial-gradient(ellipse at 3% 35%,color-mix(in srgb,var(--art-edge) 71%,transparent),transparent 54%),
+  radial-gradient(ellipse at 97% 75%,color-mix(in srgb,var(--art-accent) 78%,transparent),transparent 56%),
+  linear-gradient(104deg,
+   color-mix(in srgb,var(--art-edge) 69%,#151820),
+   color-mix(in srgb,var(--art-accent) 36%,#151720) 54%,
+   color-mix(in srgb,var(--art-edge) 62%,#191419));
+ transition:background 1.2s ease,opacity 1.2s ease
+}
+body[data-art-color="ready"] .ambient-a{
+ background:radial-gradient(circle,color-mix(in srgb,var(--art-edge) 77%,transparent),transparent 67%)!important;
+ opacity:.42
+}
+body[data-art-color="ready"] .ambient-b{
+ background:radial-gradient(circle,color-mix(in srgb,var(--art-accent) 74%,transparent),transparent 70%)!important;
+ opacity:.5
+}
+body[data-view="artist"][data-art-color="ready"] #artist-view{
+ background:linear-gradient(139deg,
+   color-mix(in srgb,var(--art-edge) 25%,rgba(12,15,22,.48)),
+   color-mix(in srgb,var(--art-accent) 23%,rgba(14,16,22,.5)));
+ border:1px solid color-mix(in srgb,var(--art-edge) 63%,rgba(255,255,255,.35));
+ border-radius:22px;
+ padding:clamp(14px,2.5vw,38px);
+ box-shadow:0 18px 62px rgba(4,5,9,.25)
+}
+body[data-view="artist"] .spotlight-heading,
+body[data-view="artist"] .spotlight-actions,
+body[data-view="artist"] .artist-topline{
+ background:linear-gradient(105deg,rgba(10,12,19,.82),rgba(12,13,21,.65));
+ color:#fff;
+ padding:clamp(10px,1.2vw,19px);
+ border-radius:12px
+}
+body[data-view="artist"] .spotlight-heading{
+ margin:10px 0 14px;
+ border-left:3px solid var(--art-edge);
+}
+body[data-view="artist"] .spotlight-title-wrap h1{
+ margin:0 0 10px;max-width:100%;
+ font-size:clamp(3.15rem,6vw,7rem);
+ line-height:1;letter-spacing:-.055em;
+ text-shadow:0 4px 24px rgba(0,0,0,.34)
+}
+body[data-view="artist"] .spotlight-title-wrap .artist-byline{
+ margin:0;font-size:clamp(16px,1.45vw,23px);
+ align-items:center;line-height:1.4;flex-wrap:wrap
+}
+body[data-view="artist"] .artist-topline{margin:0 0 6px}
+body[data-view="artist"] .artist-topline .back-link{color:#fff}
+body[data-view="artist"] .artist-wall{
+ background:color-mix(in srgb,var(--art-edge) 22%,transparent);
+ padding:5px;overflow:hidden;border-radius:12px
+}
+body[data-view="artist"] .next-artist-bar{
+ background:rgba(10,11,18,.61);padding:14px;border-radius:14px
+}
+#home-view[hidden],#artist-view[hidden],#opportunities[hidden],
+body[data-view="artist"] #header-subscribe{
+ display:none!important
+}
+body[data-view="artist"] .footer{background:rgba(9,11,19,.6)}
+.artist-interaction-cue{
+ display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;
+ padding:12px 17px;margin:10px 0 14px;
+ border:1px solid color-mix(in srgb,var(--art-edge) 48%,rgba(255,255,255,.27));
+ border-radius:12px;
+ background:rgba(12,13,20,.78);color:#f7f6f5;
+ font-size:clamp(14px,1vw,18px);line-height:1.35;
+}
+.artist-interaction-cue strong{font-size:clamp(16px,1.1vw,20px);letter-spacing:-.02em}
+.artist-interaction-cue span:last-child{color:#eee3e4;font-weight:600}
+.interaction-cue-symbol{font:32px/1 Georgia,serif;color:var(--pink)}
+.artist-wall .artwork-thumb{cursor:zoom-in!important}
+.artist-wall .artwork-thumb:focus-visible{
+ outline:3px solid color-mix(in srgb,var(--art-edge) 65%,white)!important;
+ outline-offset:-4px
+}
+.artist-wall .artwork-thumb:hover::after{
+ content:'⌕  ENLARGE';display:flex!important;align-items:center;justify-content:center;
+ position:absolute;inset:auto 8px 8px auto;
+ font:850 13px Inter,system-ui,sans-serif;color:#fff;
+ background:rgba(4,7,14,.82);padding:9px;border-radius:999px;
+ opacity:1;pointer-events:none;z-index:6
+}
+/* Cinematic side space responds to the current original image. No art crop. */
+#cinema.active{
+ background:linear-gradient(108deg,
+  color-mix(in srgb,var(--art-edge) 76%,#101119),
+  color-mix(in srgb,var(--art-accent) 32%,#141318) 48%,
+  color-mix(in srgb,var(--art-edge) 67%,#101119))!important
+}
+#cinema.active .cinema-background{
+ background:radial-gradient(ellipse at 6% 55%,
+  color-mix(in srgb,var(--art-edge) 66%,transparent),transparent 51%),
+  radial-gradient(ellipse at 96% 27%,color-mix(in srgb,var(--art-accent) 62%,transparent),transparent 49%)!important;
+ opacity:1
+}
+#cinema.active .cinema-viewport{
+ background:linear-gradient(90deg,
+  color-mix(in srgb,var(--art-edge) 52%,#17121a),
+  color-mix(in srgb,var(--art-accent) 26%,#191622) 50%,
+  color-mix(in srgb,var(--art-edge) 50%,#17121a))
+}
+#cinema.active .cinema-top,
+#cinema.active .cinema-bottom{background:rgba(7,8,16,.88);backdrop-filter:blur(12px)}
+.cinema-inline-help{display:block;font-size:clamp(12px,.9vw,16px);color:#d5c5cc;margin-top:8px}
+#cinema-artist{font-size:clamp(1.35rem,2.5vw,3rem);line-height:1.08;max-width:90ch}
+#cinema.active .cinema-viewport img{object-fit:contain!important}
+
+/* Actual card columns are masonry as well; stacks vary naturally in height. */
+.home-gallery{
+ display:block!important;columns:2 450px;column-gap:14px;
+ perspective:none;column-fill:balance;
+}
+.home-gallery .collection-card{
+ display:flex!important;width:100%;margin:0 0 14px;
+ break-inside:avoid-column;page-break-inside:avoid;
+ transform:none!important;
+ vertical-align:top;overflow:hidden;
+}
+.home-gallery .collection-card .card-mosaic{column-count:4}
+.home-gallery .collection-card .artwork-thumb{break-inside:avoid!important}
+/* Keep the user-authored colorways; v11 adds three distinct identities.
+   ArtVision: Computerist wordmark, Golden Girdle museum metadata. */
+body[data-theme="violet"] .brand-wordmark{
+ font-family:'Computerist','Dune Rise',Inter,sans-serif!important;
+ font-weight:900;letter-spacing:-.045em;
+ background:linear-gradient(180deg,#f9fcff 8%,#abb4bf 26%,#fff 38%,#c28a70 62%,#6f7279 79%,#fff 95%);
+ background-clip:text;-webkit-background-clip:text;color:transparent;
+ text-shadow:0 2px 14px rgba(215,129,87,.14)
+}
+body[data-theme="violet"] .artist-byline,
+body[data-theme="violet"] .card-labels,
+body[data-theme="violet"] .card-date{
+ font-family:'Golden Girdle',Inter,system-ui,sans-serif!important;
+ font-size:clamp(16px,1.12vw,21px);
+ letter-spacing:.02em
+}
+body[data-theme="violet"] .artist-byline #artist-handle{color:#f2dec9}
+body[data-theme="violet"] .artist-byline #artist-date{color:#f0b991}
+body[data-theme="violet"] .brand-presenter{
+ font-family:'Golden Girdle',Inter,system-ui,sans-serif!important;
+ font-size:clamp(14px,1.2vw,21px);
+ letter-spacing:.075em;color:#e2d8d2
+}
+/* Nostalgia: vapor-lounge tones and explicit Pixel Calculon ticker. */
+body[data-theme="nostalgia"]{
+ --bg:#1e1326;--a:#614273;--b:#c05e8d;--c:#edacae;
+ --pink:#ffd0d9;--glass:rgba(29,13,40,.8);
+ --gloss:linear-gradient(110deg,#ffe9f0,#fcbfcb 28%,#dcaef8 58%,#fdf0d9 87%);
+ --theme-image:linear-gradient(140deg,#311640,#86627e 38%,#c76a9e 73%,#eed6bb)
+}
+body[data-theme="nostalgia"] .brand-wordmark{
+ font-family:'Dune Rise','Oxanium',sans-serif!important
+}
+body[data-theme="nostalgia"] .feature-ticker-track,
+body[data-theme="nostalgia"] .top-feature-schedule .ticker-entry,
+body[data-theme="nostalgia"] .top-feature-schedule .ticker-time,
+body[data-theme="nostalgia"] .top-feature-schedule .ticker-artist,
+body[data-theme="nostalgia"] .feature-next-change{
+ font-family:'Analog Pixel Calculon','Oxanium',sans-serif!important;
+ letter-spacing:.035em
+}
+body[data-theme="nostalgia"] .hero-editorial.twentyx,
+body[data-theme="nostalgia"] #artist-title,
+body[data-theme="nostalgia"] .feature-artist-name{
+ font-family:'Analog Pixel Calculon','Oxanium',sans-serif!important
+}
+/* Glitch: hot copper red / carbon black / pale backlit pink. */
+body[data-theme="glitch"]{
+ --bg:#10070c;--a:#5b101d;--b:#b7284c;--c:#f09bb3;
+ --pink:#ffd0dc;--glass:rgba(22,5,11,.86);
+ --gloss:linear-gradient(117deg,#ffe2e8 0%,#fb9dc4 25%,#fff0f5 45%,#b52f53 72%,#ffd7e6 95%);
+ --theme-image:linear-gradient(135deg,#09070b,#420c1c 32%,#961d38 69%,#150912)
+}
+body[data-theme="glitch"] .brand-wordmark,
+body[data-theme="glitch"] .hero-editorial.twentyx,
+body[data-theme="glitch"] .feature-artist-name,
+body[data-theme="glitch"] .spotlight-title-wrap h1,
+body[data-theme="glitch"] .card-name{
+ font-family:'Analog Multivac','Oxanium',Inter,sans-serif!important;
+ letter-spacing:.01em;text-shadow:0 0 16px rgba(255,158,187,.47)
+}
+body[data-theme="glitch"]::after{
+ background-image:
+  repeating-linear-gradient(0deg,transparent 0,transparent 5px,rgba(255,126,166,.045) 6px,transparent 7px),
+  radial-gradient(ellipse at 86% 20%,rgba(250,93,129,.26),transparent 46%),
+  linear-gradient(122deg,#080709,#591029 55%,#0a090d);
+ opacity:.92
+}
+body[data-theme="glitch"] .collection-card{
+ box-shadow:inset 0 1px 1px rgba(255,255,255,.2),0 15px 44px rgba(160,10,50,.29)
+}
+/* No extra headline bars. Work counter stays as a subtle orientation aid. */
+.feature-label-row{justify-content:flex-end;min-height:0;padding:8px clamp(18px,4vw,70px)!important}
+.feature-viewing-tip{
+ margin-right:auto;font-size:clamp(14px,1vw,18px);
+ font-weight:850;letter-spacing:.025em;color:var(--ink)
+}
+.feature-program-head{justify-content:flex-end!important;min-height:0}
+.feature-program-head .feature-next-change{font-size:clamp(16px,1.15vw,21px)}
+.top-feature-schedule .feature-program-head{padding:9px clamp(18px,4vw,70px) 4px}
+.top-feature-schedule .feature-ticker-window{padding:4px 0 8px}
+@media(max-width:1000px){
+ .home-gallery{columns:2 360px}
+ body[data-view="artist"] .spotlight-title-wrap h1{font-size:clamp(3rem,6vw,5.6rem)}
+}
+@media(max-width:760px){
+ .home-gallery{columns:1;column-gap:0}
+ .home-gallery .collection-card{margin-bottom:13px}
+ .artist-interaction-cue{gap:7px 11px}
+ body[data-view="artist"][data-art-color="ready"] #artist-view{padding:10px;border-radius:12px}
+ body[data-view="artist"] .spotlight-heading{padding:13px}
+ body[data-view="artist"] .spotlight-title-wrap h1{font-size:clamp(2.6rem,10vw,4.1rem)}
+ body[data-theme="violet"] .brand-wordmark{font-size:clamp(19px,5vw,28px)}
+ .feature-program-head .feature-next-change{font-size:14px}
+ #cinema-artist{font-size:clamp(1.15rem,4vw,1.85rem)}
+}
+@media(prefers-reduced-motion:reduce){
+ body[data-art-color="ready"],body[data-art-color="ready"]::before,
+ body[data-art-color="ready"]::after{transition:none!important}
+}
