@@ -59,9 +59,9 @@ function renderCard(a){
  const originals=a.media.map((u,i)=>'<a class="artwork-thumb" href="'+esc(a.postUrl)+'" target="_blank" rel="noopener noreferrer" aria-label="Work '+(i+1)+' of 20 by '+title+'"><img src="'+esc(u)+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="Artwork '+(i+1)+' by '+title+'"></a>').join('');
  return '<article class="collection-card" id="artist-'+idOf(a)+'">'
   +'<div class="card-mosaic">'+originals+'</div>'
+  +'<a class="pill primary artist-open card-explore" href="/@'+artistHandle.toLowerCase()+'/">Explore the 20 ↗</a>'
   +'<div class="card-meta"><div class="card-heading">'
-  +'<h3 class="card-name">'+title+'</h3><div class="card-labels"><span class="card-handle">@'+artistHandle+' on X</span><span class="card-count">20 ORIGINAL WORKS</span></div></div>'
-  +'<a class="pill primary artist-open card-explore" href="/@'+artistHandle.toLowerCase()+'/">Explore the 20 ↗</a></div>'
+  +'<h3 class="card-name">'+title+'</h3><div class="card-labels"><span class="card-handle">@'+artistHandle+' on X</span><span class="card-count">20 works</span></div></div></div>'
   +'<div class="card-footer"><span class="card-date" data-raw-date="'+date+'">'+esc(formatCuration(a.date))+'</span>'
   +'<div class="card-link-actions"><a class="pill primary" href="https://twitter.com/intent/follow?screen_name='+artistHandle+'" data-follow="true" target="_blank" rel="noopener noreferrer">Follow on X ↗</a>'
   +'<a class="ghost" href="'+esc(a.postUrl)+'" target="_blank" rel="noopener noreferrer">Original post ↗</a></div></div>'
