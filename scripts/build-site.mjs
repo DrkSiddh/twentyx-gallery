@@ -12,10 +12,27 @@
  */
 import fs from 'node:fs';
 import QRCode from 'qrcode';
+import {inflateRawSync} from 'node:zlib';
 
 const load=file=>fs.readFileSync(file,'utf8');
 const html=load('src/index.template.html');
-const css=load('styles.css');
+function loadComputeristFont(){
+ // The user supplied Computerist.ttf inside this precise existing ZIP.
+ // Extract it deterministically at build time, then embed within the
+ // fully self-contained artist pages. No font is downloaded externally.
+ const zip=fs.readFileSync('Themes/Default theme (unstated)/H3/computerist.zip');
+ if(zip.readUInt32LE(0)!==0x04034b50)throw Error('Computerist ZIP header missing');
+ const method=zip.readUInt16LE(8),compressed=zip.readUInt32LE(18);
+ const filenameSize=zip.readUInt16LE(26),extraSize=zip.readUInt16LE(28);
+ const from=30+filenameSize+extraSize;
+ if(compressed<1000||from+compressed>zip.length)throw Error('Computerist ZIP data corrupt');
+ const font=method===8?inflateRawSync(zip.subarray(from,from+compressed)):
+  method===0?zip.subarray(from,from+compressed):null;
+ if(!font||font.length<10000||font.length>1000000)throw Error('Computerist font invalid');
+ return '@font-face{font-family:"Computerist";src:url("data:font/ttf;base64,'+
+  font.toString('base64')+'") format("truetype");font-display:swap}\n';
+}
+const css=load('styles.css')+'\n'+loadComputeristFont();
 const javascript=load('app.js');
 const artists=JSON.parse(load('artists.json'));
 const esc=value=>String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
