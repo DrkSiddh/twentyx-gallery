@@ -1418,3 +1418,54 @@ body{font-size:clamp(17px,1.08vw,19px);line-height:1.58}
  .collection-card,.collection-card::before,.card-meta,.card-footer,
  .card-mosaic .artwork-thumb::before,.artist-wall .artwork-thumb::before{transition:none!important}
 }
+
+
+/* TWENTYX V9 — CONSOLIDATED EDITORIAL TYPOGRAPHY
+   Keep the original imported typefaces and all theme palettes untouched.
+   Two actively used families: Oxanium for sculpture/display, Inter for reading.
+   Theme selection now changes color and atmosphere rather than typefaces. */
+body,button,input,select,textarea,
+.card-handle,.card-count,.card-date,.artist-byline,.ticker-entry,
+.top-feature-schedule .ticker-entry,.subscribe-consent,.cadence-choice,
+.hero-intro,.cta-helper,.footer,.spotlight-actions,.card-footer{
+ font-family:Inter,system-ui,sans-serif!important
+}
+.brand,.brand-wordmark,.brand-presenter,
+.hero-editorial.twentyx,.feature-artist-name,.spotlight-title-wrap h1,
+.card-name,.exhibition-heading h2,.artist-presenter,
+.opportunity-newsletter-intro h2,.guide-drawer h2,
+.x-community-content h2,.card-overline{
+ font-family:'Oxanium',Inter,system-ui,sans-serif!important
+}
+body[data-theme="analog"] .brand,
+body[data-theme="analog"] .twentyx,
+body[data-theme="analog"] .artist-mark,
+body[data-theme="analog"] .feature-artist-name,
+body[data-theme="analog"] .spotlight-title-wrap h1,
+body[data-theme="analog"] .card-name,
+body[data-theme="analog"] .exhibition-heading h2,
+body[data-theme="heritage"] .brand,
+body[data-theme="heritage"] .twentyx,
+body[data-theme="heritage"] .artist-mark,
+body[data-theme="heritage"] .feature-artist-name,
+body[data-theme="heritage"] .spotlight-title-wrap h1,
+body[data-theme="heritage"] .card-name,
+body[data-theme="heritage"] .exhibition-heading h2{
+ font-family:'Oxanium',Inter,system-ui,sans-serif!important
+}
+.card-meta .card-name{font-size:clamp(1.75rem,2.55vw,2.65rem);line-height:.97;letter-spacing:-.035em}
+.card-meta .card-overline{font-size:clamp(14px,1vw,18px)}
+.card-meta .card-handle,.card-meta .card-count,.card-footer .card-date{font-size:clamp(14px,1.05vw,18px)}
+.top-actions button,.top-actions a,.spotlight-main-actions button,.spotlight-main-actions a,
+.view-switch button,.card-meta button,.card-footer a{
+ font-family:Inter,system-ui,sans-serif!important;font-weight:850!important;
+}
+.top-actions button,.top-actions a{font-size:clamp(15px,1.05vw,19px)!important}
+.spotlight-main-actions button,.spotlight-main-actions a,
+.view-switch button{font-size:clamp(16px,1.08vw,20px)!important}
+.feature-section .feature-caption-top,.feature-section .feature-caption-kicker,
+.hero-superline,.feature-program-head .overline{font-family:Inter,system-ui,sans-serif!important}
+@media(max-width:720px){
+ .card-meta .card-name{font-size:clamp(1.7rem,6.5vw,2.25rem)}
+ .card-footer a,.card-meta button{font-size:16px!important}
+}
