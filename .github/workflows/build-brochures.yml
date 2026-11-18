@@ -6,6 +6,10 @@ on:
       - "artists.json"
       - "scripts/welcome.mjs"
       - "scripts/build-site.mjs"
+      - "scripts/build-theme-brochures.mjs"
+      - "styles.css"
+      - "app.js"
+      - "Themes/**"
       - "src/index.template.html"
       - ".github/workflows/build-brochures.yml"
   workflow_dispatch:
@@ -28,6 +32,8 @@ jobs:
         run: npm run build
       - name: Make high-resolution self-contained PNG brochures where media can be retrieved
         run: node scripts/welcome.mjs
+      - name: Complete newly admitted artists' themed brochures
+        run: npm run build
       - name: Commit all downloadable exhibition files
         run: |
           git config user.name "TwentyX Exhibition Publisher"

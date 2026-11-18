@@ -31,7 +31,7 @@ for(const a of artists){
  if(a.media.some(u=>!validMedia(u)))throw Error('Unsafe media source for '+a.name);
  ids.add(id);
 }
-const rank=a=>['pepavaggio','stunnifer','ciphervoss'].indexOf(handle(a).toLowerCase());
+const rank=a=>['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim'].indexOf(handle(a).toLowerCase());
 const ordered=[...artists].sort((a,b)=>{
  const ra=rank(a),rb=rank(b);
  if(ra>=0||rb>=0)return (ra<0?99:ra)-(rb<0?99:rb);
@@ -53,14 +53,14 @@ const initial=ordered.map(renderCard).join('\n');
 const seed=JSON.stringify(ordered).replaceAll('<','\\u003c').replaceAll('>','\\u003e').replaceAll('&','\\u0026');
 let output=html;
 const requireReplace=(from,to)=>{if(!output.includes(from))throw Error('Missing expected HTML anchor: '+from);output=output.replace(from,to)};
-const newest=[...artists].sort((a,b)=>idOf(b).localeCompare(idOf(a)))[0];
-const sourceFeatured=newest.media[0];
+const curated=ordered.find(a=>['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim'].includes(handle(a).toLowerCase()))||ordered[0];
+const sourceFeatured=curated.media[0];
 requireReplace('<strong id="artist-count">0</strong>','<strong id="artist-count">'+artists.length+'</strong>');
 requireReplace('<strong id="work-count">0</strong>','<strong id="work-count">'+(artists.length*20)+'</strong>');
 requireReplace('<img id="feature-image" alt="Featured TwentyX artwork" loading="eager" decoding="async">',
- '<img id="feature-image" src="'+esc(sourceFeatured)+'" alt="Featured original artwork curated by '+esc(newest.name)+'" loading="eager" decoding="async">');
+ '<img id="feature-image" src="'+esc(sourceFeatured)+'" alt="Featured original artwork curated by '+esc(curated.name)+'" loading="eager" decoding="async">');
 requireReplace('<h2 id="feature-title" class="feature-artist-name">Artist spotlight</h2>',
- '<h2 id="feature-title" class="feature-artist-name">'+esc(newest.name)+'</h2>');
+ '<h2 id="feature-title" class="feature-artist-name">'+esc(curated.name)+'</h2>');
 
 requireReplace('<link rel="stylesheet" href="./styles.css">','<style>\n'+css+'\n</style>');
 requireReplace('<script src="./app.js" defer></script>','');
@@ -132,5 +132,10 @@ for(const artist of ordered){
  ].join('\n');
  fs.writeFileSync(slug,poster);
 }
+
+// Match the chosen visitor theme in downloadable brochures, retaining all
+// twenty unchanged works via their existing self-contained collage PNG.
+const {buildThemeBrochures}=await import('./build-theme-brochures.mjs');
+await buildThemeBrochures(ordered);
 
 console.log('Built TwentyX exhibition:',artists.length,'artist rooms;',artists.length*20,'works;',Buffer.byteLength(output),'bytes home');

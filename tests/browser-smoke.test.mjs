@@ -32,12 +32,12 @@ test('inline script boots with live statistics and working search',async()=>{
  try{
   await new Promise(done=>setTimeout(done,40));
   assert.deepEqual(t.errors.filter(e=>!e.startsWith('WARN: Live refresh unavailable')),[],t.errors.join('\n'));
-  assert.equal(t.doc.getElementById('artist-count').textContent,'9');
-  assert.equal(t.doc.getElementById('work-count').textContent,'180');
-  assert.equal(t.doc.querySelectorAll('.collection-card').length,9);
+  assert.equal(t.doc.getElementById('artist-count').textContent,'15');
+  assert.equal(t.doc.getElementById('work-count').textContent,'300');
+  assert.equal(t.doc.querySelectorAll('.collection-card').length,15);
   assert.match(t.doc.querySelector('#feature-image').src,/pbs\.twimg\.com\/media/);
-  assert.match(t.doc.querySelector('#feature-title').textContent,/Pepavaggio/);
-  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,180);
+  assert.ok(['Stunnifer','Pepavaggio','WEB3GISEL','HPLoveBux #postAmericana FineArt Illustration','DTN'].includes(t.doc.querySelector('#feature-title').textContent));
+  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,300);
   const input=t.doc.querySelector('#search');
   input.value='Stunnifer';input.dispatchEvent(new t.win.Event('input',{bubbles:true}));
   assert.equal(t.doc.querySelectorAll('.collection-card').length,1,'search should filter the exhibit');
@@ -53,7 +53,7 @@ test('slideshow selection opens and shows an actual artwork',async()=>{
   await new Promise(done=>setTimeout(done,40));
   t.doc.querySelector('#choose-slideshow').click();
   assert.ok(t.doc.querySelector('#selection-modal').open,'selection dialog should open');
-  assert.equal(t.doc.querySelectorAll('.checkartist').length,9);
+  assert.equal(t.doc.querySelectorAll('.checkartist').length,15);
   t.doc.querySelector('#launch-selection').click();
   assert.ok(t.doc.querySelector('#cinema').classList.contains('active'));
   assert.match(t.doc.querySelector('#cinema-img').src,/pbs\.twimg\.com\/media/);
@@ -103,8 +103,10 @@ test('single-word artist names cannot wrap and dynamic fit marks both headlines'
  const t=boot();
  try{
   await new Promise(done=>setTimeout(done,55));
-  assert.equal(t.doc.querySelector('#feature-title').textContent,'Pepavaggio');
-  assert.ok(t.doc.querySelector('#feature-title').classList.contains('single-moniker'));
+  assert.equal(t.doc.querySelector('#feature-title').textContent.length>0,true);
+  const feature=t.doc.querySelector('#feature-title');
+  feature.textContent='Pepavaggio';t.win.fitArtistHeadlines();
+  assert.ok(feature.classList.contains('single-moniker'));
   t.doc.querySelector('.artist-open').click();
   assert.ok(t.doc.querySelector('#artist-title').classList.contains('single-moniker'));
   const styles=readFileSync('styles.css','utf8');
@@ -136,5 +138,88 @@ test('fullscreen autoplay hides controls but restores them on interaction or pau
   assert.equal(cinema.classList.contains('controls-hidden'),false,'paused mode must remain visible');
   t.doc.querySelector('#cinema-close').click();
   assert.equal(cinema.classList.contains('active'),false);
+ }finally{t.close()}
+});
+
+
+test('priority lineup leads every unfiltered gallery and cycles each hour',async()=>{
+ const t=boot();
+ try{
+  await new Promise(done=>setTimeout(done,60));
+  const priority=['stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim'];
+  const cards=[...t.doc.querySelectorAll('.collection-card')].map(x=>x.querySelector('.card-handle').textContent.toLowerCase());
+  for(const name of priority) assert.ok(cards.slice(0,5).some(c=>c.includes('@'+name)),'missing front-row priority '+name);
+  const hour=Math.floor(Date.now()/3600000);
+  const scheduled=priority.map((_,i)=>t.win.currentFeature((hour+i)*3600000).artist);
+  assert.equal(new Set(scheduled.map(x=>x.postUrl)).size,5,'no artist should hold an adjacent hourly slot');
+  assert.equal(t.win.currentFeature((hour+5)*3600000).artist.postUrl,scheduled[0].postUrl,'feature queue repeats');
+  assert.equal(t.doc.querySelectorAll('#feature-ticker-track .ticker-entry').length,16);
+  assert.match(t.doc.querySelector('#feature-next-change').textContent,/NEXT FEATURE IN/);
+  t.doc.querySelector('#search').value='YenaArt';
+  t.doc.querySelector('#search').dispatchEvent(new t.win.Event('input',{bubbles:true}));
+  assert.equal(t.doc.querySelectorAll('.collection-card').length,1,'explicit search excludes priorities');
+ }finally{t.close()}
+});
+
+test('Themes switch all views and persisted selected theme routes to matching original-art brochure',async()=>{
+ const t=boot('https://twentyx.artvision.today/@stunnifer/','@stunnifer/index.html');
+ try{
+  await new Promise(done=>setTimeout(done,55));
+  const themes=[...t.doc.querySelectorAll('#theme-select option')].map(x=>x.value);
+  assert.deepEqual(themes,['violet','analog','heritage']);
+  const select=t.doc.querySelector('#theme-select');
+  select.value='analog';
+  select.dispatchEvent(new t.win.Event('change',{bubbles:true}));
+  assert.equal(t.doc.body.dataset.theme,'analog');
+  assert.equal(t.win.localStorage.getItem('twentyx-theme-v1'),'analog');
+  const downloaded=[];
+  t.win.fetch=async()=>({ok:true});
+  t.win.HTMLAnchorElement.prototype.click=function(){downloaded.push({href:this.href,filename:this.download})};
+  t.doc.querySelector('#download-qr').click();
+  await new Promise(done=>setTimeout(done,35));
+  assert.match(downloaded[0].href,/--analog\.png$/);
+  select.value='heritage';
+  select.dispatchEvent(new t.win.Event('change',{bubbles:true}));
+  t.doc.querySelector('#download-qr').click();
+  await new Promise(done=>setTimeout(done,35));
+  assert.match(downloaded[1].href,/--heritage\.png$/);
+  const css=readFileSync('styles.css','utf8');
+  assert.match(css,/Themes\/Analog%20Nostalgia/);
+  assert.match(css,/Themes\/Minimalist%20Heritage/);
+ }finally{t.close()}
+});
+
+test('time phases include the exclusive 4:20 to 4:43 PM green window',async()=>{
+ const t=boot();
+ try{
+  await new Promise(done=>setTimeout(done,50));
+  const NativeDate=t.win.Date;
+  const mock=(minute)=>{t.win.Date=class extends NativeDate{constructor(...args){super(...(args.length?args:[2026,10,17,16,minute,0]))}};t.win.setDayPhase()};
+  mock(19);assert.notEqual(t.doc.body.dataset.phase,'green');
+  mock(20);assert.equal(t.doc.body.dataset.phase,'green');
+  mock(43);assert.equal(t.doc.body.dataset.phase,'green');
+  mock(44);assert.notEqual(t.doc.body.dataset.phase,'green');
+  t.win.Date=NativeDate;
+ }finally{t.close()}
+});
+
+test('X community and follow actions open centered site dialogs, not navigate away',async()=>{
+ const t=boot('https://twentyx.artvision.today/@stunnifer/','@stunnifer/index.html');
+ try{
+  await new Promise(done=>setTimeout(done,50));
+  const before=t.win.location.href;
+  t.doc.querySelector('#enter-artvision').click();
+  assert.ok(t.doc.querySelector('#x-action-modal').open);
+  assert.match(t.doc.querySelector('#x-action-title').textContent,/Enter ArtVision/);
+  t.doc.querySelector('#x-action-done').click();
+  assert.equal(t.doc.querySelector('#x-action-modal').open,false);
+  t.doc.querySelector('#follow-link').click();
+  assert.equal(t.doc.querySelector('#x-action-modal').open,true);
+  assert.match(t.doc.querySelector('#x-action-title').textContent,/@stunnifer/);
+  let opened='';
+  t.win.open=(url)=>{opened=url;return {closed:false}};
+  t.doc.querySelector('#x-action-continue').click();
+  assert.match(opened,/intent\/follow/);
+  assert.equal(t.win.location.href,before,'original exhibition stays in current page');
  }finally{t.close()}
 });
