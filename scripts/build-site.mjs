@@ -67,9 +67,8 @@ requireReplace('<link rel="stylesheet" href="./styles.css">','<style>\n'+css+'\n
 requireReplace('<script src="./app.js" defer></script>','');
 requireReplace('<div class="home-gallery" id="home-gallery"></div>','<div class="home-gallery" id="home-gallery">\n'+initial+'\n</div>');
 requireReplace('</body>','<script id="seeded-artists" type="application/json">'+seed+'</script>\n<script>\n'+javascript.replaceAll('</script','<\\/script')+'\n</script>\n</body>');
-if(!output.includes('id="seeded-artists"')||!output.includes('ARTIST-CURATED EXHIBITION')||!output.includes('CURATED')) {
- // CURATED lives in brochure copy, not necessarily in site — don't require it here.
- if(!output.includes('id="seeded-artists"')||!output.includes('ARTIST-CURATED EXHIBITION'))throw Error('Missing seeded artwork proof');
+if(!output.includes('id="seeded-artists"')||!output.includes('class="card-mosaic"')||!output.includes('id="featured-six-gallery"')||!output.includes('pbs.twimg.com/media/')) {
+ throw Error('Missing verified artwork grid, six-artist feature, or seeded gallery data');
 }
 const result='index.html';
 fs.writeFileSync(result,output);
