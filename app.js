@@ -310,7 +310,9 @@ function renderFeaturedSix(){
   const label=create('span','featured-six-label');
   label.append(create('strong','featured-six-name',a.name));
   label.append(create('span','featured-six-arrow','↗'));
-  tile.append(artwork,label);
+  const explore=create('span','featured-six-cta','Explore the 20 ↗');
+  explore.setAttribute('aria-hidden','true');
+  tile.append(artwork,explore,label);
   gallery.append(tile);
  });
 }
