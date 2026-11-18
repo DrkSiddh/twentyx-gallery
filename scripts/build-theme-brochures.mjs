@@ -16,9 +16,9 @@ import {pathToFileURL} from 'node:url';
 // Swatch PNGs are reference images only and NEVER embedded in the brochure.
 const THEMES={
  violet:{
-  name:'ArtVision Violet',bg:'#160b27',deep:'#311342',frame:'#ce99ec',
-  text:'#fcf4ff',muted:'#e8d5f0',accent:'#d7a7f9',
-  stops:['#160B27','#3C1B57','#6930C3','#D7A7F9','#A6EEE7']
+  name:'ArtVision Chrome',bg:'#11161c',deep:'#30383f',frame:'#b7bfc6',
+  text:'#f5f6f5',muted:'#d2ccd0',accent:'#e6a784',
+  stops:['#101419','#30363c','#b4b8bd','#a96b50','#171b22']
  },
  analog:{
   name:'Analog Nostalgia',bg:'#1b102c',deep:'#403277',frame:'#80FFDB',
@@ -29,6 +29,16 @@ const THEMES={
   name:'Minimalist Heritage',bg:'#201727',deep:'#55424e',frame:'#FFCAD4',
   text:'#fff9fc',muted:'#f4e2e8',accent:'#FFCAD4',
   stops:['#D8E2DC','#FFE5D9','#FFCAD4','#F4ACB7','#9D8189']
+ },
+ nostalgia:{
+  name:'Nostalgia',bg:'#1e1326',deep:'#614273',frame:'#fcbfcb',
+  text:'#fff4f7',muted:'#e9daeb',accent:'#ffd0d9',
+  stops:['#311640','#86627E','#C76A9E','#EED6BB']
+ },
+ glitch:{
+  name:'Glitch Redlight',bg:'#10070c',deep:'#5b101d',frame:'#fb9dc4',
+  text:'#fff0f5',muted:'#edc7d6',accent:'#ffd0dc',
+  stops:['#09070B','#420C1C','#961D38','#FB9DC4','#150912']
  }
 };
 const safe=str=>String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&apos;");
