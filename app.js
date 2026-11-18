@@ -60,11 +60,13 @@ function artistX(a){return 'https://x.com/'+artistHandle(a)}
 function followIntent(a){return 'https://twitter.com/intent/follow?screen_name='+encodeURIComponent(artistHandle(a))}
 function openXAction(mode,artist){
  pendingXUrl=mode==='follow'?followIntent(artist):POSTS;
- byId('x-action-title').textContent=mode==='follow'?'Follow @'+artistHandle(artist)+' on X':'Enter ArtVision on X';
- byId('x-action-copy').textContent=mode==='follow'
-  ?'Following is authorized by X in a separate window. Your TwentyX exhibition stays open and unchanged.'
-  :'Explore the ArtVision community in a separate X window. Close this dialog to return to the same place in the gallery.';
- byId('x-action-continue').textContent=mode==='follow'?'Follow on X ↗':'Open ArtVision on X ↗';
+ const follow=mode==='follow';
+ byId('x-action-title').textContent=follow?'Follow @'+artistHandle(artist)+' on X':'Enter the ArtVision community.';
+ byId('x-action-copy').textContent=follow
+  ?'Follow @'+artistHandle(artist)+' on X, then come right back to this exhibition. Following is authorized on X.'
+  :'join the artVision community and post twenty images with the hashtag #TwentyX to join this exhibition.';
+ byId('x-action-continue').textContent=follow?'Follow on X ↗':'Join ArtVision on X ↗';
+ byId('x-action-guide').hidden=follow;
  if(!byId('x-action-modal').open)byId('x-action-modal').showModal();
 }
 function openPendingX(){
@@ -98,12 +100,35 @@ function setDayPhase(){
  document.body.dataset.phase=phase;
  byId('phase-label').textContent='LOCAL LIGHT / '+({daybreak:'VIOLET DAWN',day:'DAYLIGHT',sunset:'VIOLET DUSK',night:'MIDNIGHT',green:'4:20 GREEN HOUR'}[phase]);
 }
+function setThemeDock(open){
+ const dock=byId('theme-dock');
+ dock.dataset.open=String(Boolean(open));
+ byId('theme-dock-tab').setAttribute('aria-expanded',String(Boolean(open)));
+ byId('theme-dock-tab').setAttribute('aria-label',open?'Collapse exhibition themes':'Open exhibition themes');
+ byId('theme-dock-panel').setAttribute('aria-hidden',String(!open));
+ if('inert' in byId('theme-dock-panel'))byId('theme-dock-panel').inert=!open;
+ if(open)byId('theme-select').focus();else byId('theme-dock-tab').focus();
+}
 function setTheme(theme){
  if(!THEME_IDS.includes(theme))theme='violet';
  currentTheme=theme;
  document.body.dataset.theme=theme;
  byId('theme-select').value=theme;
  try{window.localStorage.setItem('twentyx-theme-v1',theme)}catch{}
+ if(byId('theme-dock').dataset.open==='true')setThemeDock(false);
+}
+function showGuide(section='ideas'){
+ const guide=byId('guide-drawer');
+ const selected=['ideas','faq','terms'].includes(section)?section:'ideas';
+ guide.querySelectorAll('[data-guide-tab]').forEach(tab=>{
+  const active=tab.dataset.guideTab===selected;
+  tab.classList.toggle('active',active);
+  tab.setAttribute('aria-selected',String(active));
+ });
+ guide.querySelectorAll('[data-guide-panel]').forEach(panel=>{
+  panel.hidden=panel.dataset.guidePanel!==selected;
+ });
+ if(!guide.open)guide.showModal();
 }
 function initializeTheme(){
  let choice='violet';
@@ -180,6 +205,11 @@ function renderFeatureTicker(){
   }
  }
 }
+/** The backdrop is always sampled from the identical original art, never a stock fill. */
+function setArtBackdrop(surface,imageUrl){
+ if(!surface||!imageUrl)return;
+ surface.style.setProperty('--artwork-source','url("'+String(imageUrl).replace(/["\\]/g,'')+'")');
+}
 function featureWork(next=false){
  const state=currentFeature();
  if(!state)return;
@@ -196,6 +226,7 @@ function featureWork(next=false){
  const src=featuredArtist.media[featuredIndex];
  const reveal=()=>{
   img.src=src;
+  setArtBackdrop(byId('feature-artwork'),src);
   img.alt='Featured work '+(featuredIndex+1)+' of 20 curated by '+featuredArtist.name;
   byId('feature-number').textContent=String(featuredIndex+1).padStart(2,'0')+' / 20';
   byId('feature-title').textContent=featuredArtist.name;
@@ -300,9 +331,12 @@ function renderSpatial(){
  if(!currentArtist)return;
  const n=currentArtist.media.length;
  byId('stage-main').src=currentArtist.media[spatialIndex];
+ setArtBackdrop(byId('spatial-current'),currentArtist.media[spatialIndex]);
  byId('stage-main').alt='Artwork '+(spatialIndex+1)+' of 20 by '+currentArtist.name;
  byId('stage-left').src=currentArtist.media[(spatialIndex+n-1)%n];
  byId('stage-right').src=currentArtist.media[(spatialIndex+1)%n];
+ setArtBackdrop(byId('spatial-prev'),currentArtist.media[(spatialIndex+n-1)%n]);
+ setArtBackdrop(byId('spatial-next'),currentArtist.media[(spatialIndex+1)%n]);
  byId('stage-counter').textContent=String(spatialIndex+1).padStart(2,'0')+' / 20';
  const dots=byId('stage-dots');dots.replaceChildren();
  for(let i=0;i<n;i++){
@@ -406,7 +440,9 @@ function renderCinema(){
  byId('cinema-follow').href=followIntent(a);byId('cinema-follow').dataset.follow='true';
  byId('cinema-progress').textContent='WORK '+String(viewerWorkIndex+1).padStart(2,'0')+' / 20  ·  ARTIST '+String(viewerArtistIndex+1).padStart(2,'0')+' / '+String(viewerArtists.length).padStart(2,'0');
  const image=byId('cinema-img');
- image.src=a.media[viewerWorkIndex];image.alt='Artwork '+(viewerWorkIndex+1)+' of 20 by '+a.name;
+ image.src=a.media[viewerWorkIndex];
+ setArtBackdrop(byId('cinema').querySelector('.cinema-viewport'),a.media[viewerWorkIndex]);
+ image.alt='Artwork '+(viewerWorkIndex+1)+' of 20 by '+a.name;
  image.style.animation='none';void image.offsetWidth;image.style.animation='';
  // No thumbnail strip in cinema: the current artwork fills the entire stage.
 }
@@ -492,7 +528,22 @@ async function downloadPoster(a,target){
  }
 }
 function bindUI(){
+ byId('theme-dock-panel').setAttribute('aria-hidden','true');
+ if('inert' in byId('theme-dock-panel'))byId('theme-dock-panel').inert=true;
+ byId('theme-dock-tab').addEventListener('click',()=>setThemeDock(byId('theme-dock').dataset.open!=='true'));
+ byId('theme-dock-close').addEventListener('click',()=>setThemeDock(false));
  byId('theme-select').addEventListener('change',event=>setTheme(event.target.value));
+ document.querySelectorAll('[data-open-guide]').forEach(b=>b.addEventListener('click',()=>showGuide(b.dataset.openGuide)));
+ byId('guide-close').addEventListener('click',()=>byId('guide-drawer').close());
+ byId('guide-community').addEventListener('click',()=>{
+  byId('guide-drawer').close();
+  openXAction('community');
+ });
+ byId('x-action-guide').addEventListener('click',()=>{
+  byId('x-action-modal').close();
+  showGuide('ideas');
+ });
+ document.querySelectorAll('[data-guide-tab]').forEach(tab=>tab.addEventListener('click',()=>showGuide(tab.dataset.guideTab)));
  byId('enter-artvision').addEventListener('click',()=>openXAction('community'));
  byId('share-artvision').addEventListener('click',()=>openXAction('community'));
  byId('x-action-continue').addEventListener('click',openPendingX);
@@ -517,8 +568,31 @@ function bindUI(){
   if(prefersReduced||e.pointerType==='touch')return;
   const r=chamber.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
   chamber.style.setProperty('--tiltX',(-y*4).toFixed(2)+'deg');chamber.style.setProperty('--tiltY',(x*5).toFixed(2)+'deg');
+  byId('feature-artwork').style.setProperty('--parallax-x',(x*18).toFixed(1)+'px');
+  byId('feature-artwork').style.setProperty('--parallax-y',(y*18).toFixed(1)+'px');
  });
- chamber.addEventListener('pointerleave',()=>{chamber.style.setProperty('--tiltX','0deg');chamber.style.setProperty('--tiltY','0deg')});
+ chamber.addEventListener('pointerleave',()=>{
+  chamber.style.setProperty('--tiltX','0deg');chamber.style.setProperty('--tiltY','0deg');
+  byId('feature-artwork').style.setProperty('--parallax-x','0px');
+  byId('feature-artwork').style.setProperty('--parallax-y','0px');
+ });
+ const spatial=byId('spatial-stage');
+ spatial.addEventListener('pointermove',event=>{
+  if(prefersReduced||event.pointerType==='touch')return;
+  const bounds=spatial.getBoundingClientRect(),x=(event.clientX-bounds.left)/Math.max(1,bounds.width)-.5;
+  for(const id of ['spatial-prev','spatial-current','spatial-next']){
+   byId(id).style.setProperty('--parallax-x',(x*12).toFixed(1)+'px');
+  }
+ });
+ spatial.addEventListener('pointerleave',()=>{
+  for(const id of ['spatial-prev','spatial-current','spatial-next'])byId(id).style.setProperty('--parallax-x','0px');
+ });
+ cinema.querySelector('.cinema-viewport').addEventListener('pointermove',event=>{
+  if(prefersReduced||event.pointerType==='touch')return;
+  const frame=cinema.querySelector('.cinema-viewport'),box=frame.getBoundingClientRect();
+  frame.style.setProperty('--parallax-x',(((event.clientX-box.left)/Math.max(1,box.width)-.5)*15).toFixed(1)+'px');
+  frame.style.setProperty('--parallax-y',(((event.clientY-box.top)/Math.max(1,box.height)-.5)*15).toFixed(1)+'px');
+ });
  byId('back-to-all').addEventListener('click',goHome);
  byId('search').addEventListener('input',renderHome);
  byId('surprise').addEventListener('click',()=>{if(artists.length)goArtist(artists[Math.floor(Math.random()*artists.length)])});
