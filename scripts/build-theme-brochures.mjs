@@ -12,10 +12,24 @@ import sharp from 'sharp';
 import QRCode from 'qrcode';
 import {pathToFileURL} from 'node:url';
 
+// Color stops transcribed exactly from the supplied Themes/ palette swatches.
+// Swatch PNGs are reference images only and NEVER embedded in the brochure.
 const THEMES={
- violet:{name:'ArtVision Violet',bg:'#160b27',deep:'#311342',frame:'#ce99ec',text:'#fcf4ff',muted:'#e8d5f0',accent:'#d7a7f9',reference:null},
- analog:{name:'Analog Nostalgia',bg:'#241425',deep:'#5a2349',frame:'#f7a48f',text:'#fff4e5',muted:'#f6d7d2',accent:'#f6ba8b',reference:'Themes/Analog Nostalgia/Analog Nostalgia Colorways/TwentyX Daylight.png'},
- heritage:{name:'Minimalist Heritage',bg:'#151221',deep:'#332a48',frame:'#c3a8de',text:'#f6f2fd',muted:'#d4c9e0',accent:'#d7c4ea',reference:'Themes/Minimalist Heritage/Minimalist Heritage_Colorways/TwentyX GM.png'}
+ violet:{
+  name:'ArtVision Violet',bg:'#160b27',deep:'#311342',frame:'#ce99ec',
+  text:'#fcf4ff',muted:'#e8d5f0',accent:'#d7a7f9',
+  stops:['#160B27','#3C1B57','#6930C3','#D7A7F9','#A6EEE7']
+ },
+ analog:{
+  name:'Analog Nostalgia',bg:'#1b102c',deep:'#403277',frame:'#80FFDB',
+  text:'#fff8ff',muted:'#e2f5ff',accent:'#80FFDB',
+  stops:['#7400B8','#6930C3','#5E60CE','#5390D9','#4EA8DE','#48BFE3','#56CFE1','#64DFDF','#72EFDD','#80FFDB']
+ },
+ heritage:{
+  name:'Minimalist Heritage',bg:'#201727',deep:'#55424e',frame:'#FFCAD4',
+  text:'#fff9fc',muted:'#f4e2e8',accent:'#FFCAD4',
+  stops:['#D8E2DC','#FFE5D9','#FFCAD4','#F4ACB7','#9D8189']
+ }
 };
 const safe=str=>String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&apos;");
 const idOf=a=>String(a.postUrl||'').match(/\/status\/(\d+)\/?$/)?.[1];
@@ -23,16 +37,16 @@ const handleOf=a=>new URL(a.postUrl).pathname.split('/')[1].toLowerCase();
 async function renderThemeBrochure(artist,theme,mosaic){
  const color=THEMES[theme],handle=handleOf(artist),id=idOf(artist);
  if(!color||!mosaic)throw Error('Invalid brochure theme or original mosaic');
- const bg=color.reference?fs.readFileSync(color.reference).toString('base64'):null;
+ const stops=color.stops.map((hex,index)=>'<stop offset="'+(index*100/(color.stops.length-1)).toFixed(2)+'%" stop-color="'+hex+'"/>').join('');
  const qr=(await QRCode.toDataURL('https://twentyx.artvision.today/@'+handle+'/',{
   margin:2,errorCorrectionLevel:'H',width:156,color:{dark:color.bg,light:'#ffffff'}
  })).split(',')[1];
  const name=safe(artist.name),titleSize=artist.name.length>32?33:artist.name.length>20?43:artist.name.length>12?51:69;
  const svg=[
  '<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">',
- '<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="'+color.bg+'"/><stop offset=".58" stop-color="'+color.deep+'"/><stop offset="1" stop-color="'+color.bg+'"/></linearGradient></defs>',
+ '<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">'+stops+'</linearGradient></defs>',
  '<rect width="1080" height="1350" fill="url(#bg)"/>',
- bg?'<image x="-1" y="-1" width="1082" height="1352" preserveAspectRatio="xMidYMid slice" opacity=".24" href="data:image/png;base64,'+bg+'"/>':'',
+ // A translucent legibility veil is composited; no palette image used.
  '<rect width="1080" height="1350" fill="'+color.bg+'" opacity=".73"/>',
  '<path d="M0 8H1080" stroke="'+color.accent+'" stroke-width="15"/>',
  '<rect x="22" y="22" width="1036" height="1306" rx="10" fill="none" stroke="'+color.frame+'" stroke-opacity=".61"/>',
@@ -69,13 +83,13 @@ export async function buildThemeBrochures(artists){
    mosaic=await sharp(pngBytes).extract({left:76,top:399,width:928,height:741}).png().toBuffer();
   }catch(e){withoutSource.push(handleOf(artist)+': '+e.message);continue}
   for(const theme of Object.keys(THEMES)){
-   const svgName=base+'--'+theme+'.svg',pngName=base+'--'+theme+'.png';
-   if(fs.existsSync(svgName)&&fs.existsSync(pngName))continue;
+   // Always rebuild: earlier editions embedded the swatch PNG itself.
+   // Overwriting ensures every edition now uses the hex gradient only.
    await renderThemeBrochure(artist,theme,mosaic);
    generated++;
   }
  }
- console.log('Themed brochures ready:',generated,'new theme editions; original 20-work PNG unavailable for',withoutSource.length,'artists');
+ console.log('Hex-gradient brochures ready:',generated,'theme editions; original 20-work PNG unavailable for',withoutSource.length,'artists');
  if(withoutSource.length)console.warn('Themed brochure fallback to original edition:',withoutSource.join(', '));
  return {generated,withoutSource};
 }
