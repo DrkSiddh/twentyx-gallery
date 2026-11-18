@@ -25,6 +25,7 @@ let lastFocus=null;
 let wallMode='wall';
 let selection=new Set();
 let featuredArtist=null,featuredIndex=0;
+let arrivalArtist=null,arrivalWorkIndex=0,arrivalSignature='';
 let seedRecoverySource='embedded JSON';
 let cinemaNativeFullscreen=false;
 let cinemaFadeTimer=null;
@@ -233,7 +234,7 @@ function goArtist(a){
  renderRoute();window.scrollTo({top:0,behavior:prefersReduced?'auto':'smooth'});
 }
 function makeTile(a,i,className){
- const tile=button('',className||'artwork-thumb',()=>startCinema([a],0,i,false));
+ const tile=button('',className||'artwork-thumb',()=>startCinema(artists,Math.max(0,artists.findIndex(x=>artistID(x)===artistID(a))),i,false));
  tile.dataset.n=String(i+1).padStart(2,'0');
  tile.setAttribute('aria-label','Open artwork '+(i+1)+' of 20 by '+a.name);
  const img=create('img');img.src=a.media[i];img.loading='lazy';img.decoding='async';
@@ -290,6 +291,38 @@ function renderFeatureTicker(){
  }
 }
 let featuredSixSignature='';
+
+/* Landscape eligibility is determined using each original image's actual dimensions. */
+async function renderArrivalImage(){
+ const featured=PINNED.map(h=>artists.find(a=>artistHandle(a).toLowerCase()===h)).filter(Boolean);
+ const day=Math.floor(Date.now()/86400000),signature=day+':'+featured.map(artistID).join(',');
+ if(!featured.length||arrivalSignature===signature)return;
+ arrivalSignature=signature;
+ const probeWork=c=>new Promise((resolve,reject)=>{
+  const img=new Image();
+  const timeout=window.setTimeout(()=>{img.onload=null;img.onerror=null;reject(Error('Image timeout'))},2200);
+  img.referrerPolicy='no-referrer';
+  img.onload=()=>{clearTimeout(timeout);img.naturalWidth>img.naturalHeight*1.1&&img.naturalWidth>=640?resolve(c):reject(Error('Not landscape'))};
+  img.onerror=()=>{clearTimeout(timeout);reject(Error('Image unavailable'))};
+  img.src=c.artist.media[c.index];
+ });
+ for(let offset=0;offset<20;offset++){
+  const batch=featured.map((a,j)=>({artist:a,index:(offset+day+j*3)%20}));
+  const selected=await Promise.any(batch.map(probeWork)).catch(()=>null);
+  if(arrivalSignature!==signature)return;
+  if(!selected)continue;
+  arrivalArtist=selected.artist;arrivalWorkIndex=selected.index;
+  const image=byId('arrival-image-img');
+  image.src=selected.artist.media[selected.index];
+  image.referrerPolicy='no-referrer';
+  image.alt='Landscape artwork '+(selected.index+1)+' of 20 curated by '+selected.artist.name;
+  byId('arrival-name').textContent=selected.artist.name+' · Work '+String(selected.index+1).padStart(2,'0')+' / 20';
+  byId('arrival-image').hidden=document.body.dataset.view==='artist';
+  colorFromArtwork(image.src,selected.artist);
+  return;
+ }
+}
+
 /** A dedicated, large second art display: only the six requested priority artists. */
 function renderFeaturedSix(){
  const gallery=byId('featured-six-gallery');if(!gallery)return;
@@ -448,16 +481,16 @@ function renderHome(){
  const shown=sortArtists(artists.filter(a=>(a.name+' '+artistHandle(a)).toLowerCase().includes(q)));
  const root=byId('home-gallery');root.replaceChildren();
  shown.forEach(a=>{
-  const card=create('article','collection-card');card.id='artist-'+artistID(a);
+  const card=create('article','collection-card');card.id='artist-'+artistID(a);card.dataset.artistHandle=artistHandle(a).toLowerCase();
   const grid=create('div','card-mosaic');
   a.media.forEach((_,i)=>grid.append(makeTile(a,i)));
   card.append(grid);
   // The gallery image begins at the very top; the main action stays in
   // its upper-right corner rather than following the entire image wall.
-  card.append(button('Explore the 20 ↗','pill primary artist-open card-explore',()=>goArtist(a)));
+  /* The top six alone carry the Explore the 20 artwork overlay. */
   const head=create('div','card-meta');
   const titleWrap=create('div','card-heading');
-  titleWrap.append(create('h3','card-name',a.name));
+  const title=create('h3','card-name');title.append(button(a.name,'artist-name-link',()=>goArtist(a)));titleWrap.append(title);
   const labels=create('div','card-labels');
   labels.append(create('div','card-handle','@'+artistHandle(a)+' on X'));
   labels.append(create('span','card-count','20 works'));
@@ -534,7 +567,7 @@ function renderArtist(a){
  byId('next-artist').onclick=()=>goArtist(next);
  byId('copy-artist').onclick=()=>copyLink(artistURL(a),byId('copy-artist'));
  byId('download-qr').onclick=()=>downloadPoster(a,byId('download-qr'));
- byId('play-artist').onclick=()=>startCinema([a],0,0,true);
+ byId('play-artist').onclick=()=>startCinema(artists,Math.max(0,artists.findIndex(x=>artistID(x)===artistID(a))),0,true);
 }
 function renderRoute(){
  const id=routeArtist(),match=artists.find(a=>artistID(a)===id);
@@ -542,9 +575,8 @@ function renderRoute(){
  byId('home-view').hidden=onArtist;
  byId('artist-view').hidden=!onArtist;
  document.body.dataset.view=onArtist?'artist':'home';
- byId('header-subscribe').hidden=onArtist;
- byId('opportunities').hidden=onArtist;
  byId('featured-six').hidden=onArtist;
+ byId('arrival-image').hidden=onArtist||!arrivalArtist;
  if(onArtist)renderArtist(match);
  else{
   currentArtist=null;document.title='TwentyX • ArtVision X';
@@ -607,7 +639,7 @@ function renderCinema(){
  const a=viewerArtists[viewerArtistIndex];
  byId('cinema-artist').textContent=a.name;
  byId('cinema-follow').href=followIntent(a);byId('cinema-follow').dataset.follow='true';
- byId('cinema-progress').textContent='WORK '+String(viewerWorkIndex+1).padStart(2,'0')+' / 20  ·  ARTIST '+String(viewerArtistIndex+1).padStart(2,'0')+' / '+String(viewerArtists.length).padStart(2,'0');
+ byId('cinema-progress').textContent='WORK '+String(viewerWorkIndex+1).padStart(2,'0')+' / 20 IN THIS CURATION';
  const image=byId('cinema-img');
  image.src=a.media[viewerWorkIndex];
  colorFromArtwork(a.media[viewerWorkIndex],a);
@@ -725,6 +757,8 @@ async function subscribeOpportunities(event){
 }
 function bindUI(){
  byId('opportunity-signup').addEventListener('submit',subscribeOpportunities);
+ byId('header-subscribe').addEventListener('click',()=>{const d=byId('opportunities');if(!d.open)d.showModal()});
+ byId('opportunities-close').addEventListener('click',()=>byId('opportunities').close());
  byId('theme-dock-panel').setAttribute('aria-hidden','true');
  if('inert' in byId('theme-dock-panel'))byId('theme-dock-panel').inert=true;
  byId('theme-dock-tab').addEventListener('click',()=>setThemeDock(byId('theme-dock').dataset.open!=='true'));
@@ -757,8 +791,10 @@ function bindUI(){
  });
  document.addEventListener('click',popFollow);
  byId('home-link').addEventListener('click',event=>{event.preventDefault();goHome()});
- byId('feature-artwork').addEventListener('click',()=>{if(featuredArtist)startCinema([featuredArtist],0,featuredIndex,false)});
+ byId('feature-artwork').addEventListener('click',()=>{if(featuredArtist)startCinema(artists,Math.max(0,artists.findIndex(x=>artistID(x)===artistID(featuredArtist))),featuredIndex,false)});
  byId('feature-enter').addEventListener('click',()=>{if(featuredArtist)goArtist(featuredArtist)});
+ byId('arrival-artwork').addEventListener('click',()=>{if(arrivalArtist)startCinema(artists,Math.max(0,artists.findIndex(x=>artistID(x)===artistID(arrivalArtist))),arrivalWorkIndex,false)});
+ byId('arrival-enter').addEventListener('click',()=>{if(arrivalArtist)goArtist(arrivalArtist)});
  byId('feature-rotate').addEventListener('click',()=>featureWork(true));
  const chamber=byId('feature-chamber');
  chamber.addEventListener('pointermove',e=>{
@@ -799,7 +835,7 @@ function bindUI(){
  byId('spatial-next').addEventListener('click',()=>moveSpatial(1));
  byId('stage-prev-button').addEventListener('click',()=>moveSpatial(-1));
  byId('stage-next-button').addEventListener('click',()=>moveSpatial(1));
- byId('spatial-current').addEventListener('click',()=>startCinema([currentArtist],0,spatialIndex,false));
+ byId('spatial-current').addEventListener('click',()=>startCinema(artists,Math.max(0,artists.findIndex(x=>artistID(x)===artistID(currentArtist))),spatialIndex,false));
  byId('choose-slideshow').addEventListener('click',()=>{makeChecklist();byId('selection-modal').showModal()});
  byId('close-selection').addEventListener('click',()=>byId('selection-modal').close());
  byId('select-all').addEventListener('click',()=>selectAll(true));
@@ -809,6 +845,7 @@ function bindUI(){
  byId('close-help').addEventListener('click',()=>byId('help-modal').close());
  byId('help-done').addEventListener('click',()=>byId('help-modal').close());
  byId('cinema-info').addEventListener('click',()=>openHelp('cinema'));
+ byId('cinema-download').addEventListener('click',()=>{const a=viewerArtists[viewerArtistIndex];if(a)downloadPoster(a,byId('cinema-download'))});
  byId('cinema-close').addEventListener('click',stopCinema);
  byId('cinema-previous').addEventListener('click',()=>cinemaStep(-1));
  byId('cinema-next').addEventListener('click',()=>cinemaStep(1));
@@ -860,6 +897,7 @@ async function syncLatestExhibitions(){
   byId('work-count').textContent=(artists.length*20).toLocaleString();
   if(!byId('cinema').classList.contains('active'))renderRoute();
   featureWork(false);
+  void renderArrivalImage();
   scheduleHeadlineFit();
  }catch(error){console.warn('Live stats refresh deferred:',error.message)}
 }
@@ -885,6 +923,7 @@ async function load(){
   byId('work-count').textContent=(artists.length*20).toLocaleString();
   renderRoute();
   featureWork(false);
+  void renderArrivalImage();
   scheduleHeadlineFit();
  }
  try{
@@ -902,6 +941,7 @@ async function load(){
   byId('work-count').textContent=(artists.length*20).toLocaleString();
   renderRoute();
   featureWork(false);
+  void renderArrivalImage();
  }catch(error){
   if(!seeded.length){
    byId('home-status').textContent='The exhibition could not load: '+error.message;

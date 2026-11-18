@@ -32,17 +32,17 @@ test('inline script boots with live statistics and working search',async()=>{
  try{
   await new Promise(done=>setTimeout(done,40));
   assert.deepEqual(t.errors.filter(e=>!e.startsWith('WARN: Live refresh unavailable')),[],t.errors.join('\n'));
-  assert.equal(t.doc.getElementById('artist-count').textContent,'16');
-  assert.equal(t.doc.getElementById('work-count').textContent,'320');
-  assert.equal(t.doc.querySelectorAll('.collection-card').length,16);
+  assert.equal(t.doc.getElementById('artist-count').textContent,'17');
+  assert.equal(t.doc.getElementById('work-count').textContent,'340');
+  assert.equal(t.doc.querySelectorAll('.collection-card').length,17);
   assert.match(t.doc.querySelector('#feature-image').src,/pbs\.twimg\.com\/media/);
   assert.ok(JSON.parse(t.doc.querySelector('#seeded-artists').textContent).some(a=>a.name===t.doc.querySelector('#feature-title').textContent),'featured work is from an actual artist');
-  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,320);
+  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,340);
   const input=t.doc.querySelector('#search');
   input.value='Stunnifer';input.dispatchEvent(new t.win.Event('input',{bubbles:true}));
   assert.equal(t.doc.querySelectorAll('.collection-card').length,1,'search should filter the exhibit');
   assert.match(t.doc.querySelector('.collection-card').textContent,/Stunnifer/);
-  t.doc.querySelector('.artist-open').click();
+  t.doc.querySelector('.artist-name-link').click();
   assert.equal(t.doc.querySelector('#artist-view').hidden,false);
   assert.equal(t.doc.querySelectorAll('#artist-wall img').length,20);
  }finally{t.close()}
@@ -53,7 +53,7 @@ test('slideshow selection opens and shows an actual artwork',async()=>{
   await new Promise(done=>setTimeout(done,40));
   t.doc.querySelector('#choose-slideshow').click();
   assert.ok(t.doc.querySelector('#selection-modal').open,'selection dialog should open');
-  assert.equal(t.doc.querySelectorAll('.checkartist').length,16);
+  assert.equal(t.doc.querySelectorAll('.checkartist').length,17);
   t.doc.querySelector('#launch-selection').click();
   assert.ok(t.doc.querySelector('#cinema').classList.contains('active'));
   assert.match(t.doc.querySelector('#cinema-img').src,/pbs\.twimg\.com\/media/);
@@ -107,7 +107,7 @@ test('single-word artist names cannot wrap and dynamic fit marks both headlines'
   const feature=t.doc.querySelector('#feature-title');
   feature.textContent='Pepavaggio';t.win.fitArtistHeadlines();
   assert.ok(feature.classList.contains('single-moniker'));
-  t.doc.querySelector('.artist-open').click();
+  t.doc.querySelector('.artist-name-link').click();
   assert.ok(t.doc.querySelector('#artist-title').classList.contains('single-moniker'));
   const styles=readFileSync('styles.css','utf8');
   assert.match(styles,/\.feature-artist-name\.single-moniker[^}]+white-space:nowrap/);
@@ -151,7 +151,7 @@ test('newest-to-oldest arrivals and priority-first full feature rotation',async(
   const seed=JSON.parse(t.doc.querySelector('#seeded-artists').textContent);
   const recentFirst=[...seed].sort((a,b)=>b.postId.localeCompare(a.postId)).map(a=>'@'+a.handle.toLowerCase()+' on x');
   assert.deepEqual(cards,recentFirst,'gallery blocks must show newest artist posts first');
-  assert.ok(cards.length===16);
+  assert.ok(cards.length===17);
   const hour=Math.floor(Date.now()/3600000);
   const scheduled=Array.from({length:cards.length},(_,i)=>t.win.currentFeature((hour+i)*3600000).artist);
   const featuredLength=cards.length-1;
@@ -302,7 +302,7 @@ test('negative space derives from the current artwork in all three presentation 
   await new Promise(done=>setTimeout(done,45));
   const heroSrc=t.doc.querySelector('#feature-image').src;
   assert.ok(t.doc.querySelector('#feature-artwork').style.getPropertyValue('--artwork-source').includes(heroSrc));
-  t.doc.querySelector('.artist-open').click();
+  t.doc.querySelector('.artist-name-link').click();
   t.doc.querySelector('#spatial-mode').click();
   const stage=t.doc.querySelector('#stage-main');
   assert.ok(t.doc.querySelector('#spatial-current').style.getPropertyValue('--artwork-source').includes(stage.src));
@@ -338,17 +338,15 @@ test('gallery artist cards have no artwork matte, 20 natural-size uncut images a
  try{
   await new Promise(done=>setTimeout(done,40));
   const cards=[...t.doc.querySelectorAll('.collection-card')];
-  assert.equal(cards.length,16);
+  assert.equal(cards.length,17);
   for(const card of cards){
    const artworks=card.querySelectorAll('.card-mosaic .artwork-thumb');
    assert.equal(artworks.length,20);
    assert.ok([...artworks].every(tile=>!tile.style.getPropertyValue('--artwork-source')),'artwork-grid tiles must not paint duplicate blur backgrounds');
    assert.match(card.querySelector('.card-handle').textContent,/@.* on X/);
    assert.match(card.querySelector('.card-date').textContent,/\d{2} \d{2} \d{4} curation/);
-   const explore=card.querySelector('.card-explore');
-   assert.ok(explore);
-   assert.equal(explore.parentElement,card,'Explore the 20 is a direct card child pinned to the upper artwork edge');
-   assert.ok([...card.children].indexOf(explore)<[...card.children].indexOf(card.querySelector('.card-meta')),'Explore stays above metadata');
+   assert.equal(card.querySelector('.card-explore'),null,'Explore overlay belongs only to the top six');
+   assert.ok(card.querySelector('.artist-name-link'));
    assert.ok(card.querySelector('.card-footer a[data-follow]'));
   }
   const css=readFileSync('styles.css','utf8');
@@ -372,7 +370,7 @@ test('featured six art comes before wordmark, ticker, wide XXL, then compact gal
   const ticker=t.doc.querySelector('.top-feature-schedule');
   const hero=home.querySelector('.hero');
   const gallery=home.querySelector('#home-gallery');
-  const order=[selected,header,ticker,feature,hero,gallery];
+  const order=[t.doc.querySelector('#arrival-image'),selected,header,ticker,feature,hero,gallery];
   assert.ok(order.every(Boolean),'all required elements must be present');
   for(let i=1;i<order.length;i++){
    assert.ok(order[i-1].compareDocumentPosition(order[i]) & t.win.Node.DOCUMENT_POSITION_FOLLOWING,'six feature artworks first, then wordmark, ticker, XXL and gallery');
@@ -441,12 +439,31 @@ test('no redundant XXL or ticker labels; gallery route hides opportunities and f
  try{
   await new Promise(done=>setTimeout(done,55));
   assert.equal(t.doc.body.dataset.view,'artist');
-  assert.equal(t.doc.querySelector('#opportunities').hidden,true);
-  assert.equal(t.doc.querySelector('#header-subscribe').hidden,true);
+  assert.equal(t.doc.querySelector('#opportunities').open,false);
+  assert.equal(t.doc.querySelector('#header-subscribe').hidden,false);
   assert.equal(t.doc.querySelector('#featured-six').hidden,true);
   assert.equal(t.doc.querySelector('.artist-presenter'),null);
   assert.equal(t.doc.querySelector('.feature-program-head .overline'),null);
   assert.equal(t.doc.querySelector('.feature-label-row .overline'),null);
   assert.match(t.doc.querySelector('.artist-interaction-cue').textContent,/Tap or click/);
+ }finally{t.close()}
+});
+
+test('landscape-first ordering, newsletter drawer and cross-artist cinema navigation',async()=>{
+ const t=boot();try{
+  await new Promise(done=>setTimeout(done,55));
+  const arrival=t.doc.getElementById('arrival-image');
+  assert.ok(arrival,'artwork-first arrival exists');
+  assert.ok(arrival.compareDocumentPosition(t.doc.querySelector('.topbar')) & t.win.Node.DOCUMENT_POSITION_FOLLOWING,'landscape precedes any menus');
+  t.doc.getElementById('header-subscribe').click();
+  assert.equal(t.doc.getElementById('opportunities').open,true);
+  t.doc.getElementById('opportunities-close').click();
+  assert.equal(t.doc.getElementById('opportunities').open,false);
+  t.doc.getElementById('feature-artwork').click();
+  const before=t.doc.getElementById('cinema-artist').textContent;
+  t.doc.getElementById('cinema-next-artist').click();
+  assert.notEqual(t.doc.getElementById('cinema-artist').textContent,before);
+  assert.match(t.doc.getElementById('cinema-progress').textContent,/IN THIS CURATION/);
+  assert.ok(t.doc.getElementById('cinema-download'));
  }finally{t.close()}
 });
