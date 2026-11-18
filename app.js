@@ -467,16 +467,16 @@ async function downloadPoster(a,target){
  target.textContent='Preparing exhibition brochure…';
  try{
   const base='/welcome/'+artistHandle(a).toLowerCase()+'-'+artistID(a);
-  const suffix=currentTheme==='violet'?'':'--'+currentTheme;
-  const png=base+suffix+'.png',svg=base+suffix+'.svg';
-  // Full-resolution, self-contained PNGs are preferred if generated.
-  // The SVG is built for every artist on every publish, so download never
-  // depends on a QR CDN, popup, browser canvas, or unavailable artwork fetch.
-  let href=svg,ext='svg';
-  try{
-   const response=await fetch(png,{method:'HEAD',cache:'no-store'});
-   if(response.ok){href=png;ext='png'}
-  }catch{ /* Use the guaranteed static brochure. */ }
+  const themed=base+'--'+currentTheme;
+  // Every theme has a fully rendered PNG plus a self-contained vector edition
+  // compiled from the original 20-artwork brochure, never recoloring the art.
+  let href=base+'.svg',ext='svg';
+  for(const [candidate,type] of [[themed+'.png','png'],[themed+'.svg','svg'],[base+'.png','png'],[base+'.svg','svg']]){
+   try{
+    const response=await fetch(candidate,{method:'HEAD',cache:'no-store'});
+    if(response.ok){href=candidate;ext=type;break}
+   }catch{ /* Keep the gallery open and try the next reliable file. */ }
+  }
   const download=document.createElement('a');
   download.href=href;
   download.download='TwentyX-'+artistHandle(a)+'-exhibition.'+ext;
