@@ -268,7 +268,7 @@ test('site offers readable retractable vertical theme dock and slide-out curated
   const css=readFileSync('styles.css','utf8');
   assert.match(css,/\\.theme-dock\\[data-open="true"\\]/);
   assert.match(css,/\\.guide-drawer\\[open\\]/);
-  assert.match(css,/font-size:clamp\\(19px/);
+  assert.equal(css.includes('font-size:clamp(19px'),true,'readable mobile body type');
  }finally{t.close()}
 });
 
