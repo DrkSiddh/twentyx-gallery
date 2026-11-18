@@ -995,3 +995,25 @@ body{font-size:clamp(17px,1.08vw,19px);line-height:1.58}
   transform:scale(1.14)!important;transition:none!important
  }
 }
+
+
+/* Accessibility override: earlier responsive rules hid these essential CTAs. */
+@media(max-width:780px){
+ .top-actions .ghost.small,
+ .top-actions .guide-opener,
+ .top-actions #enter-artvision{display:inline-flex!important}
+ .top-actions .time-indicator{display:inline-flex!important}
+ .top-actions{flex-wrap:wrap;min-width:0;justify-content:flex-start}
+}
+@media(max-width:540px){
+ .top-actions .time-indicator{
+  order:3;display:inline-flex!important;width:100%;
+  max-width:none;font-size:14px
+ }
+ .top-actions #enter-artvision,.top-actions #header-guide{
+  display:inline-flex!important;white-space:normal;text-align:center;
+  font-size:clamp(14px,3.9vw,18px);line-height:1.25;
+  padding:10px 13px;min-height:48px
+ }
+ .topbar .brand{flex:1 1 100%;max-width:100%}
+}
