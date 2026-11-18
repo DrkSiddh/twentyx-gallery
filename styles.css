@@ -1420,52 +1420,338 @@ body{font-size:clamp(17px,1.08vw,19px);line-height:1.58}
 }
 
 
-/* TWENTYX V9 — CONSOLIDATED EDITORIAL TYPOGRAPHY
-   Keep the original imported typefaces and all theme palettes untouched.
-   Two actively used families: Oxanium for sculpture/display, Inter for reading.
-   Theme selection now changes color and atmosphere rather than typefaces. */
-body,button,input,select,textarea,
-.card-handle,.card-count,.card-date,.artist-byline,.ticker-entry,
-.top-feature-schedule .ticker-entry,.subscribe-consent,.cadence-choice,
-.hero-intro,.cta-helper,.footer,.spotlight-actions,.card-footer{
- font-family:Inter,system-ui,sans-serif!important
+/* TWENTYX v10 — return to the artist's work. Theme colorways and theme
+   font definitions above remain intact. No gallery artwork is cropped or
+   doubled. The exact same-image matte lives ONLY inside large display modes. */
+
+/* TwentyX has its own identity; the logo's font never follows the theme. */
+.brand-wordmark,
+body[data-theme="violet"] .brand-wordmark,
+body[data-theme="analog"] .brand-wordmark,
+body[data-theme="heritage"] .brand-wordmark{
+ font-family:'Dune Rise','Oxanium',sans-serif!important;
+ font-weight:800;letter-spacing:-.04em;
 }
-.brand,.brand-wordmark,.brand-presenter,
-.hero-editorial.twentyx,.feature-artist-name,.spotlight-title-wrap h1,
-.card-name,.exhibition-heading h2,.artist-presenter,
-.opportunity-newsletter-intro h2,.guide-drawer h2,
-.x-community-content h2,.card-overline{
- font-family:'Oxanium',Inter,system-ui,sans-serif!important
+.brand-presenter{font-family:inherit;letter-spacing:.005em}
+.brand{line-height:1.15}
+
+/* Full-bleed, uninterrupted program ticker: no rounded drawer or gutters. */
+.top-feature-schedule{
+ width:100vw;max-width:100vw;margin:0 0 0 calc(50% - 50vw);
+ left:0;right:0;position:relative;padding:0;z-index:30;
 }
-body[data-theme="analog"] .brand,
-body[data-theme="analog"] .twentyx,
-body[data-theme="analog"] .artist-mark,
+.top-feature-schedule .feature-program{
+ margin:0;border-left:0;border-right:0;border-radius:0!important;
+ background:var(--glass);backdrop-filter:blur(12px);
+ box-shadow:inset 0 1px 1px rgba(255,255,255,.12);
+}
+.top-feature-schedule .feature-program-head{
+ padding:11px clamp(18px,4vw,70px) 8px;
+ border-radius:0;
+}
+.top-feature-schedule .feature-ticker-window{
+ overflow:hidden;padding:9px 0 11px;border-radius:0
+}
+.top-feature-schedule .ticker-entry{
+ font-size:clamp(16px,1.1vw,20px);font-weight:800;
+}
+
+/* The XXL art is the first thing in the exhibition, with the title secondary. */
+.feature-section{
+ width:100vw;max-width:100vw;margin:0 0 0 calc(50% - 50vw);
+ padding:0;position:relative;left:0
+}
+.feature-section .feature-label-row{
+ padding:13px clamp(18px,4vw,70px);margin:0;
+ background:color-mix(in srgb,var(--glass) 85%,transparent);
+}
+.feature-chamber{
+ grid-template-columns:minmax(0,1.54fr) minmax(260px,.46fr);
+ min-height:clamp(580px,59vw,850px);
+ border-radius:0;overflow:hidden;border-left:0;border-right:0;
+ box-shadow:inset 0 1px 1px rgba(255,255,255,.15)
+}
+.feature-chamber::before{border-radius:0}
+.feature-art-wrapper{
+ padding:10px 10px 10px clamp(10px,1.5vw,24px);
+ align-self:stretch;min-width:0
+}
+.feature-artwork{
+ width:100%;height:clamp(550px,57vw,820px);
+ max-height:100%;margin:0;padding:4px;overflow:hidden;
+ border-radius:8px;transform:none!important;background:var(--glass);
+ box-shadow:0 18px 32px rgba(0,0,0,.31)
+}
+.feature-artwork:hover{transform:none!important}
+.feature-artwork>img{
+ width:100%;height:100%;max-width:100%;max-height:100%;
+ object-fit:contain!important;object-position:center!important;
+ display:block;position:relative;z-index:2
+}
+.feature-caption{
+ min-width:0;align-self:center;padding:clamp(16px,2vw,30px)
+}
+.feature-artist-name{font-size:clamp(2.15rem,4vw,5.2rem);line-height:1.08}
+.feature-actions .pill,.feature-actions .ghost{
+ font-size:clamp(16px,1.2vw,20px);min-height:48px
+}
+/* A restrained echo, not a muddy wallpaper. Only original-work displays. */
+.feature-artwork::before,
+.perspective-scene button::before,
+.cinema-viewport::before{
+ background-image:var(--artwork-source,none);
+ background-position:center;background-size:cover;
+ filter:blur(10px) saturate(1.02) brightness(.92);
+ opacity:.37;inset:-16px;
+ transform:translate3d(var(--parallax-x,0px),var(--parallax-y,0px),0) scale(1.06);
+ transition:transform .9s ease,opacity .4s ease
+}
+.feature-artwork::after,
+.perspective-scene button::after,
+.cinema-viewport::after{
+ background:radial-gradient(ellipse at center,transparent 52%,rgba(0,0,0,.25) 100%)
+}
+.perspective-scene button::before{filter:blur(9px) saturate(1.02);opacity:.35}
+.cinema-viewport::before{filter:blur(11px) saturate(1.02);opacity:.38}
+
+/* Your six curatorial picks: a second, genuinely large, edge-to-edge art
+   experience directly underneath XXL. Artwork stays completely visible. */
+.featured-six-band{
+ width:100vw;max-width:100vw;margin:0 0 0 calc(50% - 50vw);
+ padding:0;border-top:1px solid color-mix(in srgb,var(--pink) 38%,transparent);
+ background:var(--glass);position:relative;overflow:hidden
+}
+.featured-six-heading{
+ display:flex;align-items:center;gap:clamp(12px,3vw,36px);
+ padding:19px clamp(18px,4vw,70px) 16px;flex-wrap:wrap
+}
+.featured-six-heading h2{
+ margin:0;font-size:clamp(1.45rem,2.4vw,2.85rem);
+ line-height:1.05;font-weight:850
+}
+.featured-six-heading .overline,
+.featured-six-aside{font-size:clamp(13px,.98vw,18px);font-weight:800}
+.featured-six-aside{margin-left:auto;color:var(--muted);letter-spacing:.09em}
+.featured-six-gallery{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:2px;width:100%;background:var(--glass)
+}
+.featured-six-card{
+ display:block;position:relative;isolation:isolate;overflow:hidden;
+ height:clamp(330px,34vw,585px);min-width:0;border:0;
+ padding:0;background:var(--glass);cursor:pointer;text-align:left;
+ transition:filter .5s cubic-bezier(.22,1,.36,1)
+}
+.featured-six-card:hover,.featured-six-card:focus-visible{
+ filter:brightness(1.1);z-index:2;outline:2px solid var(--pink);outline-offset:-3px
+}
+.featured-six-art{
+ display:grid;place-items:center;width:100%;height:100%;
+ position:relative;isolation:isolate;overflow:hidden
+}
+.featured-six-art::before{
+ content:'';position:absolute;inset:-17px;
+ background-image:var(--artwork-source,none);
+ background-size:cover;background-position:center;
+ filter:blur(10px) saturate(1.04) brightness(.87);
+ opacity:.35;transform:scale(1.07);z-index:0
+}
+.featured-six-art>img{
+ position:relative;z-index:1;display:block;width:100%;height:100%;
+ object-fit:contain!important;object-position:center;
+ transition:transform .65s cubic-bezier(.22,1,.36,1);
+ filter:drop-shadow(0 4px 16px rgba(0,0,0,.25))
+}
+.featured-six-card:hover .featured-six-art>img{transform:scale(1.025)}
+.featured-six-label{
+ position:absolute;z-index:2;left:0;right:0;bottom:0;
+ display:flex;align-items:center;justify-content:space-between;gap:8px;
+ padding:24px clamp(16px,1.6vw,26px) 15px;
+ background:linear-gradient(0deg,rgba(8,7,19,.88),rgba(8,7,19,.55) 60%,transparent);
+ color:white;backdrop-filter:blur(6px)
+}
+.featured-six-name{
+ font-size:clamp(1.4rem,2.1vw,2.4rem);
+ font-weight:900;line-height:1.08;
+ text-shadow:0 3px 12px rgba(0,0,0,.7)
+}
+.featured-six-arrow{font-size:clamp(26px,2.5vw,35px);color:var(--pink)}
+
+/* Editorial copy follows the art. Visually concise rather than hero-sized. */
+.hero{
+ max-width:1240px;padding:38px clamp(16px,3vw,44px) 58px;
+ margin:0 auto
+}
+.hero-editorial.twentyx{
+ font-size:clamp(2rem,3.7vw,4rem);line-height:1.05;
+ max-width:none;margin:12px 0 15px
+}
+.hero-intro{font-size:clamp(17px,1.35vw,22px);margin:0}
+.hero-stats{margin:22px 0;gap:15px 35px}
+.hero-stats strong{font-size:clamp(28px,2.75vw,44px)}
+.hero-stats span{font-size:clamp(15px,1.1vw,19px)}
+.cta-cluster{gap:22px}
+.cta-helper{font-size:clamp(17px,1.2vw,21px)}
+
+/* GALLERY / ARTIST WALL: true intrinsic-height column masonry.
+   No fixed tile canvas. No blurred duplicate. No cropped original. */
+.home-gallery{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:14px;align-items:start;perspective:none
+}
+.collection-card{
+ display:flex;flex-direction:column;align-items:stretch;
+ min-width:0;overflow:hidden;padding:0;
+ border-radius:12px;transform:none!important;
+ transform-style:flat;will-change:auto
+}
+.collection-card:hover,.collection-card:focus-within{transform:none!important}
+.collection-card::before{display:none!important}
+.card-mosaic,
+.artist-wall{
+ display:block!important;grid-template-columns:none!important;
+ grid-auto-rows:auto!important;grid-auto-flow:initial!important;
+ column-count:4;column-gap:2px;
+ width:100%;height:auto!important;min-height:0;
+ padding:0;margin:0;background:transparent;overflow:visible;
+ perspective:none
+}
+.card-mosaic .artwork-thumb,
+.artist-wall .artwork-thumb,
+.card-mosaic .artwork-thumb:nth-child(n),
+.artist-wall .artwork-thumb:nth-child(n){
+ display:block!important;position:relative;
+ width:100%;height:auto!important;
+ min-height:0!important;max-height:none!important;
+ padding:0!important;margin:0 0 2px!important;
+ break-inside:avoid;page-break-inside:avoid;
+ aspect-ratio:auto!important;grid-row:auto!important;
+ grid-column:auto!important;
+ border:0;border-radius:0;
+ background:transparent!important;overflow:hidden;
+ transform:none!important;box-shadow:none;
+}
+.card-mosaic .artwork-thumb img,
+.artist-wall .artwork-thumb img{
+ position:relative!important;inset:auto!important;display:block!important;
+ width:100%!important;height:auto!important;min-height:0!important;
+ max-height:none!important;aspect-ratio:auto!important;
+ object-fit:contain!important;object-position:center!important;
+ border:0!important;border-radius:0!important;filter:none!important;
+ transform:none!important;box-shadow:none!important
+}
+.card-mosaic .artwork-thumb::before,
+.card-mosaic .artwork-thumb::after,
+.artist-wall .artwork-thumb::before,
+.artist-wall .artwork-thumb::after{content:none!important;display:none!important}
+.card-mosaic .artwork-thumb:hover img,
+.artist-wall .artwork-thumb:hover img{
+ transform:none!important;filter:brightness(1.045)!important
+}
+/* Compact, readable identification under the artwork, not a giant black bar. */
+.card-meta,.card-footer{
+ position:static!important;inset:auto!important;top:auto!important;
+ left:auto!important;right:auto!important;bottom:auto!important;
+ transform:none!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+ width:100%;height:auto;min-height:0;
+ background:transparent!important;
+ color:var(--ink);box-shadow:none;z-index:auto
+}
+.card-meta{
+ order:2;display:flex;flex-direction:row;
+ align-items:center;justify-content:space-between;gap:10px;
+ padding:13px clamp(13px,1.5vw,19px) 6px
+}
+.card-heading{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1}
+.card-name{
+ margin:0;font-size:clamp(1.48rem,2.3vw,2.45rem);
+ line-height:1.02;overflow-wrap:break-word
+}
+.card-labels{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.card-handle,.card-count,.card-date{
+ padding:0;border:0;border-radius:0;
+ background:none!important;backdrop-filter:none!important;
+ color:var(--muted);font-size:clamp(13px,.95vw,16px);font-weight:750
+}
+.card-meta .artist-open{
+ flex:0 0 auto;margin:0;align-self:center;
+ padding:12px 15px;min-height:46px;
+ font-size:clamp(15px,1.05vw,18px);line-height:1.2;
+ border-radius:999px
+}
+.card-footer{
+ order:3;display:flex;flex-direction:row;
+ align-items:center;justify-content:space-between;gap:10px;
+ padding:4px clamp(13px,1.5vw,19px) 13px;flex-wrap:wrap
+}
+.card-link-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.card-link-actions .pill,.card-link-actions .ghost{
+ padding:8px 12px;min-height:40px;
+ font-size:clamp(14px,.95vw,16px);line-height:1.2
+}
+.artist-wall{column-count:4;margin:18px 0 44px;padding:0}
+.artist-wall .artwork-thumb{margin-bottom:2px!important}
+
+/* Reintroduce the intended theme-specific fonts. The TwentyX wordmark
+   remains fixed to Dune Rise; body headings follow each visitor's theme. */
 body[data-theme="analog"] .feature-artist-name,
 body[data-theme="analog"] .spotlight-title-wrap h1,
 body[data-theme="analog"] .card-name,
-body[data-theme="analog"] .exhibition-heading h2,
-body[data-theme="heritage"] .brand,
-body[data-theme="heritage"] .twentyx,
-body[data-theme="heritage"] .artist-mark,
+body[data-theme="analog"] .featured-six-name,
+body[data-theme="analog"] .exhibition-heading h2{
+ font-family:'Analog Pixel Calculon','Oxanium',Inter,sans-serif
+}
 body[data-theme="heritage"] .feature-artist-name,
 body[data-theme="heritage"] .spotlight-title-wrap h1,
 body[data-theme="heritage"] .card-name,
+body[data-theme="heritage"] .featured-six-name,
 body[data-theme="heritage"] .exhibition-heading h2{
- font-family:'Oxanium',Inter,system-ui,sans-serif!important
+ font-family:'Heritage Stellari','Oxanium',Inter,sans-serif
 }
-.card-meta .card-name{font-size:clamp(1.75rem,2.55vw,2.65rem);line-height:.97;letter-spacing:-.035em}
-.card-meta .card-overline{font-size:clamp(14px,1vw,18px)}
-.card-meta .card-handle,.card-meta .card-count,.card-footer .card-date{font-size:clamp(14px,1.05vw,18px)}
-.top-actions button,.top-actions a,.spotlight-main-actions button,.spotlight-main-actions a,
-.view-switch button,.card-meta button,.card-footer a{
- font-family:Inter,system-ui,sans-serif!important;font-weight:850!important;
+body[data-theme="analog"] .brand-presenter{font-family:'Analog Multivac','Dune Rise',Inter,sans-serif}
+body[data-theme="heritage"] .brand-presenter{font-family:'Heritage SAIBA','Dune Rise',Inter,sans-serif}
+
+@media(max-width:1100px){
+ .feature-chamber{grid-template-columns:1fr;min-height:0}
+ .feature-artwork{height:clamp(410px,65vw,680px);max-height:none}
+ .feature-caption{padding:22px clamp(18px,4vw,40px) 28px}
+ .feature-artist-name{font-size:clamp(2.1rem,6vw,4rem)}
+ .featured-six-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .featured-six-card{height:clamp(300px,49vw,560px)}
+ .card-meta{flex-direction:column;align-items:flex-start}
+ .card-meta .artist-open{align-self:flex-start}
 }
-.top-actions button,.top-actions a{font-size:clamp(15px,1.05vw,19px)!important}
-.spotlight-main-actions button,.spotlight-main-actions a,
-.view-switch button{font-size:clamp(16px,1.08vw,20px)!important}
-.feature-section .feature-caption-top,.feature-section .feature-caption-kicker,
-.hero-superline,.feature-program-head .overline{font-family:Inter,system-ui,sans-serif!important}
 @media(max-width:720px){
- .card-meta .card-name{font-size:clamp(1.7rem,6.5vw,2.25rem)}
- .card-footer a,.card-meta button{font-size:16px!important}
+ .top-feature-schedule{width:100vw;margin-left:calc(50% - 50vw)}
+ .feature-section,.featured-six-band{width:100vw;margin-left:calc(50% - 50vw)}
+ .feature-section .feature-label-row{padding:10px 16px}
+ .feature-art-wrapper{padding:9px}
+ .feature-artwork{height:clamp(340px,87vw,540px);padding:3px}
+ .feature-caption{padding:18px}
+ .feature-artist-name{font-size:clamp(2rem,8vw,3.1rem)}
+ .featured-six-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .featured-six-card{height:clamp(245px,58vw,420px)}
+ .featured-six-heading{padding:16px}
+ .featured-six-aside{margin-left:0}
+ .featured-six-name{font-size:clamp(1.15rem,3.65vw,1.8rem)}
+ .home-gallery{grid-template-columns:1fr;gap:12px}
+ .card-mosaic,.artist-wall{column-count:3}
+ .card-meta{flex-direction:row;align-items:center}
+ .card-footer{flex-direction:row;align-items:center}
+ .card-meta .artist-open{align-self:center}
+ .hero{padding:26px 16px 45px}
+}
+@media(max-width:440px){
+ .card-mosaic,.artist-wall{column-count:3}
+ .card-meta{flex-direction:column;align-items:flex-start}
+ .card-meta .artist-open{align-self:stretch}
+ .card-footer{flex-direction:column;align-items:flex-start}
+ .featured-six-card{height:clamp(230px,70vw,345px)}
+ .featured-six-gallery{grid-template-columns:1fr}
+ .featured-six-name{font-size:clamp(1.38rem,6vw,1.95rem)}
+}
+@media(prefers-reduced-motion:reduce){
+ .featured-six-card,.featured-six-art>img{transition:none}
+ .featured-six-card:hover .featured-six-art>img{transform:none}
 }

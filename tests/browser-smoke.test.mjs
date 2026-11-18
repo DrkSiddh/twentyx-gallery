@@ -142,15 +142,15 @@ test('fullscreen autoplay hides controls but restores them on interaction or pau
 });
 
 
-test('chronological arrival gallery and priority-first full rotation cycle',async()=>{
+test('newest-to-oldest arrivals and priority-first full feature rotation',async()=>{
  const t=boot();
  try{
   await new Promise(done=>setTimeout(done,60));
   const priority=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim'];
   const cards=[...t.doc.querySelectorAll('.collection-card')].map(x=>x.querySelector('.card-handle').textContent.toLowerCase());
   const seed=JSON.parse(t.doc.querySelector('#seeded-artists').textContent);
-  const chronological=[...seed].sort((a,b)=>a.postId.localeCompare(b.postId)).map(a=>'@'+a.handle.toLowerCase()+' on x');
-  assert.deepEqual(cards,chronological,'gallery block order must match first-arrived X posts');
+  const recentFirst=[...seed].sort((a,b)=>b.postId.localeCompare(a.postId)).map(a=>'@'+a.handle.toLowerCase()+' on x');
+  assert.deepEqual(cards,recentFirst,'gallery blocks must show newest artist posts first');
   assert.ok(cards.length===16);
   const hour=Math.floor(Date.now()/3600000);
   const scheduled=Array.from({length:cards.length},(_,i)=>t.win.currentFeature((hour+i)*3600000).artist);
@@ -331,7 +331,7 @@ test('ArtVision branding is not duplicated, ticker is above hero, and mailing li
  }finally{t.close()}
 });
 
-test('every complete artist card has same-art backdrop, 20 uncropped tiles, date label and usable calls to action',async()=>{
+test('gallery artist cards have no artwork matte, 20 natural-size uncut images and concise metadata',async()=>{
  const t=boot();
  try{
   await new Promise(done=>setTimeout(done,40));
@@ -340,7 +340,7 @@ test('every complete artist card has same-art backdrop, 20 uncropped tiles, date
   for(const card of cards){
    const artworks=card.querySelectorAll('.card-mosaic .artwork-thumb');
    assert.equal(artworks.length,20);
-   assert.ok([...artworks].every(tile=>tile.style.getPropertyValue('--artwork-source').includes('pbs.twimg.com/media/')));
+   assert.ok([...artworks].every(tile=>!tile.style.getPropertyValue('--artwork-source')),'artwork-grid tiles must not paint duplicate blur backgrounds');
    assert.match(card.querySelector('.card-handle').textContent,/@.* on X/);
    assert.match(card.querySelector('.card-date').textContent,/\d{2} \d{2} \d{4} curation/);
    assert.ok(card.querySelector('.card-explore'));
@@ -349,7 +349,52 @@ test('every complete artist card has same-art backdrop, 20 uncropped tiles, date
   const css=readFileSync('styles.css','utf8');
   assert.match(css,/\.card-mosaic \.artwork-thumb img/);
   assert.match(css,/object-fit:contain/);
-  assert.match(css,/perspective:1000px/);
-  assert.match(css,/translateZ\(20px\)/);
+  assert.match(css,/column-count:4;column-gap:2px/);
+  assert.ok(css.includes('height:auto!important'),'tile height must be intrinsic');
+  assert.ok(css.includes('content:none!important'),'blurred thumbnail layers must be removed');
+ }finally{t.close()}
+});
+
+
+test('art leads: XXL then six curator picks then short editorial intro, all before gallery blocks',async()=>{
+ const t=boot();
+ try{
+  await new Promise(done=>setTimeout(done,65));
+  const home=t.doc.querySelector('#home-view');
+  const feature=home.querySelector('.feature-section');
+  const selected=home.querySelector('#featured-six');
+  const hero=home.querySelector('.hero');
+  const gallery=home.querySelector('#home-gallery');
+  const order=[feature,selected,hero,gallery];
+  for(let i=1;i<order.length;i++){
+   assert.ok(order[i-1].compareDocumentPosition(order[i]) & t.win.Node.DOCUMENT_POSITION_FOLLOWING,'art before editorial before archive');
+  }
+  const featured=[...t.doc.querySelectorAll('.featured-six-card')];
+  assert.equal(featured.length,6);
+  const handles=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim'];
+  const seed=JSON.parse(t.doc.querySelector('#seeded-artists').textContent);
+  const expected=handles.map(handle=>seed.find(a=>a.handle.toLowerCase()===handle).name);
+  assert.deepEqual(featured.map(x=>x.querySelector('.featured-six-name').textContent),expected);
+  assert.ok(featured.every(x=>x.querySelector('.featured-six-art img')));
+  assert.ok(featured.every(x=>x.querySelector('.featured-six-art').style.getPropertyValue('--artwork-source')));
+  featured[0].click();
+  assert.equal(t.doc.querySelector('#artist-title').textContent,'Skelevaggio');
+ }finally{t.close()}
+});
+
+test('theme fonts restored and permanent TwentyX logo font fixed; ticker flush edge-to-edge',async()=>{
+ const t=boot();
+ try{
+  await new Promise(done=>setTimeout(done,50));
+  const css=readFileSync('styles.css','utf8');
+  assert.ok(css.includes("font-family:'Analog Pixel Calculon'"));
+  assert.ok(css.includes("font-family:'Heritage Stellari'"));
+  assert.ok(css.includes("font-family:'Analog Multivac'"));
+  assert.ok(css.includes("font-family:'Heritage SAIBA'"));
+  assert.ok(css.includes(".brand-wordmark"));
+  assert.ok(css.includes("font-family:'Dune Rise','Oxanium',sans-serif!important"));
+  assert.equal(css.includes('CONSOLIDATED EDITORIAL TYPOGRAPHY'),false,'theme-level font flattening must stay removed');
+  assert.ok(css.includes('border-radius:0!important'),'ticker is edge to edge');
+  assert.equal(t.doc.querySelector('.top-feature-schedule .feature-ticker-track')!==null,true);
  }finally{t.close()}
 });
