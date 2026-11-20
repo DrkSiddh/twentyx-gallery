@@ -38,8 +38,7 @@ Automated discovery continues to require #TwentyX.
 The November 2026 editorial expansion includes ink🖌relic, Elyris 🍉,
 werbug (@iridescent_bug), Exolorian, and J 👑. The published artist list is
 restored from the complete protected archive plus two valid published-only collections (AndyyDrawzz and Nikolas Draper-Ivey), retaining prior exhibitions. The legacy Star41 post includes an X video and is preserved in the pending mixed-media queue rather than being silently lost or misrepresented as twenty photos.
-@ctwlk is displayed as a featured creative account with a link to X, without
-inventing artwork or counting it as a twenty-work exhibition.
+@ctwlk subsequently published an original #TwentyX post on November 20, 2026 with 20 verified distinct images (https://x.com/ctwlk/status/2123831155942453451). That post is now a full exhibition, one of nine artwork-backed featured artist presentations, not merely an external profile tile.
 
 ## Submit new candidates
 A future collector can write to `data/inbox.json`. The publisher accepts JSON objects like:

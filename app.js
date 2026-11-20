@@ -10,9 +10,7 @@ const create=(tag,className,text)=>{
 };
 const POSTS='https://x.com/i/communities/1835009931231322257';
 const CANONICAL='https://twentyx.artvision.today/';
-const PINNED=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim'];
-// @ctwlk is a featured creator profile, never a made-up 20-work collection.
-const FEATURED_CREATOR={handle:'ctwlk',name:'CTWLK XR',url:'https://x.com/ctwlk'};
+const PINNED=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim','exolorian','jjjjere','ctwlk'];
 const THEME_IDS=['violet','analog','heritage','nostalgia','glitch'];
 const FEATURE_HOUR_MS=3600000;
 let lastFeatureHour=null,currentTheme='violet',pendingXUrl='';
@@ -292,7 +290,7 @@ function renderFeatureTicker(){
   }
  }
 }
-let featuredSixSignature='';
+let featuredArtistsSignature='';
 
 /* Landscape eligibility is determined using each original image's actual dimensions. */
 async function renderArrivalImage(){
@@ -325,42 +323,33 @@ async function renderArrivalImage(){
  }
 }
 
-/** A dedicated, large second art display: only the six requested priority artists. */
-function renderFeaturedSix(){
+/** Nine artist-curated exhibitions, all linking to their actual 20-artwork rooms. */
+function renderFeaturedArtists(){
  const gallery=byId('featured-six-gallery');if(!gallery)return;
  const highlighted=PINNED.map(handle=>artists.find(a=>artistHandle(a).toLowerCase()===handle)).filter(Boolean);
- const signature=highlighted.map(a=>artistID(a)).join(',')+'|'+FEATURED_CREATOR.handle;
- if(signature===featuredSixSignature&&gallery.children.length===highlighted.length+1)return;
- featuredSixSignature=signature;
+ const signature=highlighted.map(a=>artistID(a)).join(',');
+ if(signature===featuredArtistsSignature&&gallery.children.length===highlighted.length)return;
+ featuredArtistsSignature=signature;
  gallery.replaceChildren();
  highlighted.forEach((a,index)=>{
   const tile=button('','featured-six-card',()=>goArtist(a));
-  tile.setAttribute('aria-label','Enter '+a.name+'—twenty original artworks');
+  const handle=artistHandle(a).toLowerCase();
+  tile.setAttribute('aria-label','Enter '+a.name+'—twenty original artworks by @'+handle);
   const artwork=create('span','featured-six-art');
   const src=a.media[0];
   setArtBackdrop(artwork,src);
-  const img=create('img');img.src=src;img.alt='Original work from '+a.name+' exhibition, shown in full without cropping';
+  const img=create('img');
+  img.src=src;img.alt='Original artwork from @'+handle+' exhibition, presented without cropping';
   img.loading=index<3?'eager':'lazy';img.decoding='async';img.referrerPolicy='no-referrer';
   artwork.append(img);
   const label=create('span','featured-six-label');
-  label.append(create('strong','featured-six-name',a.name),create('span','featured-six-arrow','↗'));
+  const displayName=handle==='ctwlk'?'CTWLK XR · @ctwlk':a.name;
+  label.append(create('strong','featured-six-name',displayName),create('span','featured-six-arrow','↗'));
   const explore=create('span','featured-six-cta','Explore the 20 ↗');
   explore.setAttribute('aria-hidden','true');
   tile.append(artwork,explore,label);
   gallery.append(tile);
  });
- // Profile-only spotlight: visitors can discover CTWLK without misrepresenting a collection.
- const profile=create('a','featured-six-card featured-creator-card');
- profile.href=FEATURED_CREATOR.url;profile.target='_blank';profile.rel='noopener noreferrer';
- profile.setAttribute('aria-label','Visit @'+FEATURED_CREATOR.handle+' on X');
- const art=create('span','featured-six-art featured-creator-art');
- art.append(create('span','featured-creator-wordmark','CTWLK'),create('span','featured-creator-kicker','ART · FASHION · XR'));
- const label=create('span','featured-six-label');
- label.append(create('strong','featured-six-name','@'+FEATURED_CREATOR.handle),create('span','featured-six-arrow','↗'));
- const explore=create('span','featured-six-cta','Explore CTWLK on X ↗');
- explore.setAttribute('aria-hidden','true');
- profile.append(art,explore,label);
- gallery.append(profile);
 }
 
 /** The backdrop is always sampled from the identical original art, never a stock fill. */
@@ -371,7 +360,7 @@ function setArtBackdrop(surface,imageUrl){
 function featureWork(next=false){
  const state=currentFeature();
  if(!state)return;
- renderFeaturedSix();
+ renderFeaturedArtists();
  renderFeatureTicker();
  const selected=state.artist;
  const artistChanged=!featuredArtist||artistID(featuredArtist)!==artistID(selected)||lastFeatureHour!==state.hour;
@@ -501,7 +490,7 @@ function renderHome(){
   card.append(grid);
   // The gallery image begins at the very top; the main action stays in
   // its upper-right corner rather than following the entire image wall.
-  /* The top six alone carry the Explore the 20 artwork overlay. */
+  /* Featured artist works carry the Explore the 20 artwork overlay. */
   const head=create('div','card-meta');
   const titleWrap=create('div','card-heading');
   const title=create('h3','card-name');title.append(button(a.name,'artist-name-link',()=>goArtist(a)));titleWrap.append(title);
