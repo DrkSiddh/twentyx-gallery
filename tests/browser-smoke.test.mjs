@@ -53,7 +53,7 @@ test('slideshow selection opens and shows an actual artwork',async()=>{
   await new Promise(done=>setTimeout(done,40));
   t.doc.querySelector('#choose-slideshow').click();
   assert.ok(t.doc.querySelector('#selection-modal').open,'selection dialog should open');
-  assert.equal(t.doc.querySelectorAll('.checkartist').length,17);
+  assert.equal(t.doc.querySelectorAll('.checkartist').length,24);
   t.doc.querySelector('#launch-selection').click();
   assert.ok(t.doc.querySelector('#cinema').classList.contains('active'));
   assert.match(t.doc.querySelector('#cinema-img').src,/pbs\.twimg\.com\/media/);
@@ -153,7 +153,7 @@ test('newest-to-oldest arrivals and priority-first full feature rotation',async(
   const seed=JSON.parse(t.doc.querySelector('#seeded-artists').textContent);
   const recentFirst=[...seed].sort((a,b)=>b.postId.localeCompare(a.postId)).map(a=>'@'+a.handle.toLowerCase()+' on x');
   assert.deepEqual(cards,recentFirst,'gallery blocks must show newest artist posts first');
-  assert.ok(cards.length===17);
+  assert.ok(cards.length===24);
   const hour=Math.floor(Date.now()/3600000);
   const scheduled=Array.from({length:cards.length},(_,i)=>t.win.currentFeature((hour+i)*3600000).artist);
   const featuredLength=cards.length-1;
@@ -340,7 +340,7 @@ test('gallery artist cards have no artwork matte, 20 natural-size uncut images a
  try{
   await new Promise(done=>setTimeout(done,40));
   const cards=[...t.doc.querySelectorAll('.collection-card')];
-  assert.equal(cards.length,17);
+  assert.equal(cards.length,24);
   for(const card of cards){
    const artworks=card.querySelectorAll('.card-mosaic .artwork-thumb');
    assert.equal(artworks.length,20);
