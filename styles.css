@@ -2539,21 +2539,6 @@ body[data-view="artist"] .artist-room-display .stage-footer{padding-top:10px}
  transform:none!important;max-width:100%!important;max-height:100%!important
 }
 .feature-artwork::before{content:none!important}
-.featured-creator-art{
- background:radial-gradient(circle at 65% 25%,rgba(255,218,239,.24),transparent 55%),
- linear-gradient(145deg,#1b1531,#462b5b 48%,#0c1d30);
- display:flex!important;flex-direction:column!important;justify-content:center;
- align-items:center;gap:12px
-}
-.featured-creator-wordmark{
- font:900 clamp(3rem,6.5vw,7rem)/1 'Computerist','Dune Rise',sans-serif;
- letter-spacing:.045em;
- background:linear-gradient(110deg,#fff,#f4a2c8 50%,#a3ddff);
- background-clip:text;-webkit-background-clip:text;color:transparent
-}
-.featured-creator-kicker{
- font-size:clamp(.7rem,1vw,1rem);letter-spacing:.23em;font-weight:800;color:#f8d9eb
-}
 .arrival-curations{
  display:flex;align-items:center;gap:9px;overflow-x:auto;
  scrollbar-width:thin;padding:14px clamp(18px,4vw,70px);
