@@ -11,6 +11,8 @@ const create=(tag,className,text)=>{
 const POSTS='https://x.com/i/communities/1835009931231322257';
 const CANONICAL='https://twentyx.artvision.today/';
 const PINNED=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim'];
+// @ctwlk is a featured creator profile, never a made-up 20-work collection.
+const FEATURED_CREATOR={handle:'ctwlk',name:'CTWLK XR',url:'https://x.com/ctwlk'};
 const THEME_IDS=['violet','analog','heritage','nostalgia','glitch'];
 const FEATURE_HOUR_MS=3600000;
 let lastFeatureHour=null,currentTheme='violet',pendingXUrl='';
@@ -327,8 +329,8 @@ async function renderArrivalImage(){
 function renderFeaturedSix(){
  const gallery=byId('featured-six-gallery');if(!gallery)return;
  const highlighted=PINNED.map(handle=>artists.find(a=>artistHandle(a).toLowerCase()===handle)).filter(Boolean);
- const signature=highlighted.map(a=>artistID(a)).join(',');
- if(signature===featuredSixSignature&&gallery.children.length===highlighted.length)return;
+ const signature=highlighted.map(a=>artistID(a)).join(',')+'|'+FEATURED_CREATOR.handle;
+ if(signature===featuredSixSignature&&gallery.children.length===highlighted.length+1)return;
  featuredSixSignature=signature;
  gallery.replaceChildren();
  highlighted.forEach((a,index)=>{
@@ -337,18 +339,30 @@ function renderFeaturedSix(){
   const artwork=create('span','featured-six-art');
   const src=a.media[0];
   setArtBackdrop(artwork,src);
-  const img=create('img');img.src=src;img.alt='Original work from '+a.name+' exhibition';
+  const img=create('img');img.src=src;img.alt='Original work from '+a.name+' exhibition, shown in full without cropping';
   img.loading=index<3?'eager':'lazy';img.decoding='async';img.referrerPolicy='no-referrer';
   artwork.append(img);
   const label=create('span','featured-six-label');
-  label.append(create('strong','featured-six-name',a.name));
-  label.append(create('span','featured-six-arrow','↗'));
+  label.append(create('strong','featured-six-name',a.name),create('span','featured-six-arrow','↗'));
   const explore=create('span','featured-six-cta','Explore the 20 ↗');
   explore.setAttribute('aria-hidden','true');
   tile.append(artwork,explore,label);
   gallery.append(tile);
  });
+ // Profile-only spotlight: visitors can discover CTWLK without misrepresenting a collection.
+ const profile=create('a','featured-six-card featured-creator-card');
+ profile.href=FEATURED_CREATOR.url;profile.target='_blank';profile.rel='noopener noreferrer';
+ profile.setAttribute('aria-label','Visit @'+FEATURED_CREATOR.handle+' on X');
+ const art=create('span','featured-six-art featured-creator-art');
+ art.append(create('span','featured-creator-wordmark','CTWLK'),create('span','featured-creator-kicker','ART · FASHION · XR'));
+ const label=create('span','featured-six-label');
+ label.append(create('strong','featured-six-name','@'+FEATURED_CREATOR.handle),create('span','featured-six-arrow','↗'));
+ const explore=create('span','featured-six-cta','Explore CTWLK on X ↗');
+ explore.setAttribute('aria-hidden','true');
+ profile.append(art,explore,label);
+ gallery.append(profile);
 }
+
 /** The backdrop is always sampled from the identical original art, never a stock fill. */
 function setArtBackdrop(surface,imageUrl){
  if(!surface||!imageUrl)return;
