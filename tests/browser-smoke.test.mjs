@@ -32,12 +32,12 @@ test('inline script boots with live statistics and working search',async()=>{
  try{
   await new Promise(done=>setTimeout(done,40));
   assert.deepEqual(t.errors.filter(e=>!e.startsWith('WARN: Live refresh unavailable')),[],t.errors.join('\n'));
-  assert.equal(t.doc.getElementById('artist-count').textContent,'22');
-  assert.equal(t.doc.getElementById('work-count').textContent,'440');
-  assert.equal(t.doc.querySelectorAll('.collection-card').length,22);
+  assert.equal(t.doc.getElementById('artist-count').textContent,'24');
+  assert.equal(t.doc.getElementById('work-count').textContent,'480');
+  assert.equal(t.doc.querySelectorAll('.collection-card').length,24);
   assert.match(t.doc.querySelector('#feature-image').src,/pbs\.twimg\.com\/media/);
   assert.ok(JSON.parse(t.doc.querySelector('#seeded-artists').textContent).some(a=>a.name===t.doc.querySelector('#feature-title').textContent),'featured work is from an actual artist');
-  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,440);
+  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,480);
   const input=t.doc.querySelector('#search');
   input.value='Stunnifer';input.dispatchEvent(new t.win.Event('input',{bubbles:true}));
   assert.equal(t.doc.querySelectorAll('.collection-card').length,1,'search should filter the exhibit');
