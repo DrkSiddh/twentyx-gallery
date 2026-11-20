@@ -2511,3 +2511,66 @@ body[data-view="artist"] .artist-room-display .stage-footer{padding-top:10px}
  #cinema.active.playing.controls-hidden .cinema-controls-rail{padding:0}
  #cinema.active.playing.controls-hidden .cinema-viewport{padding:4px!important}
 }
+/* Exhibition feature: entire original artwork, including edges, always stays visible. */
+.featured-six-card{display:flex!important;flex-direction:column!important}
+.featured-six-art{
+ flex:1 1 auto!important;min-height:0!important;height:auto!important;
+ width:100%!important;padding:clamp(10px,1.25vw,22px)!important;
+ box-sizing:border-box!important;overflow:hidden
+}
+.featured-six-art::before{content:none!important}
+.featured-six-art>img{
+ display:block!important;width:100%!important;height:100%!important;
+ object-fit:contain!important;object-position:center!important;
+ transform:none!important;max-width:100%!important;max-height:100%!important
+}
+.featured-six-card:hover .featured-six-art>img,
+.featured-six-card:focus-visible .featured-six-art>img{transform:none!important}
+.featured-six-label{
+ position:relative!important;inset:auto!important;flex:0 0 auto;
+ min-height:70px;box-sizing:border-box;align-items:center;
+ padding:12px clamp(16px,1.6vw,26px)!important;
+ background:color-mix(in srgb,var(--glass) 93%,#050718)!important;
+ backdrop-filter:none!important
+}
+.featured-six-card>.featured-six-cta{top:12px;right:12px;bottom:auto;z-index:5}
+.feature-artwork>img,.feature-artwork:hover>img{
+ object-fit:contain!important;object-position:center!important;
+ transform:none!important;max-width:100%!important;max-height:100%!important
+}
+.feature-artwork::before{content:none!important}
+.featured-creator-art{
+ background:radial-gradient(circle at 65% 25%,rgba(255,218,239,.24),transparent 55%),
+ linear-gradient(145deg,#1b1531,#462b5b 48%,#0c1d30);
+ display:flex!important;flex-direction:column!important;justify-content:center;
+ align-items:center;gap:12px
+}
+.featured-creator-wordmark{
+ font:900 clamp(3rem,6.5vw,7rem)/1 'Computerist','Dune Rise',sans-serif;
+ letter-spacing:.045em;
+ background:linear-gradient(110deg,#fff,#f4a2c8 50%,#a3ddff);
+ background-clip:text;-webkit-background-clip:text;color:transparent
+}
+.featured-creator-kicker{
+ font-size:clamp(.7rem,1vw,1rem);letter-spacing:.23em;font-weight:800;color:#f8d9eb
+}
+.arrival-curations{
+ display:flex;align-items:center;gap:9px;overflow-x:auto;
+ scrollbar-width:thin;padding:14px clamp(18px,4vw,70px);
+ background:var(--glass);border-bottom:1px solid var(--line)
+}
+.arrival-curations-heading{display:flex;flex-direction:column;flex:0 0 auto;margin-right:12px;line-height:1.3}
+.arrival-curations-heading strong{color:var(--pink);font-size:12px;letter-spacing:.16em}
+.arrival-curations-heading span{font-size:12px;color:var(--muted)}
+.arrival-curations a{
+ flex:0 0 auto;display:inline-flex;align-items:center;min-height:42px;
+ padding:9px 16px;border:1px solid var(--line);border-radius:999px;
+ color:inherit;text-decoration:none;font-weight:750;font-size:clamp(12px,1vw,15px);
+ background:color-mix(in srgb,var(--glass) 75%,transparent)
+}
+.arrival-curations a:hover,.arrival-curations a:focus-visible{border-color:var(--pink);color:var(--pink)}
+@media(max-width:720px){
+ .featured-six-label{min-height:66px}
+ .arrival-curations{padding:12px 16px}
+ .arrival-curations-heading{margin-right:5px}
+}
