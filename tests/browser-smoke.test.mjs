@@ -32,12 +32,12 @@ test('inline script boots with live statistics and working search',async()=>{
  try{
   await new Promise(done=>setTimeout(done,40));
   assert.deepEqual(t.errors.filter(e=>!e.startsWith('WARN: Live refresh unavailable')),[],t.errors.join('\n'));
-  assert.equal(t.doc.getElementById('artist-count').textContent,'17');
-  assert.equal(t.doc.getElementById('work-count').textContent,'340');
-  assert.equal(t.doc.querySelectorAll('.collection-card').length,17);
+  assert.equal(t.doc.getElementById('artist-count').textContent,'24');
+  assert.equal(t.doc.getElementById('work-count').textContent,'480');
+  assert.equal(t.doc.querySelectorAll('.collection-card').length,24);
   assert.match(t.doc.querySelector('#feature-image').src,/pbs\.twimg\.com\/media/);
   assert.ok(JSON.parse(t.doc.querySelector('#seeded-artists').textContent).some(a=>a.name===t.doc.querySelector('#feature-title').textContent),'featured work is from an actual artist');
-  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,340);
+  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,480);
   const input=t.doc.querySelector('#search');
   input.value='Stunnifer';input.dispatchEvent(new t.win.Event('input',{bubbles:true}));
   assert.equal(t.doc.querySelectorAll('.collection-card').length,1,'search should filter the exhibit');
@@ -53,7 +53,7 @@ test('slideshow selection opens and shows an actual artwork',async()=>{
   await new Promise(done=>setTimeout(done,40));
   t.doc.querySelector('#choose-slideshow').click();
   assert.ok(t.doc.querySelector('#selection-modal').open,'selection dialog should open');
-  assert.equal(t.doc.querySelectorAll('.checkartist').length,17);
+  assert.equal(t.doc.querySelectorAll('.checkartist').length,24);
   t.doc.querySelector('#launch-selection').click();
   assert.ok(t.doc.querySelector('#cinema').classList.contains('active'));
   assert.match(t.doc.querySelector('#cinema-img').src,/pbs\.twimg\.com\/media/);
@@ -153,7 +153,7 @@ test('newest-to-oldest arrivals and priority-first full feature rotation',async(
   const seed=JSON.parse(t.doc.querySelector('#seeded-artists').textContent);
   const recentFirst=[...seed].sort((a,b)=>b.postId.localeCompare(a.postId)).map(a=>'@'+a.handle.toLowerCase()+' on x');
   assert.deepEqual(cards,recentFirst,'gallery blocks must show newest artist posts first');
-  assert.ok(cards.length===17);
+  assert.ok(cards.length===24);
   const hour=Math.floor(Date.now()/3600000);
   const scheduled=Array.from({length:cards.length},(_,i)=>t.win.currentFeature((hour+i)*3600000).artist);
   const featuredLength=cards.length-1;
@@ -340,7 +340,7 @@ test('gallery artist cards have no artwork matte, 20 natural-size uncut images a
  try{
   await new Promise(done=>setTimeout(done,40));
   const cards=[...t.doc.querySelectorAll('.collection-card')];
-  assert.equal(cards.length,17);
+  assert.equal(cards.length,24);
   for(const card of cards){
    const artworks=card.querySelectorAll('.card-mosaic .artwork-thumb');
    assert.equal(artworks.length,20);
@@ -372,20 +372,25 @@ test('featured six art comes before wordmark, ticker, wide XXL, then compact gal
   const ticker=t.doc.querySelector('.top-feature-schedule');
   const hero=home.querySelector('.hero');
   const gallery=home.querySelector('#home-gallery');
-  const order=[t.doc.querySelector('#arrival-image'),selected,header,ticker,feature,hero,gallery];
+  const order=[t.doc.querySelector('#arrival-image'),selected,t.doc.querySelector('.arrival-curations'),header,ticker,feature,hero,gallery];
   assert.ok(order.every(Boolean),'all required elements must be present');
   for(let i=1;i<order.length;i++){
    assert.ok(order[i-1].compareDocumentPosition(order[i]) & t.win.Node.DOCUMENT_POSITION_FOLLOWING,'six feature artworks first, then wordmark, ticker, XXL and gallery');
   }
   const featured=[...t.doc.querySelectorAll('.featured-six-card')];
-  assert.equal(featured.length,6);
+  assert.equal(featured.length,7);
   const handles=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim'];
   const seed=JSON.parse(t.doc.querySelector('#seeded-artists').textContent);
   const expected=handles.map(handle=>seed.find(a=>a.handle.toLowerCase()===handle).name);
-  assert.deepEqual(featured.map(x=>x.querySelector('.featured-six-name').textContent),expected);
-  assert.ok(featured.every(x=>x.querySelector('.featured-six-art img')));
-  assert.ok(featured.every(x=>x.querySelector('.featured-six-art').style.getPropertyValue('--artwork-source')));
-  assert.ok(featured.every(x=>x.querySelector('.featured-six-cta')?.textContent.includes('Explore the 20')),'featured tile CTA visibly sits above artwork');
+  assert.deepEqual(featured.slice(0,6).map(x=>x.querySelector('.featured-six-name').textContent),expected);
+   assert.equal(featured[6].querySelector('.featured-six-name').textContent,'@ctwlk');
+   assert.equal(featured[6].getAttribute('href'),'https://x.com/ctwlk');
+  assert.ok(featured.slice(0,6).every(x=>x.querySelector('.featured-six-art img')));
+  assert.ok(featured.slice(0,6).every(x=>x.querySelector('.featured-six-art').style.getPropertyValue('--artwork-source')));
+  assert.ok(featured.slice(0,6).every(x=>x.querySelector('.featured-six-cta')?.textContent.includes('Explore the 20')),'featured exhibitions retain their art CTA');
+   assert.ok(featured[6].querySelector('.featured-six-cta').textContent.includes('CTWLK'));
+   assert.equal(t.doc.querySelectorAll('.arrival-curations a').length,5);
+   assert.match(readFileSync('styles.css','utf8'),/object-fit:contain!important/);
   const css=readFileSync('styles.css','utf8');
   assert.ok(css.includes('.featured-six-card>.featured-six-cta'),'featured CTA has an absolute artwork overlay');
   assert.ok(css.includes('height:clamp(580px,62vw,900px)!important'),'XXL artwork frame uses its full edge-to-edge viewport area');
