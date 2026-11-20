@@ -2574,3 +2574,5 @@ body[data-view="artist"] .artist-room-display .stage-footer{padding-top:10px}
  .arrival-curations{padding:12px 16px}
  .arrival-curations-heading{margin-right:5px}
 }
+/* Solo exhibitions stay entirely artwork-first: only the homepage gets the new-arrivals rail. */
+body[data-view="artist"] .arrival-curations{display:none!important}
