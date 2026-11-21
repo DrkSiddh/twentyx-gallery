@@ -102,5 +102,13 @@
     "reason": "twenty-media-not-proven",
     "observed": null,
     "source": "free-search"
+  },
+  {
+    "id": "2123239061460578681",
+    "handle": "STAR41E",
+    "kind": "review",
+    "reason": "incomplete-photo-media",
+    "observed": null,
+    "source": "known-candidate"
   }
 ]
