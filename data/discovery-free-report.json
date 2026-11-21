@@ -1,7 +1,7 @@
 {
-  "completedAt": "2026-11-21T02:18:33.163Z",
+  "completedAt": "2026-11-21T14:27:05.912Z",
   "method": "public-web+FxEmbed (no paid X API)",
-  "knownExhibitions": 25,
+  "knownExhibitions": 30,
   "candidatesFound": 2,
   "checked": 2,
   "admitted": 0,
@@ -22,37 +22,37 @@
       "source": "FxEmbed search",
       "query": "#TwentyX",
       "readable": false,
-      "error": "HTTP 404"
+      "error": "HTTP 503"
     },
     {
       "source": "FxEmbed search",
       "query": "\"PankyVT\" \"#TwentyX\"",
       "readable": false,
-      "error": "HTTP 404"
+      "error": "HTTP 503"
     },
     {
       "source": "FxEmbed search",
       "query": "\"Elyris\" \"#TwentyX\"",
       "readable": false,
-      "error": "HTTP 404"
+      "error": "HTTP 503"
     },
     {
       "source": "FxEmbed search",
       "query": "from:ok__vision #TwentyX",
       "readable": false,
-      "error": "HTTP 404"
+      "error": "HTTP 503"
     },
     {
       "source": "FxEmbed search",
       "query": "from:PanksterVT #TwentyX",
       "readable": false,
-      "error": "HTTP 404"
+      "error": "HTTP 503"
     },
     {
       "source": "FxEmbed search",
       "query": "from:Elyris_Art #TwentyX",
       "readable": false,
-      "error": "HTTP 404"
+      "error": "HTTP 503"
     }
   ],
   "results": [
