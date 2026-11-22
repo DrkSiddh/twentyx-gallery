@@ -54,20 +54,21 @@ const formatCuration=date=>{
  const [y,m,d]=String(date||'').split('-');
  return d&&m&&y?d+' '+m+' '+y+' curation':'Artist curation';
 };
-function renderCard(a){
+function renderCard(a,index,total){
  const title=esc(a.name),artistHandle=esc(handle(a)),date=esc(a.date||''),slug=artistHandle.toLowerCase();
  const originals=a.media.map((u,i)=>'<a class="artwork-thumb" href="'+esc(a.postUrl)+'" target="_blank" rel="noopener noreferrer" aria-label="Work '+(i+1)+' of 20 by '+title+'"><img src="'+esc(u)+'" loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="Artwork '+(i+1)+' by '+title+'"></a>').join('');
  return '<article class="collection-card" data-artist-handle="'+slug+'" id="artist-'+idOf(a)+'">'
   +'<div class="card-mosaic">'+originals+'</div>'
-  +'<div class="card-meta"><div class="card-heading"><h3 class="card-name"><a class="artist-name-link" href="/@'+slug+'/">'+title+'</a></h3><div class="card-labels"><span class="card-handle">@'+artistHandle+' on X</span><span class="card-count">20 works</span></div></div></div>'
+  +'<div class="card-meta"><span class="collection-sequence">'+String(index+1).padStart(2,'0')+' / '+String(total).padStart(2,'0')+'</span><div class="card-heading"><h3 class="card-name"><a class="artist-name-link" href="/@'+slug+'/">'+title+'</a></h3><div class="card-labels"><span class="card-handle">@'+artistHandle+' on X</span><span class="card-count">20 works</span></div></div></div>'
   +'<div class="card-footer"><span class="card-date" data-raw-date="'+date+'">'+esc(formatCuration(a.date))+'</span>'
   +'<div class="card-link-actions"><a class="pill primary" href="https://twitter.com/intent/follow?screen_name='+artistHandle+'" data-follow="true" target="_blank" rel="noopener noreferrer">Follow on X ↗</a>'
   +'<a class="ghost" href="'+esc(a.postUrl)+'" target="_blank" rel="noopener noreferrer">Original post ↗</a></div></div></article>';
 }
 // Server render only the selected Postphotography room to prevent an
 // uncurated anime-heavy flash before the client-side gallery initializes.
-const frontRoom=new Set(['turonworld','skelevaggio','stunnifer','ctwlk','pepavaggio','giselxphoto','exolorian','jjjjere','allthebots']);
-const initial=ordered.filter(a=>frontRoom.has(handle(a).toLowerCase())).map(renderCard).join('\n');
+const frontRoom=new Set(['turonworld','skelevaggio','stunnifer','ctwlk','pepavaggio','giselxphoto','exolorian','jjjjere','allthebots','ciphervoss']);
+const firstRoom=ordered.filter(a=>frontRoom.has(handle(a).toLowerCase()));
+const initial=firstRoom.map((a,i)=>renderCard(a,i,firstRoom.length)).join('\n');
 const seed=JSON.stringify(ordered).replaceAll('<','\\u003c').replaceAll('>','\\u003e').replaceAll('&','\\u0026');
 let output=html;
 const requireReplace=(from,to)=>{if(!output.includes(from))throw Error('Missing expected HTML anchor: '+from);output=output.replace(from,to)};
