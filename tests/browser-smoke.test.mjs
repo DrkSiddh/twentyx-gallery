@@ -32,12 +32,12 @@ test('inline script boots with live statistics and working search',async()=>{
  try{
   await new Promise(done=>setTimeout(done,40));
   assert.deepEqual(t.errors.filter(e=>!e.startsWith('WARN: Live refresh unavailable')),[],t.errors.join('\n'));
-  assert.equal(t.doc.getElementById('artist-count').textContent,'25');
-  assert.equal(t.doc.getElementById('work-count').textContent,'500');
-  assert.equal(t.doc.querySelectorAll('.collection-card').length,25);
+  assert.equal(t.doc.getElementById('artist-count').textContent,'32');
+  assert.equal(t.doc.getElementById('work-count').textContent,'640');
+  assert.equal(t.doc.querySelectorAll('.collection-card').length,9);
   assert.match(t.doc.querySelector('#feature-image').src,/pbs\.twimg\.com\/media/);
   assert.ok(JSON.parse(t.doc.querySelector('#seeded-artists').textContent).some(a=>a.name===t.doc.querySelector('#feature-title').textContent),'featured work is from an actual artist');
-  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,500);
+  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,180);
   const input=t.doc.querySelector('#search');
   input.value='Stunnifer';input.dispatchEvent(new t.win.Event('input',{bubbles:true}));
   assert.equal(t.doc.querySelectorAll('.collection-card').length,1,'search should filter the exhibit');
@@ -53,7 +53,7 @@ test('slideshow selection opens and shows an actual artwork',async()=>{
   await new Promise(done=>setTimeout(done,40));
   t.doc.querySelector('#choose-slideshow').click();
   assert.ok(t.doc.querySelector('#selection-modal').open,'selection dialog should open');
-  assert.equal(t.doc.querySelectorAll('.checkartist').length,25);
+  assert.equal(t.doc.querySelectorAll('.checkartist').length,32);
   t.doc.querySelector('#launch-selection').click();
   assert.ok(t.doc.querySelector('#cinema').classList.contains('active'));
   assert.match(t.doc.querySelector('#cinema-img').src,/pbs\.twimg\.com\/media/);
@@ -148,16 +148,17 @@ test('newest-to-oldest arrivals and priority-first full feature rotation',async(
  const t=boot();
  try{
   await new Promise(done=>setTimeout(done,60));
-  const priority=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim'];
-  const cards=[...t.doc.querySelectorAll('.collection-card')].map(x=>x.querySelector('.card-handle').textContent.toLowerCase());
+  const priorityHandles=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim','exolorian','jjjjere','ctwlk','turonworld','allthebots','nikdraperivey'];
   const seed=JSON.parse(t.doc.querySelector('#seeded-artists').textContent);
-  const recentFirst=[...seed].sort((a,b)=>b.postId.localeCompare(a.postId)).map(a=>'@'+a.handle.toLowerCase()+' on x');
+  const priority=seed.filter(a=>priorityHandles.includes(a.handle.toLowerCase())).sort((a,b)=>b.postId.localeCompare(a.postId)).map(a=>a.handle.toLowerCase());
+  const cards=[...t.doc.querySelectorAll('.collection-card')].map(x=>x.querySelector('.card-handle').textContent.toLowerCase());
+  const recentFirst=Array.from(t.win.curationArtists('postphotography'),a=>'@'+a.handle.toLowerCase()+' on x');
   assert.deepEqual(cards,recentFirst,'gallery blocks must show newest artist posts first');
-  assert.ok(cards.length===25);
+  assert.ok(cards.length===9);
   const hour=Math.floor(Date.now()/3600000);
-  const scheduled=Array.from({length:cards.length},(_,i)=>t.win.currentFeature((hour+i)*3600000).artist);
-  const featuredLength=cards.length-1;
-  assert.equal(new Set(scheduled.map(x=>x.postUrl)).size,featuredLength,'the sliced Cipher Voss works remain in the gallery, not in solo XXL rotation');
+  const scheduled=Array.from({length:priority.length},(_,i)=>t.win.currentFeature((hour+i)*3600000).artist);
+  const featuredLength=priority.length;
+  assert.equal(new Set(scheduled.map(x=>x.postUrl)).size,featuredLength,'all twelve curated featured artists rotate');
   assert.ok(!scheduled.some(a=>String(a.handle).toLowerCase()==='ciphervoss'));
   assert.equal(t.win.currentFeature((hour+featuredLength)*3600000).artist.postUrl,scheduled[0].postUrl,'featured cycle repeats after all eligible artists');
   const restart=t.win.currentFeature(0).lineup;
@@ -340,7 +341,7 @@ test('gallery artist cards have no artwork matte, 20 natural-size uncut images a
  try{
   await new Promise(done=>setTimeout(done,40));
   const cards=[...t.doc.querySelectorAll('.collection-card')];
-  assert.equal(cards.length,25);
+  assert.equal(cards.length,9);
   for(const card of cards){
    const artworks=card.querySelectorAll('.card-mosaic .artwork-thumb');
    assert.equal(artworks.length,20);
@@ -361,7 +362,7 @@ test('gallery artist cards have no artwork matte, 20 natural-size uncut images a
 });
 
 
-test('nine featured art comes before wordmark, ticker, wide XXL, then compact gallery introduction',async()=>{
+test('twelve newest-first featured original artworks lead the gallery',async()=>{
  const t=boot();
  try{
   await new Promise(done=>setTimeout(done,65));
@@ -375,20 +376,20 @@ test('nine featured art comes before wordmark, ticker, wide XXL, then compact ga
   const order=[t.doc.querySelector('#arrival-image'),selected,t.doc.querySelector('.arrival-curations'),header,ticker,feature,hero,gallery];
   assert.ok(order.every(Boolean),'all required elements must be present');
   for(let i=1;i<order.length;i++){
-   assert.ok(order[i-1].compareDocumentPosition(order[i]) & t.win.Node.DOCUMENT_POSITION_FOLLOWING,'nine featured artworks first, then wordmark, ticker, XXL and gallery');
+   assert.ok(order[i-1].compareDocumentPosition(order[i]) & t.win.Node.DOCUMENT_POSITION_FOLLOWING,'twelve featured artworks first, then wordmark, ticker, XXL and gallery');
   }
   const featured=[...t.doc.querySelectorAll('.featured-six-card')];
-  assert.equal(featured.length,9,'exactly nine artist exhibitions are featured');
-  const handles=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim','exolorian','jjjjere','ctwlk'];
+  assert.equal(featured.length,12,'twelve distinct artist exhibitions are featured');
+  const handles=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim','exolorian','jjjjere','ctwlk','turonworld','allthebots','nikdraperivey'];
   const seed=JSON.parse(t.doc.querySelector('#seeded-artists').textContent);
   assert.ok(handles.every(handle=>seed.some(a=>a.handle.toLowerCase()===handle)),'every featured artist has a verified complete exhibition');
-  const names=handles.map(handle=>handle==='ctwlk'?'CTWLK XR · @ctwlk':seed.find(a=>a.handle.toLowerCase()===handle).name);
+  const names=seed.filter(a=>handles.includes(a.handle.toLowerCase())).sort((a,b)=>b.postId.localeCompare(a.postId)).map(a=>a.handle.toLowerCase()==='ctwlk'?'CTWLK XR · @ctwlk':a.name);
   assert.deepEqual(featured.map(x=>x.querySelector('.featured-six-name').textContent),names);
-  assert.ok(featured.every(x=>x.querySelector('.featured-six-art img')),'all nine features show actual artist artwork');
+  assert.ok(featured.every(x=>x.querySelector('.featured-six-art img')),'all twelve features show actual artist artwork');
   assert.ok(featured.every(x=>x.querySelector('.featured-six-art').style.getPropertyValue('--artwork-source')));
   assert.ok(featured.every(x=>x.querySelector('.featured-six-cta')?.textContent.includes('Explore the 20')));
   assert.equal(t.doc.querySelectorAll('.arrival-curations a').length,6);
-  const ctwlk=featured[8];
+  const ctwlk=featured.find(card=>card.querySelector('.featured-six-name').textContent.includes('CTWLK XR'));
   ctwlk.click();
   assert.equal(t.doc.querySelector('#artist-title').textContent,'CTWLK XR Models');
   assert.equal(t.win.location.pathname,'/@ctwlk/');
@@ -400,7 +401,7 @@ test('nine featured art comes before wordmark, ticker, wide XXL, then compact ga
   assert.ok(css.includes('.featured-six-card>.featured-six-cta'),'featured CTA has an absolute artwork overlay');
   assert.ok(css.includes('height:clamp(580px,62vw,900px)!important'),'XXL artwork frame uses its full edge-to-edge viewport area');
   featured[0].click();
-  assert.equal(t.doc.querySelector('#artist-title').textContent,'Skelevaggio');
+  assert.equal(t.doc.querySelector('#artist-title').textContent,'Futurist Motor Club ✨');
  }finally{t.close()}
 });
 
@@ -548,9 +549,64 @@ test('new CTWLK curation is 20 genuine unique artworks and listed in gallery',as
  const t=boot();
  try{
   await new Promise(done=>setTimeout(done,55));
-  assert.equal(t.doc.getElementById('artist-count').textContent,'25');
-  assert.equal(t.doc.getElementById('work-count').textContent,'500');
-  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,500);
+  assert.equal(t.doc.getElementById('artist-count').textContent,'32');
+  assert.equal(t.doc.getElementById('work-count').textContent,'640');
+  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,180);
   assert.ok([...t.doc.querySelectorAll('.collection-card')].some(x=>x.dataset.artistHandle==='ctwlk'));
+ }finally{t.close()}
+});
+
+test('Postphotography opens by default; anime and all other viewing rooms are opt-in',async()=>{
+ const t=boot();try{
+  await new Promise(done=>setTimeout(done,70));
+  const buttons=[...t.doc.querySelectorAll('#curation-tabs [data-curation]')];
+  assert.deepEqual(buttons.map(x=>x.dataset.curation),['postphotography','sketchbook','illustrated','anime','other','all']);
+  assert.equal(t.doc.querySelector('[data-curation="postphotography"]').getAttribute('aria-selected'),'true');
+  const handles=()=>[...t.doc.querySelectorAll('.collection-card')].map(c=>c.dataset.artistHandle);
+  assert.equal(handles().length,9);
+  assert.ok(handles().includes('allthebots'));
+  assert.ok(handles().includes('turonworld'));
+  assert.ok(!handles().includes('ayyzirly'));
+  t.doc.querySelector('[data-curation="sketchbook"]').click();
+  assert.equal(handles().length,6);
+  assert.ok(handles().includes('iridescent_bug'));
+  assert.ok(handles().includes('andyybzyy'));
+  t.doc.querySelector('[data-curation="illustrated"]').click();
+  assert.equal(handles().length,6);
+  assert.ok(handles().includes('andyybzyy'),'overlap should not duplicate original media');
+  assert.ok(handles().includes('nikdraperivey'));
+  t.doc.querySelector('[data-curation="anime"]').click();
+  assert.equal(handles().length,8);
+  assert.ok(handles().includes('ayyzirly'));
+  assert.ok(!handles().includes('skelevaggio'));
+  t.doc.querySelector('[data-curation="other"]').click();
+  assert.equal(handles().length,4);
+  t.doc.querySelector('[data-curation="all"]').click();
+  assert.equal(handles().length,32);
+  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,640);
+  t.doc.querySelector('[data-curation="postphotography"]').click();
+  const search=t.doc.querySelector('#search');search.value='YenaArt';search.dispatchEvent(new t.win.Event('input',{bubbles:true}));
+  assert.deepEqual(handles(),['yenaarteng'],'artist search traverses every visual genre');
+ }finally{t.close()}
+});
+
+test('verified Futurist Motor Club collection and all twelve newest-first features are present',async()=>{
+ const data=JSON.parse(readFileSync('artists.json','utf8'));
+ const artist=data.find(a=>a.handle==='allthebots');
+ assert.ok(artist);
+ assert.equal(artist.postUrl,'https://x.com/allthebots/status/2124591130381836713');
+ assert.equal(artist.media.length,20);
+ assert.equal(new Set(artist.media).size,20);
+ assert.ok(artist.media.every(u=>u.startsWith('https://pbs.twimg.com/media/')));
+ const t=boot();try{
+  await new Promise(done=>setTimeout(done,65));
+  const featured=[...t.doc.querySelectorAll('.featured-six-card')];
+  assert.equal(featured.length,12);
+  assert.ok(featured[0].querySelector('.featured-six-name').textContent.includes('Futurist Motor Club'));
+  assert.equal(t.doc.querySelectorAll('#arrival-links a').length,6);
+  assert.ok(t.doc.querySelector('#arrival-links a').textContent.includes('Futurist Motor Club'));
+  assert.equal(t.win.currentFeature(0).lineup.length,12);
+  const css=readFileSync('styles.css','utf8');
+  assert.ok(css.includes('.curation-tab[aria-selected="true"]'));
  }finally{t.close()}
 });
