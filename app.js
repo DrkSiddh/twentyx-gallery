@@ -15,7 +15,7 @@ const PINNED=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','
 // Curatorial affinities describe the visual presentation, never an artist's tools
 // or materials. An artist can appear in multiple rooms without duplicating work.
 const CURATION_TABS=[
- {id:'postphotography',name:'#Postphotography',description:'Photography beyond the photograph: staged, recomposed, imagined and transformed image-worlds.',handles:['turonworld','skelevaggio','stunnifer','ctwlk','pepavaggio','giselxphoto','exolorian','jjjjere','allthebots']},
+ {id:'postphotography',name:'#Postphotography',description:'Photography beyond the photograph: staged, recomposed, imagined and transformed image-worlds.',handles:['turonworld','skelevaggio','stunnifer','ctwlk','pepavaggio','giselxphoto','exolorian','jjjjere','allthebots','ciphervoss']},
  {id:'sketchbook',name:'Sketchbook Aesthetic',description:'The intimacy of the page, a line, a gesture, a thought in the making. No assumption about physical or digital process.',handles:['_amaka_o','iridescent_bug','andyybzyy','lovecolors4','hplovebux','dylanbrion71545']},
  {id:'illustrated',name:'Illustrated',description:'Distinctive narrative and image-making through form, graphic imagination and character.',handles:['artxygenishim','nikdraperivey','ink_relic','andyybzyy','periblitzv2','bwizzyart']},
  {id:'anime',name:'Anime',description:'Anime- and manga-influenced visual worlds, given their own dedicated viewing room.',handles:['mheenam_lily7','nikkiyaki_','jellitix','yenaarteng','spalienart','elyris_art','mintshiiii','ayyzirly']},
@@ -394,7 +394,8 @@ function renderFeaturedArtists(){
   artwork.append(img);
   const label=create('span','featured-six-label');
   const displayName=handle==='ctwlk'?'CTWLK XR · @ctwlk':a.name;
-  label.append(create('strong','featured-six-name',displayName),create('span','featured-six-arrow','↗'));
+  const order=create('span','featured-six-number',String(index+1).padStart(2,'0')+' / '+String(highlighted.length).padStart(2,'0'));
+  label.append(order,create('strong','featured-six-name',displayName),create('span','featured-six-arrow','↗'));
   const explore=create('span','featured-six-cta','Explore the 20 ↗');
   explore.setAttribute('aria-hidden','true');
   tile.append(artwork,explore,label);
@@ -557,7 +558,7 @@ function renderHome(){
   ?sortArtists(artists.filter(a=>(a.name+' '+artistHandle(a)).toLowerCase().includes(q)))
   :curationArtists();
  const root=byId('home-gallery');root.replaceChildren();
- shown.forEach(a=>{
+ shown.forEach((a,index)=>{
   const card=create('article','collection-card');card.id='artist-'+artistID(a);card.dataset.artistHandle=artistHandle(a).toLowerCase();
   const grid=create('div','card-mosaic');
   a.media.forEach((_,i)=>grid.append(makeTile(a,i)));
@@ -566,6 +567,7 @@ function renderHome(){
   // its upper-right corner rather than following the entire image wall.
   /* Featured artist works carry the Explore the 20 artwork overlay. */
   const head=create('div','card-meta');
+  head.append(create('span','collection-sequence',String(index+1).padStart(2,'0')+' / '+String(shown.length).padStart(2,'0')));
   const titleWrap=create('div','card-heading');
   const title=create('h3','card-name');title.append(button(a.name,'artist-name-link',()=>goArtist(a)));titleWrap.append(title);
   const labels=create('div','card-labels');
