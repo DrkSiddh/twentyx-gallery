@@ -152,7 +152,7 @@ test('newest-to-oldest arrivals and priority-first full feature rotation',async(
   const seed=JSON.parse(t.doc.querySelector('#seeded-artists').textContent);
   const priority=seed.filter(a=>priorityHandles.includes(a.handle.toLowerCase())).sort((a,b)=>b.postId.localeCompare(a.postId)).map(a=>a.handle.toLowerCase());
   const cards=[...t.doc.querySelectorAll('.collection-card')].map(x=>x.querySelector('.card-handle').textContent.toLowerCase());
-  const recentFirst=t.win.curationArtists('postphotography').map(a=>'@'+a.handle.toLowerCase()+' on x');
+  const recentFirst=Array.from(t.win.curationArtists('postphotography'),a=>'@'+a.handle.toLowerCase()+' on x');
   assert.deepEqual(cards,recentFirst,'gallery blocks must show newest artist posts first');
   assert.ok(cards.length===9);
   const hour=Math.floor(Date.now()/3600000);
