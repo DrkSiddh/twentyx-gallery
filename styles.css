@@ -2641,3 +2641,86 @@ body[data-view="artist"] .arrival-curations{display:none!important}
  .curation-tab{transition:none}
  .curation-tab:hover{transform:none}
 }
+
+
+/* TwentyX v15 — chronological exhibition walk.
+   Column masonry fills TOP-TO-BOTTOM and made the newest entries appear in
+   a vertical stack. Grid fills LEFT-TO-RIGHT before starting the next row.
+   Never crop or resize artwork to fake equal card heights. */
+#home-gallery.home-gallery{
+ display:grid!important;
+ columns:auto!important;
+ column-count:auto!important;
+ column-width:auto!important;
+ column-fill:auto!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ grid-auto-flow:row!important;
+ grid-auto-rows:auto!important;
+ gap:clamp(11px,1.1vw,18px)!important;
+ width:100%;max-width:100%;
+ justify-content:stretch;align-items:start;
+ padding:4px 0 72px
+}
+#home-gallery.home-gallery>.collection-card{
+ display:flex!important;
+ width:100%!important;min-width:0;
+ height:auto!important;max-height:none!important;
+ margin:0!important;
+ break-inside:auto!important;
+ grid-column:auto!important;grid-row:auto!important;
+ align-self:start!important
+}
+/* Cipher's twenty-piece visual narrative remains ONE compact card. */
+#home-gallery.home-gallery>.collection-card[data-artist-handle="ciphervoss"]{
+ display:flex!important;
+ grid-column:auto!important;grid-row:auto!important;
+ height:auto!important;max-height:none!important;
+ break-inside:auto!important;
+ overflow:hidden!important
+}
+#home-gallery.home-gallery>.collection-card[data-artist-handle="ciphervoss"] .card-mosaic{
+ display:grid!important;
+ grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ grid-auto-flow:row!important;
+ grid-template-rows:repeat(4,auto)!important;
+ columns:auto!important;
+ column-count:auto!important;
+ gap:2px!important
+}
+#home-gallery.home-gallery>.collection-card .card-meta{
+ display:flex!important;align-items:flex-start;justify-content:flex-start;
+ gap:10px!important;min-width:0
+}
+#home-gallery.home-gallery>.collection-card .card-heading{
+ flex:1 1 auto;min-width:0
+}
+#home-gallery.home-gallery .collection-sequence,
+.featured-six-gallery .featured-six-number{
+ display:inline-flex!important;
+ flex:0 0 auto;align-self:flex-start;align-items:center;
+ white-space:nowrap!important;writing-mode:horizontal-tb!important;
+ text-orientation:mixed!important;transform:none!important;
+ letter-spacing:.09em;font:800 clamp(11px,.8vw,13px)/1.5 'Oxanium',Inter,system-ui,sans-serif;
+ color:var(--pink);
+ font-variant-numeric:tabular-nums
+}
+#home-gallery.home-gallery .collection-sequence{
+ padding:4px 7px;border:1px solid color-mix(in srgb,var(--pink) 35%,transparent);
+ border-radius:5px;background:color-mix(in srgb,var(--glass) 80%,transparent)
+}
+.featured-six-gallery{
+ grid-auto-flow:row!important;
+}
+.featured-six-gallery .featured-six-label{
+ display:flex!important;flex-direction:row!important;align-items:center!important;
+ gap:clamp(7px,.9vw,14px)!important
+}
+.featured-six-gallery .featured-six-number{align-self:center;color:#f4b6d3}
+.featured-six-gallery .featured-six-name{min-width:0;flex:1;overflow-wrap:anywhere}
+.featured-six-gallery .featured-six-arrow{flex:0 0 auto}
+@media(max-width:1220px){
+ #home-gallery.home-gallery{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:740px){
+ #home-gallery.home-gallery{grid-template-columns:minmax(0,1fr)!important}
+}
