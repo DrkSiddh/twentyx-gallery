@@ -34,10 +34,10 @@ test('inline script boots with live statistics and working search',async()=>{
   assert.deepEqual(t.errors.filter(e=>!e.startsWith('WARN: Live refresh unavailable')),[],t.errors.join('\n'));
   assert.equal(t.doc.getElementById('artist-count').textContent,'32');
   assert.equal(t.doc.getElementById('work-count').textContent,'640');
-  assert.equal(t.doc.querySelectorAll('.collection-card').length,9);
+  assert.equal(t.doc.querySelectorAll('.collection-card').length,10);
   assert.match(t.doc.querySelector('#feature-image').src,/pbs\.twimg\.com\/media/);
   assert.ok(JSON.parse(t.doc.querySelector('#seeded-artists').textContent).some(a=>a.name===t.doc.querySelector('#feature-title').textContent),'featured work is from an actual artist');
-  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,180);
+  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,200);
   const input=t.doc.querySelector('#search');
   input.value='Stunnifer';input.dispatchEvent(new t.win.Event('input',{bubbles:true}));
   assert.equal(t.doc.querySelectorAll('.collection-card').length,1,'search should filter the exhibit');
@@ -154,7 +154,7 @@ test('newest-to-oldest arrivals and priority-first full feature rotation',async(
   const cards=[...t.doc.querySelectorAll('.collection-card')].map(x=>x.querySelector('.card-handle').textContent.toLowerCase());
   const recentFirst=Array.from(t.win.curationArtists('postphotography'),a=>'@'+a.handle.toLowerCase()+' on x');
   assert.deepEqual(cards,recentFirst,'gallery blocks must show newest artist posts first');
-  assert.ok(cards.length===9);
+  assert.ok(cards.length===10);
   const hour=Math.floor(Date.now()/3600000);
   const scheduled=Array.from({length:priority.length},(_,i)=>t.win.currentFeature((hour+i)*3600000).artist);
   const featuredLength=priority.length;
@@ -341,7 +341,7 @@ test('gallery artist cards have no artwork matte, 20 natural-size uncut images a
  try{
   await new Promise(done=>setTimeout(done,40));
   const cards=[...t.doc.querySelectorAll('.collection-card')];
-  assert.equal(cards.length,9);
+  assert.equal(cards.length,10);
   for(const card of cards){
    const artworks=card.querySelectorAll('.card-mosaic .artwork-thumb');
    assert.equal(artworks.length,20);
@@ -563,9 +563,10 @@ test('Postphotography opens by default; anime and all other viewing rooms are op
   assert.deepEqual(buttons.map(x=>x.dataset.curation),['postphotography','sketchbook','illustrated','anime','other','all']);
   assert.equal(t.doc.querySelector('[data-curation="postphotography"]').getAttribute('aria-selected'),'true');
   const handles=()=>[...t.doc.querySelectorAll('.collection-card')].map(c=>c.dataset.artistHandle);
-  assert.equal(handles().length,9);
+  assert.equal(handles().length,10);
   assert.ok(handles().includes('allthebots'));
   assert.ok(handles().includes('turonworld'));
+  assert.ok(handles().includes('ciphervoss'),'Cipher Voss belongs to #Postphotography');
   assert.ok(!handles().includes('ayyzirly'));
   t.doc.querySelector('[data-curation="sketchbook"]').click();
   assert.equal(handles().length,6);
@@ -580,7 +581,7 @@ test('Postphotography opens by default; anime and all other viewing rooms are op
   assert.ok(handles().includes('ayyzirly'));
   assert.ok(!handles().includes('skelevaggio'));
   t.doc.querySelector('[data-curation="other"]').click();
-  assert.equal(handles().length,4);
+  assert.equal(handles().length,3);
   t.doc.querySelector('[data-curation="all"]').click();
   assert.equal(handles().length,32);
   assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,640);
@@ -608,5 +609,37 @@ test('verified Futurist Motor Club collection and all twelve newest-first featur
   assert.equal(t.win.currentFeature(0).lineup.length,12);
   const css=readFileSync('styles.css','utf8');
   assert.ok(css.includes('.curation-tab[aria-selected="true"]'));
+ }finally{t.close()}
+});
+
+test('artists fill rows from newest upper-left to right; numbering stays horizontal',async()=>{
+ const t=boot();
+ try{
+  await new Promise(done=>setTimeout(done,70));
+  const cards=[...t.doc.querySelectorAll('#home-gallery>.collection-card')];
+  const seed=JSON.parse(t.doc.querySelector('#seeded-artists').textContent);
+  const expected=seed.filter(a=>['allthebots','turonworld','ctwlk','skelevaggio','giselxphoto','pepavaggio','stunnifer','exolorian','jjjjere','ciphervoss'].includes(a.handle.toLowerCase()))
+   .sort((a,b)=>b.postId.localeCompare(a.postId)).map(a=>a.handle.toLowerCase());
+  assert.deepEqual(cards.map(c=>c.dataset.artistHandle),expected,'DOM order follows newest first across gallery rows');
+  assert.equal(cards[0].dataset.artistHandle,'allthebots','newest begins upper left');
+  assert.equal(cards[1].dataset.artistHandle,'turonworld','next artist moves right, not down');
+  assert.equal(cards[2].dataset.artistHandle,'ctwlk');
+  assert.equal(cards.at(-1).dataset.artistHandle,'ciphervoss');
+  cards.forEach((card,i)=>assert.equal(card.querySelector('.collection-sequence').textContent,String(i+1).padStart(2,'0')+' / 10'));
+  const ciphervoss=cards.find(c=>c.dataset.artistHandle==='ciphervoss');
+  assert.equal(ciphervoss.querySelectorAll('.card-mosaic img').length,20,'Cipher retains intact twenty-work block');
+  assert.equal(t.doc.querySelector('[data-curation="postphotography"] .curation-tab-count').textContent,'10');
+  assert.equal(t.doc.querySelector('[data-curation="other"] .curation-tab-count').textContent,'3');
+  const featured=[...t.doc.querySelectorAll('.featured-six-card')];
+  assert.equal(featured.length,12);
+  assert.deepEqual(featured.slice(0,3).map(x=>x.querySelector('.featured-six-number').textContent),['01 / 12','02 / 12','03 / 12']);
+  t.doc.querySelector('[data-curation="all"]').click();
+  const allCards=[...t.doc.querySelectorAll('#home-gallery>.collection-card')];
+  assert.equal(allCards.length,32);
+  assert.equal(allCards[0].querySelector('.collection-sequence').textContent,'01 / 32');
+  const css=readFileSync('styles.css','utf8');
+  assert.match(css,/#home-gallery\.home-gallery\s*\{\s*display:grid!important;/,'grid overrides obsolete multi-column layout');
+  assert.match(css,/grid-auto-flow:row!important/,'CSS must fill left to right, then top to bottom');
+  assert.match(css,/writing-mode:horizontal-tb!important/,'ordinal labels must be horizontal');
  }finally{t.close()}
 });
