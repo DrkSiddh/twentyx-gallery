@@ -55,7 +55,7 @@ function renderCurationTabs(){
   const active=id===activeCuration;
   item.classList.toggle('active',active);
   item.setAttribute('aria-selected',String(active));
-  item.tabIndex=active?0:-1;
+  item.tabIndex=0; // Every curation remains reachable via keyboard Tab.
   item.querySelector('.curation-tab-count').textContent=String(curationArtists(id).length);
  });
  const selected=CURATION_TABS.find(tab=>tab.id===activeCuration);

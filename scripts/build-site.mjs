@@ -64,7 +64,10 @@ function renderCard(a){
   +'<div class="card-link-actions"><a class="pill primary" href="https://twitter.com/intent/follow?screen_name='+artistHandle+'" data-follow="true" target="_blank" rel="noopener noreferrer">Follow on X ↗</a>'
   +'<a class="ghost" href="'+esc(a.postUrl)+'" target="_blank" rel="noopener noreferrer">Original post ↗</a></div></div></article>';
 }
-const initial=ordered.map(renderCard).join('\n');
+// Server render only the selected Postphotography room to prevent an
+// uncurated anime-heavy flash before the client-side gallery initializes.
+const frontRoom=new Set(['turonworld','skelevaggio','stunnifer','ctwlk','pepavaggio','giselxphoto','exolorian','jjjjere','allthebots']);
+const initial=ordered.filter(a=>frontRoom.has(handle(a).toLowerCase())).map(renderCard).join('\n');
 const seed=JSON.stringify(ordered).replaceAll('<','\\u003c').replaceAll('>','\\u003e').replaceAll('&','\\u0026');
 let output=html;
 const requireReplace=(from,to)=>{if(!output.includes(from))throw Error('Missing expected HTML anchor: '+from);output=output.replace(from,to)};
