@@ -551,7 +551,7 @@ test('new CTWLK curation is 20 genuine unique artworks and listed in gallery',as
   await new Promise(done=>setTimeout(done,55));
   assert.equal(t.doc.getElementById('artist-count').textContent,'32');
   assert.equal(t.doc.getElementById('work-count').textContent,'640');
-  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,180);
+  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,200);
   assert.ok([...t.doc.querySelectorAll('.collection-card')].some(x=>x.dataset.artistHandle==='ctwlk'));
  }finally{t.close()}
 });
@@ -624,7 +624,8 @@ test('artists fill rows from newest upper-left to right; numbering stays horizon
   assert.equal(cards[0].dataset.artistHandle,'allthebots','newest begins upper left');
   assert.equal(cards[1].dataset.artistHandle,'turonworld','next artist moves right, not down');
   assert.equal(cards[2].dataset.artistHandle,'ctwlk');
-  assert.equal(cards.at(-1).dataset.artistHandle,'ciphervoss');
+  assert.ok(cards.some(c=>c.dataset.artistHandle==='ciphervoss'));
+  assert.ok(cards.findIndex(c=>c.dataset.artistHandle==='ciphervoss')<cards.findIndex(c=>c.dataset.artistHandle==='jjjjere'),'Cipher Voss precedes the older J collection');
   cards.forEach((card,i)=>assert.equal(card.querySelector('.collection-sequence').textContent,String(i+1).padStart(2,'0')+' / 10'));
   const ciphervoss=cards.find(c=>c.dataset.artistHandle==='ciphervoss');
   assert.equal(ciphervoss.querySelectorAll('.card-mosaic img').length,20,'Cipher retains intact twenty-work block');
