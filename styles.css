@@ -2724,3 +2724,6 @@ body[data-view="artist"] .arrival-curations{display:none!important}
 @media(max-width:740px){
  #home-gallery.home-gallery{grid-template-columns:minmax(0,1fr)!important}
 }
+
+/* Hide unoccupied viewing rooms without overriding their future reappearance. */
+#curation-tabs .curation-tab[hidden]{display:none!important}

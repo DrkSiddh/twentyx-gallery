@@ -561,6 +561,7 @@ test('Postphotography opens by default; anime and all other viewing rooms are op
   await new Promise(done=>setTimeout(done,70));
   const buttons=[...t.doc.querySelectorAll('#curation-tabs [data-curation]')];
   assert.deepEqual(buttons.map(x=>x.dataset.curation),['postphotography','sketchbook','illustrated','anime','other','all']);
+  assert.deepEqual(buttons.filter(x=>!x.hidden).map(x=>x.dataset.curation),['postphotography','sketchbook','illustrated','anime','all'],'hide the zero-count Other Visions tab');
   assert.equal(t.doc.querySelector('[data-curation="postphotography"]').getAttribute('aria-selected'),'true');
   const handles=()=>[...t.doc.querySelectorAll('.collection-card')].map(c=>c.dataset.artistHandle);
   assert.equal(handles().length,10);
@@ -577,11 +578,14 @@ test('Postphotography opens by default; anime and all other viewing rooms are op
   assert.ok(handles().includes('andyybzyy'),'overlap should not duplicate original media');
   assert.ok(handles().includes('nikdraperivey'));
   t.doc.querySelector('[data-curation="anime"]').click();
-  assert.equal(handles().length,8);
+  assert.equal(handles().length,11);
   assert.ok(handles().includes('ayyzirly'));
+  assert.ok(handles().includes('aarandommm'));
+  assert.ok(handles().includes('ftpickaxe'));
+  assert.ok(handles().includes('for1un3'));
   assert.ok(!handles().includes('skelevaggio'));
-  t.doc.querySelector('[data-curation="other"]').click();
-  assert.equal(handles().length,3);
+  assert.equal(t.doc.querySelector('[data-curation="other"]').hidden,true,'no artists remain uncategorized');
+  assert.equal(t.doc.querySelector('[data-curation="other"] .curation-tab-count').textContent,'0');
   t.doc.querySelector('[data-curation="all"]').click();
   assert.equal(handles().length,32);
   assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,640);
@@ -642,5 +646,29 @@ test('artists fill rows from newest upper-left to right; numbering stays horizon
   assert.match(css,/#home-gallery\.home-gallery\s*\{\s*display:grid!important;/,'grid overrides obsolete multi-column layout');
   assert.match(css,/grid-auto-flow:row!important/,'CSS must fill left to right, then top to bottom');
   assert.match(css,/writing-mode:horizontal-tb!important/,'ordinal labels must be horizontal');
+ }finally{t.close()}
+});
+
+test('remaining Other Visions exhibitions belong to Anime without changing originals',async()=>{
+ const t=boot();try{
+  await new Promise(done=>setTimeout(done,60));
+  const all=JSON.parse(t.doc.querySelector('#seeded-artists').textContent);
+  assert.equal(all.length,32);
+  const previouslyOther=['aarandommm','ftpickaxe','for1un3'];
+  for(const handle of previouslyOther){
+   const artist=all.find(a=>a.handle.toLowerCase()===handle);
+   assert.ok(artist,handle+' must remain in the complete archive');
+   assert.equal(artist.media.length,20,handle+' still has twenty original works');
+   assert.ok(t.win.curationArtists('anime').some(a=>a.postId===artist.postId),handle+' now appears in Anime');
+   assert.ok(!t.win.curationArtists('other').some(a=>a.postId===artist.postId),handle+' leaves Other Visions');
+  }
+  assert.equal(t.win.curationArtists('anime').length,11);
+  assert.equal(t.win.curationArtists('other').length,0);
+  assert.equal(t.doc.querySelector('[data-curation="other"]').hidden,true);
+  t.doc.querySelector('[data-curation="anime"]').click();
+  assert.equal(t.doc.querySelectorAll('.collection-card').length,11);
+  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,220);
+  t.doc.querySelector('[data-curation="all"]').click();
+  assert.equal(t.doc.querySelectorAll('.collection-card').length,32);
  }finally{t.close()}
 });
