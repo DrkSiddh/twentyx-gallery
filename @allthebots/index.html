@@ -2741,13 +2741,31 @@ body[data-view="artist"] .arrival-curations{display:none!important}
 /* Hide unoccupied viewing rooms without overriding their future reappearance. */
 #curation-tabs .curation-tab[hidden]{display:none!important}
 
-.artist-credits{flex:1 1 100%}
-.artist-credits h2{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:inherit}
-.artist-credits-list{display:flex;flex-wrap:wrap;align-items:baseline;gap:.35em .65em;list-style:none;padding:0;margin:.75em 0;font-family:Georgia,serif;font-size:clamp(1.1rem,2.5vw,1.8rem);line-height:1.4}
-.artist-credits-list li:not(:last-child)::after{content:" ·";margin-inline-start:.55em;opacity:.55}
-.artist-credits-list a{color:inherit;text-decoration-color:transparent;text-underline-offset:.2em}
-.artist-credits-list a:hover,.artist-credits-list a:focus-visible{text-decoration-color:currentColor}
-.footer-actions{display:flex;flex-wrap:wrap;gap:.65rem}
+.footer{
+ display:grid;gap:1.75rem;margin-top:2.5rem;padding:2rem clamp(1rem,3vw,2.5rem);
+ border:1px solid rgba(219,225,255,.16);border-radius:1rem;background:#151722;color:#dfe2ef;
+}
+.artist-credits{min-width:0}
+.artist-credits h2{
+ margin:0 0 .8rem;font:700 .72rem/1.4 Inter,system-ui,sans-serif;
+ letter-spacing:.15em;text-transform:uppercase;color:#aeb7cc;
+}
+.artist-credits-list{
+ display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,12rem),1fr));
+ gap:0 1.4rem;list-style:none;margin:0;padding:0;font:500 .85rem/1.45 Inter,system-ui,sans-serif;
+}
+.artist-credits-list li{min-width:0}
+.artist-credits-list a{
+ display:block;padding:.5rem 0;border-bottom:1px solid rgba(219,225,255,.1);
+ color:inherit;text-decoration:none;overflow-wrap:anywhere;
+}
+.artist-credits-list a:hover,.artist-credits-list a:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:.2em}
+.footer-actions{display:flex;flex-wrap:wrap;gap:.35rem 1.4rem}
+.footer-actions .ghost{
+ min-height:44px;padding:0;border:0;border-radius:.15rem;background:none;
+ color:#bac4da;font:600 .78rem/1.4 Inter,system-ui,sans-serif;text-align:left;
+}
+.footer-actions .ghost:hover,.footer-actions .ghost:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:.2em}
 #removal-request{display:grid;gap:.65rem}
 #removal-handle{max-width:100%;background:transparent;color:inherit;border:1px solid currentColor;border-radius:.4rem;padding:.65rem}
 
