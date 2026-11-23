@@ -17,7 +17,7 @@ const PINNED=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','
 const CURATION_TABS=[
  {id:'postphotography',name:'#Postphotography',description:'Photography beyond the photograph: staged, recomposed, imagined and transformed image-worlds.',handles:['turonworld','skelevaggio','stunnifer','ctwlk','pepavaggio','giselxphoto','exolorian','jjjjere','allthebots','ciphervoss']},
  {id:'sketchbook',name:'Sketchbook Aesthetic',description:'The intimacy of the page, a line, a gesture, a thought in the making. No assumption about physical or digital process.',handles:['_amaka_o','iridescent_bug','andyybzyy','lovecolors4','hplovebux','dylanbrion71545']},
- {id:'illustrated',name:'Illustrated',description:'Distinctive narrative and image-making through form, graphic imagination and character.',handles:['artxygenishim','nikdraperivey','ink_relic','andyybzyy','periblitzv2','bwizzyart']},
+ {id:'illustrated',name:'Illustrated',description:'Distinctive narrative and image-making through form, graphic imagination and character.',handles:['artxygenishim','nikdraperivey','ink_relic','andyybzyy','periblitzv2']},
  {id:'anime',name:'Anime',description:'Anime- and manga-influenced visual worlds, including expressive character designs and fantasy details.',handles:['mheenam_lily7','nikkiyaki_','jellitix','yenaarteng','spalienart','elyris_art','mintshiiii','ayyzirly','aarandommm','ftpickaxe','for1un3']},
  {id:'other',name:'Other Visions',description:'Artistic approaches that deserve room without a forced style label.',handles:[]},
  {id:'all',name:'All Exhibitions',description:'The complete evolving archive. All visual languages together, newest first.',handles:[]}

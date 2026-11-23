@@ -34,10 +34,14 @@ const normalize=(a)=>{
 };
 const legacy=read(outputPath), archived=read(archivePath), incoming=read(pendingPath);
 for(const [name,data] of [['archive',archived],['published',legacy],['inbox',incoming]])if(!Array.isArray(data))throw new Error(name+' must be an array');
+// Respect the artist's request to withdraw from TwentyX.
+const withdrawnHandles=new Set(['bwizzyart','bwizzy']);
+const isWithdrawn=item=>withdrawnHandles.has(handleFromPost(item?.postUrl)?.handle.toLowerCase());
 const errors=[];
 const byId=new Map();
 for(const [source,items] of [['archive',archived],['published',legacy],['inbox',incoming]]){
   for(const [index,item] of items.entries()){
+    if(isWithdrawn(item))continue;
     const normalized=normalize(item);
     if(!normalized){errors.push(source+' item '+index+' ('+(item?.name||'unnamed')+') is not a complete valid 20-image set');continue;}
     if(!byId.has(normalized.postId))byId.set(normalized.postId,normalized);
@@ -45,10 +49,10 @@ for(const [source,items] of [['archive',archived],['published',legacy],['inbox',
 }
 // Refuse any malformed input instead of potentially publishing partial data.
 if(errors.length){console.error(errors.join('\n'));process.exit(1);}
-if(byId.size<Math.max(archived.length,legacy.length))throw new Error('Refusing to shrink archive');
+if(byId.size<Math.max(archived.filter(item=>!isWithdrawn(item)).length,legacy.filter(item=>!isWithdrawn(item)).length))throw new Error('Refusing to shrink archive');
 const all=[...byId.values()].sort((a,b)=>b.postId.localeCompare(a.postId));
 write(archivePath,all);
 write(outputPath,all);
 const manifest={collectionCount:all.length,artworkCount:all.length*20,posts:all.map(x=>x.postId)};
 write(manifestPath,manifest);
-console.log('Published',all.length,'complete collections. No artwork removed.');
+console.log('Published',all.length,'complete collections.');
