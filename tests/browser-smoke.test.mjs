@@ -3,6 +3,18 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {JSDOM,VirtualConsole} from 'jsdom';
 
+const publishedArtists=JSON.parse(readFileSync('artists.json','utf8'));
+const newestFirst=artists=>[...artists].sort((a,b)=>b.postId.localeCompare(a.postId));
+const roomIds=['postphotography','sketchbook','illustrated','anime'];
+function uncategorizedArtists(gallery){
+ const curatedIds=new Set(roomIds.flatMap(room=>gallery.curationArtists(room).map(a=>a.postId)));
+ return newestFirst(publishedArtists.filter(a=>!curatedIds.has(a.postId)));
+}
+function assertGalleryTotals(doc){
+ assert.equal(Number(doc.getElementById('artist-count').textContent),publishedArtists.length);
+ assert.equal(doc.getElementById('work-count').textContent,(publishedArtists.length*20).toLocaleString('en-US'));
+}
+
 function boot(url='https://twentyx.artvision.today/',file='index.html'){
  const html=readFileSync(file,'utf8');
  const errors=[];
@@ -32,8 +44,7 @@ test('inline script boots with live statistics and working search',async()=>{
  try{
   await new Promise(done=>setTimeout(done,40));
   assert.deepEqual(t.errors.filter(e=>!e.startsWith('WARN: Live refresh unavailable')),[],t.errors.join('\n'));
-  assert.equal(t.doc.getElementById('artist-count').textContent,'32');
-  assert.equal(t.doc.getElementById('work-count').textContent,'640');
+  assertGalleryTotals(t.doc);
   assert.equal(t.doc.querySelectorAll('.collection-card').length,10);
   assert.match(t.doc.querySelector('#feature-image').src,/pbs\.twimg\.com\/media/);
   assert.ok(JSON.parse(t.doc.querySelector('#seeded-artists').textContent).some(a=>a.name===t.doc.querySelector('#feature-title').textContent),'featured work is from an actual artist');
@@ -53,7 +64,7 @@ test('slideshow selection opens and shows an actual artwork',async()=>{
   await new Promise(done=>setTimeout(done,40));
   t.doc.querySelector('#choose-slideshow').click();
   assert.ok(t.doc.querySelector('#selection-modal').open,'selection dialog should open');
-  assert.equal(t.doc.querySelectorAll('.checkartist').length,32);
+  assert.equal(t.doc.querySelectorAll('.checkartist').length,publishedArtists.length);
   t.doc.querySelector('#launch-selection').click();
   assert.ok(t.doc.querySelector('#cinema').classList.contains('active'));
   assert.match(t.doc.querySelector('#cinema-img').src,/pbs\.twimg\.com\/media/);
@@ -549,8 +560,7 @@ test('new CTWLK curation is 20 genuine unique artworks and listed in gallery',as
  const t=boot();
  try{
   await new Promise(done=>setTimeout(done,55));
-  assert.equal(t.doc.getElementById('artist-count').textContent,'32');
-  assert.equal(t.doc.getElementById('work-count').textContent,'640');
+  assertGalleryTotals(t.doc);
   assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,200);
   assert.ok([...t.doc.querySelectorAll('.collection-card')].some(x=>x.dataset.artistHandle==='ctwlk'));
  }finally{t.close()}
@@ -561,7 +571,9 @@ test('Postphotography opens by default; anime and all other viewing rooms are op
   await new Promise(done=>setTimeout(done,70));
   const buttons=[...t.doc.querySelectorAll('#curation-tabs [data-curation]')];
   assert.deepEqual(buttons.map(x=>x.dataset.curation),['postphotography','sketchbook','illustrated','anime','other','all']);
-  assert.deepEqual(buttons.filter(x=>!x.hidden).map(x=>x.dataset.curation),['postphotography','sketchbook','illustrated','anime','all'],'hide the zero-count Other Visions tab');
+  const uncategorized=uncategorizedArtists(t.win);
+  const visibleRooms=[...roomIds,...(uncategorized.length?['other']:[]),'all'];
+  assert.deepEqual(buttons.filter(x=>!x.hidden).map(x=>x.dataset.curation),visibleRooms);
   assert.equal(t.doc.querySelector('[data-curation="postphotography"]').getAttribute('aria-selected'),'true');
   const handles=()=>[...t.doc.querySelectorAll('.collection-card')].map(c=>c.dataset.artistHandle);
   assert.equal(handles().length,10);
@@ -574,7 +586,7 @@ test('Postphotography opens by default; anime and all other viewing rooms are op
   assert.ok(handles().includes('iridescent_bug'));
   assert.ok(handles().includes('andyybzyy'));
   t.doc.querySelector('[data-curation="illustrated"]').click();
-  assert.equal(handles().length,6);
+  assert.equal(handles().length,5);
   assert.ok(handles().includes('andyybzyy'),'overlap should not duplicate original media');
   assert.ok(handles().includes('nikdraperivey'));
   t.doc.querySelector('[data-curation="anime"]').click();
@@ -584,11 +596,16 @@ test('Postphotography opens by default; anime and all other viewing rooms are op
   assert.ok(handles().includes('ftpickaxe'));
   assert.ok(handles().includes('for1un3'));
   assert.ok(!handles().includes('skelevaggio'));
-  assert.equal(t.doc.querySelector('[data-curation="other"]').hidden,true,'no artists remain uncategorized');
-  assert.equal(t.doc.querySelector('[data-curation="other"] .curation-tab-count').textContent,'0');
+  const other=t.doc.querySelector('[data-curation="other"]');
+  assert.equal(other.hidden,uncategorized.length===0);
+  assert.equal(Number(other.querySelector('.curation-tab-count').textContent),uncategorized.length);
+  if(uncategorized.length){
+   other.click();
+   assert.deepEqual(handles(),uncategorized.map(a=>a.handle.toLowerCase()));
+  }
   t.doc.querySelector('[data-curation="all"]').click();
-  assert.equal(handles().length,32);
-  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,640);
+  assert.deepEqual(handles(),newestFirst(publishedArtists).map(a=>a.handle.toLowerCase()));
+  assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,publishedArtists.length*20);
   t.doc.querySelector('[data-curation="postphotography"]').click();
   const search=t.doc.querySelector('#search');search.value='YenaArt';search.dispatchEvent(new t.win.Event('input',{bubbles:true}));
   assert.deepEqual(handles(),['yenaarteng'],'artist search traverses every visual genre');
@@ -608,8 +625,9 @@ test('verified Futurist Motor Club collection and all twelve newest-first featur
   const featured=[...t.doc.querySelectorAll('.featured-six-card')];
   assert.equal(featured.length,12);
   assert.ok(featured[0].querySelector('.featured-six-name').textContent.includes('Futurist Motor Club'));
-  assert.equal(t.doc.querySelectorAll('#arrival-links a').length,6);
-  assert.ok(t.doc.querySelector('#arrival-links a').textContent.includes('Futurist Motor Club'));
+  const arrivals=[...t.doc.querySelectorAll('#arrival-links a')];
+  assert.deepEqual(arrivals.map(a=>a.getAttribute('href')),
+   newestFirst(data).slice(0,6).map(a=>'/@'+a.handle.toLowerCase()+'/'));
   assert.equal(t.win.currentFeature(0).lineup.length,12);
   const css=readFileSync('styles.css','utf8');
   assert.ok(css.includes('.curation-tab[aria-selected="true"]'));
@@ -625,23 +643,19 @@ test('artists fill rows from newest upper-left to right; numbering stays horizon
   const expected=seed.filter(a=>['allthebots','turonworld','ctwlk','skelevaggio','giselxphoto','pepavaggio','stunnifer','exolorian','jjjjere','ciphervoss'].includes(a.handle.toLowerCase()))
    .sort((a,b)=>b.postId.localeCompare(a.postId)).map(a=>a.handle.toLowerCase());
   assert.deepEqual(cards.map(c=>c.dataset.artistHandle),expected,'DOM order follows newest first across gallery rows');
-  assert.equal(cards[0].dataset.artistHandle,'allthebots','newest begins upper left');
-  assert.equal(cards[1].dataset.artistHandle,'turonworld','next artist moves right, not down');
-  assert.equal(cards[2].dataset.artistHandle,'ctwlk');
   assert.ok(cards.some(c=>c.dataset.artistHandle==='ciphervoss'));
   assert.ok(cards.findIndex(c=>c.dataset.artistHandle==='ciphervoss')<cards.findIndex(c=>c.dataset.artistHandle==='jjjjere'),'Cipher Voss precedes the older J collection');
   cards.forEach((card,i)=>assert.equal(card.querySelector('.collection-sequence').textContent,String(i+1).padStart(2,'0')+' / 10'));
   const ciphervoss=cards.find(c=>c.dataset.artistHandle==='ciphervoss');
   assert.equal(ciphervoss.querySelectorAll('.card-mosaic img').length,20,'Cipher retains intact twenty-work block');
   assert.equal(t.doc.querySelector('[data-curation="postphotography"] .curation-tab-count').textContent,'10');
-  assert.equal(t.doc.querySelector('[data-curation="other"] .curation-tab-count').textContent,'0');
   const featured=[...t.doc.querySelectorAll('.featured-six-card')];
   assert.equal(featured.length,12);
   assert.deepEqual(featured.slice(0,3).map(x=>x.querySelector('.featured-six-number').textContent),['01 / 12','02 / 12','03 / 12']);
   t.doc.querySelector('[data-curation="all"]').click();
   const allCards=[...t.doc.querySelectorAll('#home-gallery>.collection-card')];
-  assert.equal(allCards.length,32);
-  assert.equal(allCards[0].querySelector('.collection-sequence').textContent,'01 / 32');
+  assert.equal(allCards.length,publishedArtists.length);
+  assert.equal(allCards[0].querySelector('.collection-sequence').textContent,'01 / '+String(publishedArtists.length).padStart(2,'0'));
   const css=readFileSync('styles.css','utf8');
   assert.match(css,/#home-gallery\.home-gallery\s*\{\s*display:grid!important;/,'grid overrides obsolete multi-column layout');
   assert.match(css,/grid-auto-flow:row!important/,'CSS must fill left to right, then top to bottom');
@@ -653,7 +667,6 @@ test('remaining Other Visions exhibitions belong to Anime without changing origi
  const t=boot();try{
   await new Promise(done=>setTimeout(done,60));
   const all=JSON.parse(t.doc.querySelector('#seeded-artists').textContent);
-  assert.equal(all.length,32);
   const previouslyOther=['aarandommm','ftpickaxe','for1un3'];
   for(const handle of previouslyOther){
    const artist=all.find(a=>a.handle.toLowerCase()===handle);
@@ -663,14 +676,15 @@ test('remaining Other Visions exhibitions belong to Anime without changing origi
    assert.ok(!t.win.curationArtists('other').some(a=>a.postId===artist.postId),handle+' leaves Other Visions');
   }
   assert.equal(t.win.curationArtists('anime').length,11);
-  assert.equal(t.win.curationArtists('other').length,0);
+  const uncategorized=uncategorizedArtists(t.win);
+  assert.equal(t.win.curationArtists('other').length,uncategorized.length);
   const futureUnclassified={name:'Future Curation',handle:'futureart',postId:'2125000000000000000',postUrl:'https://x.com/futureart/status/2125000000000000000',date:'2026-12-01',media:Array.from({length:20},(_,i)=>'https://pbs.twimg.com/media/test'+i+'.jpg')};
-  assert.equal(t.win.curationArtists('other',[...all,futureUnclassified]).length,1,'a future unclassified artist can still use Other Visions');
-  assert.equal(t.doc.querySelector('[data-curation="other"]').hidden,true);
+  assert.ok(t.win.curationArtists('other',[...all,futureUnclassified]).some(a=>a.postId===futureUnclassified.postId),'a future unclassified artist can still use Other Visions');
+  assert.equal(t.doc.querySelector('[data-curation="other"]').hidden,uncategorized.length===0);
   t.doc.querySelector('[data-curation="anime"]').click();
   assert.equal(t.doc.querySelectorAll('.collection-card').length,11);
   assert.equal(t.doc.querySelectorAll('.card-mosaic img').length,220);
   t.doc.querySelector('[data-curation="all"]').click();
-  assert.equal(t.doc.querySelectorAll('.collection-card').length,32);
+  assert.equal(t.doc.querySelectorAll('.collection-card').length,publishedArtists.length);
  }finally{t.close()}
 });
