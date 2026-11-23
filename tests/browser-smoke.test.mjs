@@ -664,6 +664,8 @@ test('remaining Other Visions exhibitions belong to Anime without changing origi
   }
   assert.equal(t.win.curationArtists('anime').length,11);
   assert.equal(t.win.curationArtists('other').length,0);
+  const futureUnclassified={name:'Future Curation',handle:'future_unclassified',postId:'9999999999999999999',postUrl:'https://x.com/future_unclassified/status/9999999999999999999',date:'2026-12-01',media:Array.from({length:20},(_,i)=>'https://pbs.twimg.com/media/test'+i+'.jpg')};
+  assert.equal(t.win.curationArtists('other',[...all,futureUnclassified]).length,1,'a future unclassified artist can still use Other Visions');
   assert.equal(t.doc.querySelector('[data-curation="other"]').hidden,true);
   t.doc.querySelector('[data-curation="anime"]').click();
   assert.equal(t.doc.querySelectorAll('.collection-card').length,11);
