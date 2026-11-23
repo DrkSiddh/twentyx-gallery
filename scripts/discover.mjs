@@ -10,6 +10,7 @@
  * are ever committed.
  */
 import fs from 'node:fs';
+import {hasSubmissionTag} from './admissions.mjs';
 import {pathToFileURL} from 'node:url';
 
 const COMMUNITY_ID='1835009931231322257';
@@ -37,9 +38,7 @@ export function evaluatePost(post,includes,communityId=COMMUNITY_ID){
    observedCommunity:String(post?.community_id||'')||null};
  if(!/^\d+$/.test(id))return status(id,'reject','invalid-post-id');
  if(post?.referenced_tweets?.some(r=>['retweeted','quoted'].includes(r.type)))return status(id,'reject','repost-or-quote');
- const hasTag=(post?.entities?.hashtags||[]).some(h=>String(h.tag||'').toLowerCase()==='twentyx')
-   ||/(^|[^a-z0-9_])#twentyx\b/i.test(post?.text||'');
- if(!hasTag)return status(id,'reject','missing-twentyx-hashtag');
+ if(!hasSubmissionTag(post?.text))return status(id,'reject','missing-twentyx-hashtag');
  if(!author||!safeHandle(handle)||typeof author.name!=='string'||!author.name.trim())return status(id,'review','missing-author',meta);
  const keys=post?.attachments?.media_keys;
  if(!Array.isArray(keys)||keys.length!==20||new Set(keys).size!==20)return status(id,'reject','not-exactly-twenty-attachments',{...meta,count:Array.isArray(keys)?keys.length:0});
@@ -54,7 +53,7 @@ export function evaluatePost(post,includes,communityId=COMMUNITY_ID){
  const date=String(post?.created_at||'').slice(0,10);
  if(!DATE.test(date))return status(id,'review','missing-post-date',meta);
  return status(id,'admit','verified-twenty-photo-community-post',{
-  record:{name:author.name.trim(),postUrl:meta.postUrl,date,media:urls},
+  record:{name:author.name.trim(),postUrl:meta.postUrl,date,media:urls,submission:{postUrl:meta.postUrl,caption:post.text}},
   ...meta
  });
 }

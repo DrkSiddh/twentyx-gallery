@@ -11,6 +11,7 @@
  * New validated artist records are always rendered on the next publication.
  */
 import fs from 'node:fs';
+import {hasAdmissionEvidence} from './admissions.mjs';
 import QRCode from 'qrcode';
 import {inflateRawSync} from 'node:zlib';
 
@@ -43,6 +44,7 @@ if(!Array.isArray(artists)||!artists.length)throw Error('No artists: refusing bl
 const ids=new Set();
 for(const a of artists){
  const id=idOf(a),h=handle(a);
+ if(!hasAdmissionEvidence(a))throw Error('Missing #TwentyX evidence for post '+id);
  if(!id||!h||ids.has(id))throw Error('Duplicate or invalid artist source: '+a.name);
  if(!Array.isArray(a.media)||a.media.length!==20||new Set(a.media).size!==20)throw Error('Not twenty works: '+a.name);
  if(a.media.some(u=>!validMedia(u)))throw Error('Unsafe media source for '+a.name);

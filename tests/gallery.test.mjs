@@ -19,6 +19,8 @@ function fixture(){
  writeFileSync(join(dir,'scripts/publish.mjs'),readFileSync('scripts/publish.mjs'));
  writeFileSync(join(dir,'scripts/withdrawals.mjs'),readFileSync('scripts/withdrawals.mjs'));
  writeFileSync(join(dir,'data/withdrawn-artists.json'),readFileSync('data/withdrawn-artists.json'));
+ writeFileSync(join(dir,'scripts/admissions.mjs'),readFileSync('scripts/admissions.mjs'));
+ writeFileSync(join(dir,'data/legacy-exhibition-ids.json'),readFileSync('data/legacy-exhibition-ids.json'));
  const run=env=>spawnSync(process.execPath,['scripts/publish.mjs'],{cwd:dir,encoding:'utf8',env:{...process.env,...env}});
  const get=path=>JSON.parse(readFileSync(join(dir,path),'utf8'));
  const cleanup=()=>rmSync(dir,{force:true,recursive:true});
@@ -58,6 +60,10 @@ test('publisher merges new eligible records, deduplicates, and never shrinks',()
  const f=fixture();
  try{
   const added={...original[0],name:'New Contributor',postUrl:'https://x.com/newartist/status/99999999999999999'};
+  writeFileSync(join(f.dir,'data/inbox.json'),JSON.stringify([added]));
+  assert.equal(f.run().status,0);
+  assert.equal(f.get('artists.json').length,original.length);
+  added.submission={postUrl:added.postUrl,caption:'My public exhibition submission #TwentyX'};
   writeFileSync(join(f.dir,'data/inbox.json'),JSON.stringify([added,added]));
   assert.equal(f.run().status,0);
   assert.equal(f.get('artists.json').length,original.length+1);
@@ -95,5 +101,20 @@ test('maintainer-approved withdrawals remove the work and prevent later republic
   assert.equal(f.run().status,0);
   assert.ok(!ids(f.get('artists.json')).includes(postId));
   assert.deepEqual(f.get('data/inbox.json'),[]);
+ }finally{f.cleanup()}
+});
+
+test('a direct artist-list or archive edit cannot publish an unverified addition',()=>{
+ const f=fixture();
+ try{
+  const added={...original[0],name:'Unverified Contributor',postUrl:'https://x.com/unverified/status/99999999999999999'};
+  for(const file of ['artists.json','data/collections.json']){
+   const baseline=f.get(file);
+   writeFileSync(join(f.dir,file),JSON.stringify([...baseline,added]));
+   const result=f.run();
+   assert.notEqual(result.status,0);
+   assert.match(result.stderr,/no #TwentyX evidence/);
+   writeFileSync(join(f.dir,file),JSON.stringify(baseline));
+  }
  }finally{f.cleanup()}
 });

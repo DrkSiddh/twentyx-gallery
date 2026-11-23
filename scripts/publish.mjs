@@ -6,6 +6,7 @@
  * prove community membership or media authenticity from URLs alone.
  */
 import fs from 'node:fs';
+import {hasAdmissionEvidence} from './admissions.mjs';
 import path from 'node:path';
 import {approveWithdrawals, isWithdrawnHandle, withdrawnHandles} from './withdrawals.mjs';
 
@@ -31,7 +32,7 @@ const normalize=(a)=>{
   if(new Set(a.media).size!==20)return null;
   if(!/^\d{4}-\d{2}-\d{2}$/.test(a.date||''))return null;
   return {name:a.name.trim(),handle:post.handle,postId:post.id,postUrl:'https://x.com/'+post.handle+'/status/'+post.id,
-    date:a.date,media:a.media.slice()};
+    date:a.date,media:a.media.slice(),...(a.submission ? {submission:a.submission} : {})};
 };
 if(process.env.TWENTYX_APPROVALS_FILE){
   approveWithdrawals(JSON.parse(fs.readFileSync(process.env.TWENTYX_APPROVALS_FILE,'utf8')));
@@ -46,6 +47,14 @@ for(const [source,items] of [['archive',archived],['published',legacy],['inbox',
     if(isWithdrawn(item))continue;
     const normalized=normalize(item);
     if(!normalized){errors.push(source+' item '+index+' ('+(item?.name||'unnamed')+') is not a complete valid 20-image set');continue;}
+    if(!hasAdmissionEvidence(normalized)){
+      if(source==='inbox'){
+        console.warn('Held for missing #TwentyX evidence:',normalized.postId);
+        continue;
+      }
+      errors.push(source+' entry has no #TwentyX evidence: '+normalized.postId);
+      continue;
+    }
     if(!byId.has(normalized.postId))byId.set(normalized.postId,normalized);
   }
 }

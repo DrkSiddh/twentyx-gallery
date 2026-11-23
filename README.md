@@ -26,19 +26,19 @@ A trusted importer or human curator must verify that each candidate:
 
 The existing gallery's data format contains 20 `pbs.twimg.com` image URLs per collection. The first iteration of this rebuild retains that image-only format. **Actual video support and an X community collector have not yet been implemented.** Those require trusted X API access, authorization, and media handling.
 
-## Owner-selected complete exhibitions
+## Opt-in for new exhibitions
 
-An ArtVision editor may explicitly curate and feature a public original post with
-**twenty distinct genuine artist photographs**, even if the original post does
-not include #TwentyX. This is editorial selection, separate from the automated
-community/hashtag importer; it does not imply participation in the ArtVision X
-community. Original artwork URLs, artist credit and the source post are retained.
-Automated discovery continues to require #TwentyX.
+Every new exhibition needs the artist's original X post with `#TwentyX` in
+the caption. Discovery saves the exact post URL and observed caption, and the
+publisher and site build enforce that evidence. If the caption cannot be
+verified, the collection stays unpublished. For manual intake, verify the
+original caption on X and record it in the inbox entry's
+`submission: { postUrl, caption }` field. The published artist file is a
+generated output and must not be edited to add exhibitions.
 
-The November 2026 editorial expansion includes ink🖌relic, Elyris 🍉,
-werbug (@iridescent_bug), Exolorian, and J 👑. The published artist list is
-restored from the complete protected archive plus two valid published-only collections (AndyyDrawzz and Nikolas Draper-Ivey), retaining prior exhibitions. The legacy Star41 post includes an X video and is preserved in the pending mixed-media queue rather than being silently lost or misrepresented as twenty photos.
-@ctwlk subsequently published an original #TwentyX post on November 20, 2026 with 20 verified distinct images (https://x.com/ctwlk/status/2123831155942453451). That post is now a full exhibition, one of nine artwork-backed featured artist presentations, not merely an external profile tile.
+The fixed legacy list preserves exhibitions already published when this
+rule was introduced. That list does not establish historical consent.
+Artists can request withdrawal from the gallery footer.
 
 ## Submit new candidates
 A future collector can write to `data/inbox.json`. The publisher accepts JSON objects like:
@@ -49,12 +49,16 @@ A future collector can write to `data/inbox.json`. The publisher accepts JSON ob
     "name": "Artist Display Name",
     "date": "2026-11-14",
     "postUrl": "https://x.com/artistname/status/1234567890123456789",
-    "media": ["20 distinct https://pbs.twimg.com/media/... URLs"]
+    "media": ["20 distinct https://pbs.twimg.com/media/... URLs"],
+    "submission": {
+      "postUrl": "https://x.com/artistname/status/1234567890123456789",
+      "caption": "My submission to #TwentyX"
+    }
   }
 ]
 ```
 
-The publisher rejects **any** invalid candidate and refuses to shrink the archive. Once candidates are reviewed, run `npm install` and `npm run publish`, or manually start the GitHub Actions workflow. Valid records are merged by original post ID; prior records remain.
+The publisher holds structurally valid inbox entries that lack submission evidence, rejects malformed records, and refuses to shrink the archive except for verified removals. Once candidates are reviewed, run `npm install` and `npm run publish`, or manually start the GitHub Actions workflow. Valid records are merged by original post ID; prior records remain.
 
 **Important:** Structural validation does not independently verify membership in the community, author identity, media completeness from X, or rights. Do not trust arbitrary submissions without an authenticated verification step.
 

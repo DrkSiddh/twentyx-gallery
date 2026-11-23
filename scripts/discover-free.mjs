@@ -12,6 +12,7 @@
  * Public X access can disappear: report that accurately, don't fake success.
  */
 import fs from 'node:fs';
+import {hasAdmissionEvidence, hasSubmissionTag} from './admissions.mjs';
 import {isWithdrawnHandle} from './withdrawals.mjs';
 import {pathToFileURL} from 'node:url';
 
@@ -26,7 +27,6 @@ const read=(p,fallback)=>fs.existsSync(p)?JSON.parse(fs.readFileSync(p,'utf8')):
 const write=(p,v)=>{fs.mkdirSync(p.slice(0,p.lastIndexOf('/'))||'.',{recursive:true});fs.writeFileSync(p,JSON.stringify(v,null,2)+'\n');};
 const unique=items=>[...new Set(items)];
 const validHandle=s=>typeof s==='string'&&/^[A-Za-z0-9_]{1,15}$/.test(s);
-const hasTag=s=>/(^|[^a-z0-9_])#twentyx\b/i.test(String(s||''));
 const idFromUrl=url=>{
  try{
   const u=new URL(url);
@@ -64,7 +64,7 @@ export function checkStatus(status,source,communityId=COMMUNITY_ID){
  if(new Set(urls).size!==20)
    return {kind:'review',reason:'duplicate-photo-urls',id,handle};
  if(!text)return {kind:'review',reason:'post-text-unavailable',id,handle};
- if(!hasTag(text))return {kind:'reject',reason:'missing-hashtag',id,handle};
+ if(!hasSubmissionTag(text))return {kind:'reject',reason:'missing-hashtag',id,handle};
  const date=new Date(status.created_timestamp?Number(status.created_timestamp)*1000:status.created_at);
  if(!Number.isFinite(date.valueOf()))
    return {kind:'review',reason:'invalid-post-date',id,handle};
@@ -74,7 +74,8 @@ export function checkStatus(status,source,communityId=COMMUNITY_ID){
    return {kind:'reject',reason:'before-exhibition-launch',id,handle};
  return {kind:'admit',reason:'verified-hashtag-and-20-original-photos',id,handle,
   record:{name:name.slice(0,100),postUrl:'https://x.com/'+handle+'/status/'+id,
-   date:date.toISOString().slice(0,10),media:urls}};
+   date:date.toISOString().slice(0,10),media:urls,
+   submission:{postUrl:'https://x.com/'+handle+'/status/'+id,caption:text}}};
 }
 async function jsonGet(url,timeout=18000){
  const r=await fetch(url,{headers:{Accept:'application/json','User-Agent':'TwentyXGallery/1.0 (+https://twentyx.artvision.today)'},signal:AbortSignal.timeout(timeout)});
@@ -117,7 +118,7 @@ async function searchFree(seen,notes){
    }
    const results=Array.isArray(out.results)?out.results:[];
    for(const item of results){
-    if(!hasTag(item.text||item.raw_text?.text))continue;
+    if(!hasSubmissionTag(item.text||item.raw_text?.text))continue;
     const id=String(item.id||'');
     if(/^\d{12,22}$/.test(id))seen.set(id,{id,source:seen.get(id)?.source||'free-search'});
    }
@@ -156,7 +157,7 @@ export async function run({useBrowser=true,fetchStatus=publicPostLookup}={}){
  const inbox=read('data/inbox.json',[]);
  const pending=read('data/pending-exhibitions.json',{candidates:[]});
  if(!Array.isArray(archived)||!Array.isArray(inbox))throw Error('Invalid published data; refusing discovery');
- const known=new Set([...archived,...inbox].map(a=>idFromUrl(a.postUrl)?.id).filter(Boolean));
+ const known=new Set([...archived,...inbox.filter(hasAdmissionEvidence)].map(a=>idFromUrl(a.postUrl)?.id).filter(Boolean));
  if(useBrowser){
   await discoverPublicBrowser(COMMUNITY_URL,'community',seen,notes);
   await discoverPublicBrowser('https://x.com/search?q=%23TwentyX&f=live','X hashtag search',seen,notes);
