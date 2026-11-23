@@ -634,7 +634,7 @@ test('artists fill rows from newest upper-left to right; numbering stays horizon
   const ciphervoss=cards.find(c=>c.dataset.artistHandle==='ciphervoss');
   assert.equal(ciphervoss.querySelectorAll('.card-mosaic img').length,20,'Cipher retains intact twenty-work block');
   assert.equal(t.doc.querySelector('[data-curation="postphotography"] .curation-tab-count').textContent,'10');
-  assert.equal(t.doc.querySelector('[data-curation="other"] .curation-tab-count').textContent,'3');
+  assert.equal(t.doc.querySelector('[data-curation="other"] .curation-tab-count').textContent,'0');
   const featured=[...t.doc.querySelectorAll('.featured-six-card')];
   assert.equal(featured.length,12);
   assert.deepEqual(featured.slice(0,3).map(x=>x.querySelector('.featured-six-number').textContent),['01 / 12','02 / 12','03 / 12']);
@@ -664,7 +664,7 @@ test('remaining Other Visions exhibitions belong to Anime without changing origi
   }
   assert.equal(t.win.curationArtists('anime').length,11);
   assert.equal(t.win.curationArtists('other').length,0);
-  const futureUnclassified={name:'Future Curation',handle:'future_unclassified',postId:'9999999999999999999',postUrl:'https://x.com/future_unclassified/status/9999999999999999999',date:'2026-12-01',media:Array.from({length:20},(_,i)=>'https://pbs.twimg.com/media/test'+i+'.jpg')};
+  const futureUnclassified={name:'Future Curation',handle:'futureart',postId:'2125000000000000000',postUrl:'https://x.com/futureart/status/2125000000000000000',date:'2026-12-01',media:Array.from({length:20},(_,i)=>'https://pbs.twimg.com/media/test'+i+'.jpg')};
   assert.equal(t.win.curationArtists('other',[...all,futureUnclassified]).length,1,'a future unclassified artist can still use Other Visions');
   assert.equal(t.doc.querySelector('[data-curation="other"]').hidden,true);
   t.doc.querySelector('[data-curation="anime"]').click();
