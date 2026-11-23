@@ -18,7 +18,7 @@ const CURATION_TABS=[
  {id:'postphotography',name:'#Postphotography',description:'Photography beyond the photograph: staged, recomposed, imagined and transformed image-worlds.',handles:['turonworld','skelevaggio','stunnifer','ctwlk','pepavaggio','giselxphoto','exolorian','jjjjere','allthebots','ciphervoss']},
  {id:'sketchbook',name:'Sketchbook Aesthetic',description:'The intimacy of the page, a line, a gesture, a thought in the making. No assumption about physical or digital process.',handles:['_amaka_o','iridescent_bug','andyybzyy','lovecolors4','hplovebux','dylanbrion71545']},
  {id:'illustrated',name:'Illustrated',description:'Distinctive narrative and image-making through form, graphic imagination and character.',handles:['artxygenishim','nikdraperivey','ink_relic','andyybzyy','periblitzv2','bwizzyart']},
- {id:'anime',name:'Anime',description:'Anime- and manga-influenced visual worlds, given their own dedicated viewing room.',handles:['mheenam_lily7','nikkiyaki_','jellitix','yenaarteng','spalienart','elyris_art','mintshiiii','ayyzirly']},
+ {id:'anime',name:'Anime',description:'Anime- and manga-influenced visual worlds, including expressive character designs and fantasy details.',handles:['mheenam_lily7','nikkiyaki_','jellitix','yenaarteng','spalienart','elyris_art','mintshiiii','ayyzirly','aarandommm','ftpickaxe','for1un3']},
  {id:'other',name:'Other Visions',description:'Artistic approaches that deserve room without a forced style label.',handles:[]},
  {id:'all',name:'All Exhibitions',description:'The complete evolving archive. All visual languages together, newest first.',handles:[]}
 ];
@@ -56,7 +56,10 @@ function renderCurationTabs(){
   item.classList.toggle('active',active);
   item.setAttribute('aria-selected',String(active));
   item.tabIndex=0; // Every curation remains reachable via keyboard Tab.
-  item.querySelector('.curation-tab-count').textContent=String(curationArtists(id).length);
+  const count=curationArtists(id).length;
+  item.querySelector('.curation-tab-count').textContent=String(count);
+  // The fallback room returns automatically if new unclassified art is admitted.
+  item.hidden=id==='other'&&count===0;
  });
  const selected=CURATION_TABS.find(tab=>tab.id===activeCuration);
  byId('curation-description').textContent=selected?selected.description:'';
