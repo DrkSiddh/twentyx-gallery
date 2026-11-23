@@ -92,7 +92,7 @@
    <div><strong id="work-count">0</strong><span>works</span></div>
    <div><strong>06:00 / 18:00 PT</strong><span>publication windows <button class="tiny-info" data-info="updates" aria-label="About publishing times">i</button></span></div>
   </div>
-  <div class="cta-cluster"><button class="pill primary hero-join" id="share-artvision" type="button"><span class="cta-spark" aria-hidden="true">✦</span> Share your #TwentyX <span aria-hidden="true">↗</span></button><div class="cta-instructions"><p class="cta-helper"><strong>Exhibit your work.</strong> Join ArtVision on X and publish <strong>exactly 20 images</strong> in one post with <strong>#TwentyX</strong>.</p><button class="curation-link" type="button" data-open-guide="ideas">Curation ideas, FAQs &amp; terms <span aria-hidden="true">↗</span></button></div></div>
+  <div class="cta-cluster"><button class="pill primary hero-join" id="share-artvision" type="button"><span class="cta-spark" aria-hidden="true">✦</span> Share your #TwentyX <span aria-hidden="true">↗</span></button><div class="cta-instructions"><p class="cta-helper"><strong>Apply to exhibit publicly.</strong> Anyone can view TwentyX. If you want your work shown here, publish <strong>exactly 20 images</strong> in one post with <strong>#TwentyX</strong>.</p><button class="curation-link" type="button" data-open-guide="ideas">Curation ideas, FAQs &amp; terms <span aria-hidden="true">↗</span></button></div></div>
  </div>
  
 
@@ -155,7 +155,26 @@
  </div>
 </section>
 </main>
-<footer class="footer"><span>Twenty works. Infinite perspectives.</span><span>Artist-curated. ArtVision-presented.</span></footer>
+<footer class="footer">
+ <section class="artist-credits" aria-labelledby="artist-credits-title">
+  <h2 id="artist-credits-title">Artists in the exhibition</h2>
+  <ul id="artist-credits-list" class="artist-credits-list"></ul>
+ </section>
+ <div class="footer-actions">
+  <button class="ghost" type="button" data-open-guide="terms">Terms of Service</button>
+  <button class="ghost" type="button" data-open-removal>Remove me from the gallery</button>
+ </div>
+</footer>
+<dialog id="removal-dialog" class="glass-dialog" aria-labelledby="removal-title">
+ <form id="removal-request">
+  <div class="dialog-head"><h2 id="removal-title">Remove me from the gallery</h2><button id="close-removal" class="icon-btn" type="button" aria-label="Close removal request">×</button></div>
+  <p>Request removal of all your TwentyX exhibitions. ArtVision verifies the request with you on X. Once verified, your work, artist pages and brochures come down in the next gallery update. The update report records the removal as a count.</p>
+  <p>Requests are filed on GitHub and are public. Use only your public X handle. You’ll need a GitHub account. You can also contact ArtVision on X from the account shown in the gallery.</p>
+  <label for="removal-handle">Your X handle</label>
+  <input id="removal-handle" type="text" required pattern="@?[A-Za-z0-9_]{1,15}" placeholder="@yourhandle" autocomplete="off">
+  <button class="pill primary" type="submit">Continue to request on GitHub ↗</button>
+ </form>
+</dialog>
 </div>
 
 <dialog class="opportunity-newsletter newsletter-drawer" id="opportunities" aria-labelledby="opportunities-title"><button id="opportunities-close" type="button" class="newsletter-close" aria-label="Close ArtVision mailing list">×</button>
@@ -224,10 +243,12 @@
   <section data-guide-panel="terms" aria-label="Terms of Service" hidden>
    <h3>Participation terms</h3>
    <p class="guide-terms-date">TwentyX by ArtVision · Participation guidelines</p>
-   <h4>1. Original work and permissions</h4><p>Share only images you created or have permission to exhibit. You remain responsible for the rights and accuracy of your submission.</p>
-   <h4>2. Exhibition display</h4><p>By intentionally submitting a public post with #TwentyX, you request consideration for display within TwentyX. If included, your publicly posted works and X attribution may be displayed in the gallery, featured in a rotating spotlight, and reproduced in a free exhibition brochure. You retain ownership of your artwork.</p>
+   <h4>1. TwentyX is a public exhibition</h4>
+   <p><strong>Anyone on the internet can visit TwentyX and see the artwork.</strong> Visitors can view and share exhibition links without an account or membership in the ArtVision X community. Only submit if you want your work and artist credit displayed publicly.</p>
+   <h4>2. What you agree to when you submit</h4>
+   <p>When you intentionally submit a public post with #TwentyX for exhibition, you give ArtVision permission to display the submitted images and credit your X account on TwentyX. If selected, your work may appear on your public exhibition page, in gallery spotlights and in free downloadable exhibition brochures. You keep ownership of your artwork. Submit only work you created or have permission to exhibit publicly.</p>
    <h4>3. Curation and eligibility</h4><p>A submission must contain twenty distinct images in one original post, with #TwentyX. ArtVision may decline or remove works that fail eligibility, infringe rights, or violate applicable platform rules. Submission does not guarantee acceptance or a feature slot.</p>
-   <h4>4. Removal requests</h4><p>Contact ArtVision through the X community with your original post URL to request a review or removal of your exhibition.</p>
+   <h4>4. Removal requests</h4><p>Use <button class="curation-link" type="button" data-open-removal>Remove me from the gallery</button> to withdraw your exhibitions. Once ArtVision verifies the request with the artist, the exhibitions are removed in the next gallery update and excluded from future updates. The report records a count of removals. Copies previously saved or shared by visitors may remain outside TwentyX.</p>
    <h4>5. Third-party platform</h4><p>Following artists or joining the X community is performed on X and subject to X's own terms. TwentyX does not act on your X account on your behalf.</p>
    <p class="guide-aside">These participation guidelines describe this exhibition; they do not override your copyright or X's platform terms.</p>
   </section>

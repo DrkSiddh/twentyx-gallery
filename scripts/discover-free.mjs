@@ -12,6 +12,7 @@
  * Public X access can disappear: report that accurately, don't fake success.
  */
 import fs from 'node:fs';
+import {isWithdrawnHandle} from './withdrawals.mjs';
 import {pathToFileURL} from 'node:url';
 
 export const COMMUNITY_ID='1835009931231322257';
@@ -171,6 +172,7 @@ export async function run({useBrowser=true,fetchStatus=publicPostLookup}={}){
  for(const candidate of jobs){
   try{
    const status=await fetchStatus(candidate.id);
+   if(isWithdrawnHandle(status?.author?.screen_name||status?.author?.username))continue;
    const result=checkStatus(status,candidate.source);
    outcomes.push({id:candidate.id,handle:result.handle||null,kind:result.kind,reason:result.reason,
      observed:result.observed??null,source:candidate.source});
@@ -179,7 +181,7 @@ export async function run({useBrowser=true,fetchStatus=publicPostLookup}={}){
  }
  const merged=new Map(inbox.map(a=>[idFromUrl(a.postUrl)?.id,a]).filter(([id])=>id));
  for(const x of accepted)merged.set(idFromUrl(x.postUrl).id,x);
- const queue=new Map((Array.isArray(review)?review:[]).map(x=>[String(x.id),x]));
+ const queue=new Map((Array.isArray(review)?review:[]).filter(x=>!isWithdrawnHandle(x.handle)).map(x=>[String(x.id),x]));
  for(const x of outcomes)if(x.kind==='review')queue.set(x.id,x);else queue.delete(x.id);
  // Public discovery can fail. Commit only findings, never shrink the archive.
  write('data/inbox.json',[...merged.values()]);

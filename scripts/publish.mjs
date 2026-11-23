@@ -7,6 +7,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
+import {approveWithdrawals, isWithdrawnHandle, withdrawnHandles} from './withdrawals.mjs';
 
 const root=process.cwd();
 const archivePath=path.join(root,'data/collections.json');
@@ -32,11 +33,12 @@ const normalize=(a)=>{
   return {name:a.name.trim(),handle:post.handle,postId:post.id,postUrl:'https://x.com/'+post.handle+'/status/'+post.id,
     date:a.date,media:a.media.slice()};
 };
+if(process.env.TWENTYX_APPROVALS_FILE){
+  approveWithdrawals(JSON.parse(fs.readFileSync(process.env.TWENTYX_APPROVALS_FILE,'utf8')));
+}
 const legacy=read(outputPath), archived=read(archivePath), incoming=read(pendingPath);
 for(const [name,data] of [['archive',archived],['published',legacy],['inbox',incoming]])if(!Array.isArray(data))throw new Error(name+' must be an array');
-// Respect the artist's request to withdraw from TwentyX.
-const withdrawnHandles=new Set(['bwizzyart','bwizzy']);
-const isWithdrawn=item=>withdrawnHandles.has(handleFromPost(item?.postUrl)?.handle.toLowerCase());
+const isWithdrawn=item=>isWithdrawnHandle(handleFromPost(item?.postUrl)?.handle);
 const errors=[];
 const byId=new Map();
 for(const [source,items] of [['archive',archived],['published',legacy],['inbox',incoming]]){
@@ -51,6 +53,32 @@ for(const [source,items] of [['archive',archived],['published',legacy],['inbox',
 if(errors.length){console.error(errors.join('\n'));process.exit(1);}
 if(byId.size<Math.max(archived.filter(item=>!isWithdrawn(item)).length,legacy.filter(item=>!isWithdrawn(item)).length))throw new Error('Refusing to shrink archive');
 const all=[...byId.values()].sort((a,b)=>b.postId.localeCompare(a.postId));
+const removedCollections=new Map([...archived,...legacy].filter(isWithdrawn).map(item=>{
+  const post=handleFromPost(item.postUrl);
+  return [post.id,post.handle.toLowerCase()];
+}));
+for(const handle of withdrawnHandles){
+  fs.rmSync(path.join(root,'@'+handle,'index.html'),{force:true});
+}
+const welcomePath=path.join(root,'welcome');
+if(fs.existsSync(welcomePath)){
+  for(const file of fs.readdirSync(welcomePath)){
+    const match=file.match(/^([a-z0-9_]{1,15})-\d+(?:--[a-z0-9-]+)?\.(?:png|svg)$/i);
+    if(isWithdrawnHandle(match?.[1]))fs.rmSync(path.join(welcomePath,file),{force:true});
+  }
+}
+if(incoming.some(isWithdrawn))write(pendingPath,incoming.filter(item=>!isWithdrawn(item)));
+if(removedCollections.size){
+  const removalReport={
+    publishedAt:new Date().toISOString(),
+    artistsRemoved:new Set(removedCollections.values()).size,
+    collectionsRemoved:removedCollections.size,
+    artworksRemoved:removedCollections.size*20
+  };
+  write(path.join(root,'data/removal-report.json'),removalReport);
+  const summary=process.env.GITHUB_STEP_SUMMARY;
+  if(summary)fs.appendFileSync(summary,'### Exhibition removals\n\n'+removalReport.artistsRemoved+' artists, '+removalReport.collectionsRemoved+' collections, '+removalReport.artworksRemoved+' works removed.\n');
+}
 write(archivePath,all);
 write(outputPath,all);
 const manifest={collectionCount:all.length,artworkCount:all.length*20,posts:all.map(x=>x.postId)};

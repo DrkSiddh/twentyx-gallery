@@ -17,7 +17,9 @@ function fixture(){
  writeFileSync(join(dir,'artists.json'),JSON.stringify(original));
  writeFileSync(join(dir,'data/inbox.json'),'[]');
  writeFileSync(join(dir,'scripts/publish.mjs'),readFileSync('scripts/publish.mjs'));
- const run=()=>spawnSync(process.execPath,['scripts/publish.mjs'],{cwd:dir,encoding:'utf8'});
+ writeFileSync(join(dir,'scripts/withdrawals.mjs'),readFileSync('scripts/withdrawals.mjs'));
+ writeFileSync(join(dir,'data/withdrawn-artists.json'),readFileSync('data/withdrawn-artists.json'));
+ const run=env=>spawnSync(process.execPath,['scripts/publish.mjs'],{cwd:dir,encoding:'utf8',env:{...process.env,...env}});
  const get=path=>JSON.parse(readFileSync(join(dir,path),'utf8'));
  const cleanup=()=>rmSync(dir,{force:true,recursive:true});
  return {dir,run,get,cleanup};
@@ -63,5 +65,35 @@ test('publisher merges new eligible records, deduplicates, and never shrinks',()
   writeFileSync(join(f.dir,'data/inbox.json'),'[]');
   assert.equal(f.run().status,0);
   assert.equal(f.get('artists.json').length,original.length+1);
+ }finally{f.cleanup()}
+});
+
+test('maintainer-approved withdrawals remove the work and prevent later republication',()=>{
+ const f=fixture();
+ try{
+  const artist=original[0];
+  const artistHandle=handle(artist.postUrl).toLowerCase();
+  const postId=ids([artist])[0];
+  const approval=join(f.dir,'approval.json');
+  writeFileSync(approval,JSON.stringify([[{
+   body:'@someone_else',
+   labels:[{name:'withdraw:@'+artistHandle}]
+  }]]));
+  mkdirSync(join(f.dir,'@'+artistHandle));
+  writeFileSync(join(f.dir,'@'+artistHandle,'index.html'),'unpublished page');
+  mkdirSync(join(f.dir,'welcome'));
+  const brochure=join(f.dir,'welcome',artistHandle+'-'+postId+'--analog.png');
+  writeFileSync(brochure,'unpublished brochure');
+  assert.equal(f.run({TWENTYX_APPROVALS_FILE:approval}).status,0);
+  assert.deepEqual(ids(f.get('artists.json')),ids(original).filter(id=>id!==postId));
+  assert.throws(()=>readFileSync(join(f.dir,'@'+artistHandle,'index.html')), {code:'ENOENT'});
+  assert.throws(()=>readFileSync(brochure), {code:'ENOENT'});
+  const {publishedAt,...report}=f.get('data/removal-report.json');
+  assert.ok(publishedAt);
+  assert.deepEqual(report,{artistsRemoved:1,collectionsRemoved:1,artworksRemoved:20});
+  writeFileSync(join(f.dir,'data/inbox.json'),JSON.stringify([artist]));
+  assert.equal(f.run().status,0);
+  assert.ok(!ids(f.get('artists.json')).includes(postId));
+  assert.deepEqual(f.get('data/inbox.json'),[]);
  }finally{f.cleanup()}
 });

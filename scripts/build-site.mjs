@@ -50,6 +50,9 @@ for(const a of artists){
 }
 // Gallery arrivals are chronological, independent of feature priority.
 const ordered=[...artists].sort((a,b)=>idOf(b).localeCompare(idOf(a)));
+const creditedArtists=[...new Map(ordered.map(a=>[handle(a).toLowerCase(),a])).values()]
+ .sort((a,b)=>a.name.localeCompare(b.name,'en',{sensitivity:'base'}));
+const credits=creditedArtists.map(a=>'<li><a href="/@'+esc(handle(a).toLowerCase())+'/">'+esc(a.name)+'</a></li>').join('');
 const formatCuration=date=>{
  const [y,m,d]=String(date||'').split('-');
  return d&&m&&y?d+' '+m+' '+y+' curation':'Artist curation';
@@ -83,6 +86,7 @@ requireReplace('<h2 id="feature-title" class="feature-artist-name">Artist spotli
 
 requireReplace('<link rel="stylesheet" href="./styles.css">','<style>\n'+css+'\n</style>');
 requireReplace('<script src="./app.js" defer></script>','');
+requireReplace('<ul id="artist-credits-list" class="artist-credits-list"></ul>','<ul id="artist-credits-list" class="artist-credits-list">'+credits+'</ul>');
 requireReplace('<div class="home-gallery" id="home-gallery"></div>','<div class="home-gallery" id="home-gallery">\n'+initial+'\n</div>');
 requireReplace('</body>','<script id="seeded-artists" type="application/json">'+seed+'</script>\n<script>\n'+javascript.replaceAll('</script','<\\/script')+'\n</script>\n</body>');
 if(!output.includes('id="seeded-artists"')||!output.includes('class="card-mosaic"')||!output.includes('id="featured-six-gallery"')||!output.includes('pbs.twimg.com/media/')) {

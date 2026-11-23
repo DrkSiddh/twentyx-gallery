@@ -659,7 +659,18 @@ function renderArtist(a){
  byId('download-qr').onclick=()=>downloadPoster(a,byId('download-qr'));
  byId('play-artist').onclick=()=>startCinema(artists,Math.max(0,artists.findIndex(x=>artistID(x)===artistID(a))),0,true);
 }
+function renderArtistCredits(){
+ const root=byId('artist-credits-list');
+ const unique=new Map(artists.map(a=>[artistHandle(a).toLowerCase(),a]));
+ const ordered=[...unique.values()].sort((a,b)=>a.name.localeCompare(b.name,'en',{sensitivity:'base'}));
+ root.replaceChildren(...ordered.map(a=>{
+  const item=create('li');
+  item.append(link(a.name,artistPath(a),''));
+  return item;
+ }));
+}
 function renderRoute(){
+ renderArtistCredits();
  const id=routeArtist(),match=artists.find(a=>artistID(a)===id);
  const onArtist=Boolean(match);
  byId('home-view').hidden=onArtist;
@@ -855,6 +866,24 @@ function bindUI(){
  byId('theme-dock-close').addEventListener('click',()=>setThemeDock(false));
  byId('theme-select').addEventListener('change',event=>setTheme(event.target.value));
  document.querySelectorAll('[data-open-guide]').forEach(b=>b.addEventListener('click',()=>showGuide(b.dataset.openGuide)));
+ const removal=byId('removal-dialog');
+ const removalHandle=byId('removal-handle');
+ document.querySelectorAll('[data-open-removal]').forEach(button=>button.addEventListener('click',()=>{
+  const guide=byId('guide-drawer');
+  if(guide.open)guide.close();
+  removalHandle.value=currentArtist ? '@'+artistHandle(currentArtist) : '';
+  if(!removal.open)removal.showModal();
+ }));
+ byId('close-removal').addEventListener('click',()=>removal.close());
+ byId('removal-request').addEventListener('submit',event=>{
+  event.preventDefault();
+  const handle=removalHandle.value.trim().replace(/^@/,'').toLowerCase();
+  if(!/^[a-z0-9_]{1,15}$/.test(handle))return;
+  const request=new URL('https://github.com/DrkSiddh/twentyx-gallery/issues/new');
+  request.searchParams.set('title','TwentyX exhibition removal request');
+  request.searchParams.set('body','Please remove my TwentyX exhibitions for @'+handle+'.\n\nArtVision: please verify this request with me on X before processing it.');
+  window.location.assign(request.href);
+ });
  byId('guide-close').addEventListener('click',()=>byId('guide-drawer').close());
  byId('guide-community').addEventListener('click',()=>{
   byId('guide-drawer').close();
@@ -973,23 +1002,31 @@ function bindUI(){
 async function syncLatestExhibitions(){
  try{
   const response=await fetch('/artists.json?v='+Date.now(),{cache:'no-store'});
-  if(!response.ok)return;
+  if(!response.ok)throw Error('HTTP '+response.status);
   const data=await response.json();
-  if(!Array.isArray(data))return;
-  const fresh=sortArtists(data.filter(valid));
-  if(!fresh.length)return;
-  const previousIds=new Set(artists.map(artistID));
-  const combined=new Map(artists.map(a=>[artistID(a),a]));
-  fresh.forEach(a=>combined.set(artistID(a),a));
-  if(combined.size===previousIds.size)return;
-  artists=sortArtists([...combined.values()]);
+  if(!Array.isArray(data)||!data.length||!data.every(valid))throw Error('Invalid exhibition data');
+  const fresh=sortArtists(data);
+  if(JSON.stringify(fresh)===JSON.stringify(artists))return;
+  const currentIds=new Set(fresh.map(artistID));
+  if(arrivalArtist&&!currentIds.has(artistID(arrivalArtist))){
+   arrivalArtist=null;
+   arrivalSignature='';
+  }
+  if(viewerArtists.some(a=>!currentIds.has(artistID(a))))stopCinema();
+  artists=fresh;
   byId('artist-count').textContent=artists.length;
   byId('work-count').textContent=(artists.length*20).toLocaleString();
-  if(!byId('cinema').classList.contains('active'))renderRoute();
+  renderRoute();
   featureWork(false);
+  renderNewArrivals();
   void renderArrivalImage();
   scheduleHeadlineFit();
- }catch(error){console.warn('Live stats refresh deferred:',error.message)}
+ }catch(error){
+  if(!artists.length){
+   byId('home-status').textContent='The exhibition could not load: '+error.message;
+   byId('home-view').hidden=false;byId('artist-view').hidden=true;
+  }else console.warn('Live refresh unavailable; displaying bundled artworks:',error.message);
+ }
 }
 async function load(){
  setDayPhase();initializeTheme();setInterval(()=>{setDayPhase();featureWork(false)},60000);bindUI();
@@ -1016,27 +1053,6 @@ async function load(){
   void renderArrivalImage();
   scheduleHeadlineFit();
  }
- try{
-  const response=await fetch('/artists.json?v='+Math.floor(Date.now()/900000),{cache:'no-store'});
-  if(!response.ok)throw Error('HTTP '+response.status);
-  const data=await response.json();
-  if(!Array.isArray(data))throw Error('Exhibition data format error');
-  const fresh=sortArtists(data.filter(valid));
-  if(!fresh.length)throw Error('No complete twenty-work exhibitions found');
-  // A partial or broken live update must never erase the embedded works.
-  const retained=new Map(seeded.map(a=>[artistID(a),a]));
-  fresh.forEach(a=>retained.set(artistID(a),a));
-  artists=sortArtists([...retained.values()]);
-  byId('artist-count').textContent=artists.length;
-  byId('work-count').textContent=(artists.length*20).toLocaleString();
-  renderRoute();
-  featureWork(false);
-  void renderArrivalImage();
- }catch(error){
-  if(!seeded.length){
-   byId('home-status').textContent='The exhibition could not load: '+error.message;
-   byId('home-view').hidden=false;byId('artist-view').hidden=true;
-  }else console.warn('Live refresh unavailable; displaying bundled artworks:',error.message);
- }
+ await syncLatestExhibitions();
 }
 load();

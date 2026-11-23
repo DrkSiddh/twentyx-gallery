@@ -13,6 +13,7 @@ on:
       - ".github/workflows/publish.yml"
 permissions:
   contents: write
+  issues: read
 concurrency:
   group: twentyx-publisher
   cancel-in-progress: false
@@ -44,10 +45,18 @@ jobs:
         run: |
           npm install --no-package-lock
           npx playwright install --with-deps chromium --only-shell
+      - name: Load verified removal requests
+        if: steps.window.outputs.allowed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/issues?state=open&per_page=100" > "$RUNNER_TEMP/twentyx-approvals.json"
+      - name: Apply verified removals before discovery
+        if: steps.window.outputs.allowed == 'true'
+        run: TWENTYX_APPROVALS_FILE="$RUNNER_TEMP/twentyx-approvals.json" node scripts/publish.mjs
       - name: Find and validate new TwentyX posts at no API cost
         if: steps.window.outputs.allowed == 'true'
         run: npm run discover:free
-      - name: Validate, merge and publish without deletions
+      - name: Validate and publish current exhibitions
         if: steps.window.outputs.allowed == 'true'
         run: npm run publish
       - name: Commit only changed gallery content
@@ -55,7 +64,7 @@ jobs:
         run: |
           git config user.name "TwentyX Gallery Bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A -- index.html artists.json data/ @*/index.html
+          git add -A -- index.html artists.json data/ ':(glob)@*/index.html'
           if [ -d welcome ] && [ -n "$(find welcome -type f -print -quit)" ]; then
             git add -A -- welcome/
           fi

@@ -167,3 +167,18 @@ at the same two Pacific-time publication windows.
 A green Actions result proves the job completed, **not** that every eligible
 X post was discoverable. Check `newExhibitions` and `sourceChecks` in the
 report to diagnose upstream access issues.
+
+## Artist withdrawal requests
+
+The footer's **Remove me from the gallery** button opens a prefilled GitHub
+issue. Verify that the request came from the relevant X account before approving
+it. Apply the exact label `withdraw:@handle` to the open issue using the verified
+handle. Maintainers can create this label in the repository's Labels settings.
+Keep the issue open until the next publication has processed it. You can also
+run **TwentyX sunrise / sunset publisher** manually after applying the label.
+
+The publisher records the handle in the permanent withdrawal registry, removes
+its exhibitions and downloadable brochures, and excludes later submissions by
+that handle. The Actions summary and `data/removal-report.json` report counts
+without identifying the artist. The JSON file records the latest update that
+processed a removal.
