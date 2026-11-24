@@ -54,7 +54,8 @@ for(const a of artists){
 const ordered=[...artists].sort((a,b)=>idOf(b).localeCompare(idOf(a)));
 const creditedArtists=[...new Map(ordered.map(a=>[handle(a).toLowerCase(),a])).values()]
  .sort((a,b)=>a.name.localeCompare(b.name,'en',{sensitivity:'base'}));
-const credits=creditedArtists.map(a=>'<li><a href="/@'+esc(handle(a).toLowerCase())+'/">'+esc(a.name)+'</a></li>').join('');
+const creditName=name=>name.replace(/[\p{Extended_Pictographic}\p{Regional_Indicator}\p{Emoji_Modifier}\u200D\uFE0F\u20E3]/gu,'').trim().replace(/\s+/g,' ');
+const credits=creditedArtists.map(a=>'<li><a href="/@'+esc(handle(a).toLowerCase())+'/">'+esc(creditName(a.name)||'@'+handle(a))+'</a></li>').join('');
 const formatCuration=date=>{
  const [y,m,d]=String(date||'').split('-');
  return d&&m&&y?d+' '+m+' '+y+' curation':'Artist curation';
