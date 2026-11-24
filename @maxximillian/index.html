@@ -3133,6 +3133,9 @@ const CURATION_TABS=[
  {id:'other',name:'Other Visions',description:'Artistic approaches that deserve room without a forced style label.',handles:[]},
  {id:'all',name:'All Exhibitions',description:'The complete evolving archive. All visual languages together, newest first.',handles:[]}
 ];
+// Select square originals for the wide Abstract feature without altering exhibition order.
+const ABSTRACT_PREVIEWS=new Map([['2124689739081023575',2],['2125304690447700450',14]]);
+const previewWork=artist=>({artist,index:ABSTRACT_PREVIEWS.get(artistID(artist))??0});
 const ANIME_POSTS=new Set(['2124865554229989623']);
 const CURATED_HANDLES=new Set(CURATION_TABS.filter(t=>!['other','all'].includes(t.id)).flatMap(t=>t.handles));
 let activeCuration='postphotography';
@@ -3546,7 +3549,7 @@ function abstractFeature(abstracts){
   renderHome();
   byId('category-title').scrollIntoView();
  }));
- section.append(artworkCarousel('Abstract',abstracts.map(artist=>({artist,index:0})),{onSelect:goArtist}));
+ section.append(artworkCarousel('Abstract',abstracts.map(previewWork),{onSelect:goArtist}));
  return section;
 }
 
@@ -3564,7 +3567,7 @@ function renderFeaturedArtists(){
   const handle=artistHandle(a).toLowerCase();
   tile.setAttribute('aria-label','Enter '+a.name+'—twenty original artworks by @'+handle);
   const artwork=create('span','featured-six-art');
-  const src=a.media[0];
+  const src=a.media[previewWork(a).index];
   setArtBackdrop(artwork,src);
   const img=create('img');
   img.src=src;img.alt='Original artwork from @'+handle+' exhibition, presented without cropping';
@@ -3741,7 +3744,7 @@ function renderHome(){
  const spotlight=byId('category-spotlight');
  spotlight.replaceChildren();
  if(!q&&activeCuration==='abstract'&&shown.length){
-  spotlight.append(artworkCarousel('Abstract',shown.map(artist=>({artist,index:0})),{onSelect:goArtist}));
+  spotlight.append(artworkCarousel('Abstract',shown.map(previewWork),{onSelect:goArtist}));
  }
  if(!q&&activeCuration==='illustration'){
   const lineup=shown.filter(artist=>['nikdraperivey','artxygenishim'].includes(artistHandle(artist).toLowerCase()));

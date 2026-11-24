@@ -696,7 +696,7 @@ test('Abstract feature and room spotlights use the admitted original artwork',as
   const grid=t.doc.querySelector('#featured-six-gallery');
   const abstract=grid.querySelector('.featured-abstract');
   assert.equal(Array.from(grid.children).indexOf(abstract),8);
-  const expected=['2125304690447700450','2124689739081023575'].map(id=>publishedArtists.find(a=>a.postId===id).media[0]);
+  const expected=[['2125304690447700450',14],['2124689739081023575',2]].map(([id,index])=>publishedArtists.find(a=>a.postId===id).media[index]);
   const previews=section=>Array.from(section.querySelectorAll('.artwork-carousel-slide img'),img=>img.src);
   assert.deepEqual(previews(abstract),expected);
 
