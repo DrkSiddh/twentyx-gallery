@@ -2755,3 +2755,63 @@ body[data-view="artist"] .arrival-curations{display:none!important}
 .footer-actions .ghost:hover,.footer-actions .ghost:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:.2em}
 #removal-request{display:grid;gap:.65rem}
 #removal-handle{max-width:100%;background:transparent;color:inherit;border:1px solid currentColor;border-radius:.4rem;padding:.65rem}
+
+@font-face{font-family:TwentyX Heritage;src:url("/Themes/Heritage%20font.ttf") format("truetype");font-display:swap}
+@font-face{font-family:TwentyX Futura;src:url("/Themes/FuturaLTPro-Light.ttf") format("truetype");font-display:swap}
+@font-face{font-family:TwentyX Liner;src:url("/Themes/LINER___.TTF") format("truetype");font-display:swap}
+@font-face{font-family:TwentyX Cartoon Paint;src:url("/Themes/cartoon%20paint%20font.ttf") format("truetype");font-display:swap}
+@font-face{font-family:TwentyX Cartoon Sign;src:url("/Themes/Cartoon%20Sign%20font.ttf") format("truetype");font-display:swap}
+@font-face{font-family:TwentyX Bioliquid;src:url("/Themes/bioliquid-Regular.ttf") format("truetype");font-display:swap}
+@font-face{font-family:TwentyX Da Government;src:url("/Themes/Da%20Government%20font.ttf") format("truetype");font-display:swap}
+
+body[data-gallery-room="fine-art"]{--room-display:"TwentyX Heritage";--room-text:"TwentyX Futura"}
+body[data-gallery-room="illustration"]{--room-display:"TwentyX Cartoon Paint";--room-text:"TwentyX Cartoon Sign"}
+body[data-gallery-room="postphotography"]{--room-display:"TwentyX Liner";--room-text:"TwentyX Futura"}
+body[data-gallery-room="alien"]{--room-display:"TwentyX Bioliquid";--room-text:"TwentyX Da Government"}
+
+body:is([data-gallery-room="fine-art"],[data-gallery-room="illustration"],[data-gallery-room="postphotography"],[data-gallery-room="alien"]) :is(#home-view,#featured-six,.topbar,.feature-section,.arrival-caption,.arrival-curations,.footer) :is(a,button,label,input,p,h2,h3,span,small,strong,li,summary,div):not(.category-title,.featured-six-wordmark,.brand-wordmark){
+ font-family:var(--room-text),Inter,system-ui,sans-serif!important
+}
+.category-title{
+ margin:clamp(20px,4vw,56px) 0 .25em;
+ font-family:var(--room-display,Oxanium),system-ui,sans-serif;
+ font-size:clamp(2.1rem,8.3vw,10rem);font-weight:400;
+ line-height:1.08;letter-spacing:normal;overflow-wrap:anywhere;
+ scroll-margin-top:24px
+}
+
+#featured-six-gallery{
+ grid-template-columns:repeat(4,minmax(0,1fr));
+}
+#featured-six-gallery>.featured-six-card{aspect-ratio:1;height:auto;min-height:0}
+.featured-abstract{grid-column:1 / -1}
+.featured-abstract-title,.category-spotlight-title{
+ display:block;padding:clamp(14px,2vw,30px);margin:0;
+ border:0;background:var(--glass);color:var(--ink);
+ font-size:clamp(1.4rem,3.5vw,3.3rem);text-align:left
+}
+#category-spotlight:not(:empty){
+ width:100vw;margin:0 0 24px calc(50% - 50vw)
+}
+.artwork-carousel-track{
+ display:grid;grid-auto-flow:column;grid-auto-columns:50%;
+ align-items:start;overflow-x:auto;scroll-snap-type:x mandatory
+}
+.artwork-carousel[data-columns="1"] .artwork-carousel-track{grid-auto-columns:100%}
+.artwork-carousel-slide{
+ display:block;width:100%;min-width:0;padding:0;border:0;
+ background:transparent;color:var(--ink);text-align:left;scroll-snap-align:start
+}
+.artwork-carousel-slide:focus-visible,.artwork-carousel-track:focus-visible{outline-offset:-3px}
+.artwork-carousel-slide img{display:block;width:100%;height:auto}
+.artwork-carousel-credit{
+ display:block;padding:12px clamp(8px,2vw,28px);
+ background:var(--glass);font-size:clamp(.85rem,1.5vw,1.35rem)
+}
+.artwork-carousel-controls{display:flex;justify-content:end;gap:10px;padding:12px 18px}
+@media(max-width:640px){
+ #featured-six-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}
+ #featured-six-gallery .featured-six-label{min-height:48px;padding:6px!important}
+ #featured-six-gallery .featured-six-name{font-size:clamp(.85rem,3.8vw,1.25rem)}
+ #featured-six-gallery .featured-six-number{font-size:9px}
+}

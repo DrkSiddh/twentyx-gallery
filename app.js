@@ -10,24 +10,32 @@ const create=(tag,className,text)=>{
 };
 const POSTS='https://x.com/i/communities/1835009931231322257';
 const CANONICAL='https://twentyx.artvision.today/';
-// Twelve distinct featured exhibitions; chronologically sorted at display time.
-const PINNED=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim','exolorian','jjjjere','ctwlk','turonworld','allthebots','nikdraperivey'];
+// Featured exhibitions are chronologically sorted at display time.
+const PINNED=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim','exolorian','jjjjere','ctwlk','turonworld','allthebots','nikdraperivey','dorthejoc','maxximillian'];
 // Curatorial affinities describe the visual presentation, never an artist's tools
 // or materials. An artist can appear in multiple rooms without duplicating work.
 const CURATION_TABS=[
- {id:'postphotography',name:'#Postphotography',description:'Photography beyond the photograph: staged, recomposed, imagined and transformed image-worlds.',handles:['turonworld','skelevaggio','stunnifer','ctwlk','pepavaggio','giselxphoto','exolorian','jjjjere','allthebots','ciphervoss']},
+ {id:'postphotography',name:'Postphotography',description:'Photography beyond the photograph: staged, recomposed, imagined and transformed image-worlds.',handles:['turonworld','skelevaggio','stunnifer','ctwlk','pepavaggio','giselxphoto','exolorian','jjjjere','allthebots','ciphervoss']},
  {id:'sketchbook',name:'Sketchbook Aesthetic',description:'The intimacy of the page, a line, a gesture, a thought in the making. No assumption about physical or digital process.',handles:['_amaka_o','iridescent_bug','andyybzyy','lovecolors4','hplovebux','dylanbrion71545']},
- {id:'illustrated',name:'Illustrated',description:'Distinctive narrative and image-making through form, graphic imagination and character.',handles:['artxygenishim','nikdraperivey','ink_relic','andyybzyy','periblitzv2']},
+ {id:'illustration',name:'Illustration',description:'Distinctive narrative and image-making through form, graphic imagination and character.',handles:['artxygenishim','nikdraperivey','ink_relic','andyybzyy','periblitzv2','hplovebux','turonworld']},
+ {id:'abstract',name:'Abstract',description:'Digital abstractions made in Procreate.',handles:['dorthejoc','maxximillian']},
+ {id:'fine-art',name:'Fine Art',description:'Works by War Lord Wolff and HP Lovebux.',handles:['wolfthewarlord','hplovebux']},
+ {id:'alien',name:'Alien',description:'Speculative worlds and otherworldly forms.',handles:['spalienart']},
  {id:'anime',name:'Anime',description:'Anime- and manga-influenced visual worlds, including expressive character designs and fantasy details.',handles:['mheenam_lily7','nikkiyaki_','jellitix','yenaarteng','spalienart','elyris_art','mintshiiii','ayyzirly','aarandommm','ftpickaxe','for1un3']},
  {id:'other',name:'Other Visions',description:'Artistic approaches that deserve room without a forced style label.',handles:[]},
  {id:'all',name:'All Exhibitions',description:'The complete evolving archive. All visual languages together, newest first.',handles:[]}
 ];
+// Select square originals for the wide Abstract feature without altering exhibition order.
+const ABSTRACT_PREVIEWS=new Map([['2124689739081023575',2],['2125304690447700450',14]]);
+const previewWork=artist=>({artist,index:ABSTRACT_PREVIEWS.get(artistID(artist))??0});
+const ANIME_POSTS=new Set(['2124865554229989623']);
 const CURATED_HANDLES=new Set(CURATION_TABS.filter(t=>!['other','all'].includes(t.id)).flatMap(t=>t.handles));
 let activeCuration='postphotography';
 function inCuration(a,id){
  const handle=artistHandle(a).toLowerCase();
  if(id==='all')return true;
- if(id==='other')return !CURATED_HANDLES.has(handle);
+ if(id==='other')return !CURATED_HANDLES.has(handle)&&!ANIME_POSTS.has(artistID(a));
+ if(id==='anime'&&ANIME_POSTS.has(artistID(a)))return true;
  const tab=CURATION_TABS.find(t=>t.id===id);
  return Boolean(tab&&tab.handles.includes(handle));
 }
@@ -62,7 +70,8 @@ function renderCurationTabs(){
   item.hidden=id==='other'&&count===0;
  });
  const selected=CURATION_TABS.find(tab=>tab.id===activeCuration);
- byId('curation-description').textContent=selected?selected.description:'';
+ byId('curation-description').textContent=selected.description;
+ byId('category-title').textContent=selected.name;
 }
 
 const THEME_IDS=['violet','analog','heritage','nostalgia','glitch'];
@@ -243,11 +252,15 @@ function setThemeDock(open){
  if('inert' in byId('theme-dock-panel'))byId('theme-dock-panel').inert=!open;
  if(open)byId('theme-select').focus();else byId('theme-dock-tab').focus();
 }
+function applyViewingTheme(){
+ const theme=document.body.dataset.view==='home'&&activeCuration==='fine-art'?'heritage':currentTheme;
+ document.body.dataset.theme=theme;
+ byId('theme-select').value=theme;
+}
 function setTheme(theme){
  if(!THEME_IDS.includes(theme))theme='violet';
  currentTheme=theme;
- document.body.dataset.theme=theme;
- byId('theme-select').value=theme;
+ applyViewingTheme();
  try{window.localStorage.setItem('twentyx-theme-v1',theme)}catch{}
  // Artwork palette is independent of theme selection, so a chosen theme is
  // never silently overwritten by palette extraction.
@@ -309,11 +322,7 @@ function newestArtist(){
  return [...artists].sort((a,b)=>artistID(b).localeCompare(artistID(a)))[0]||null;
 }
 function featureArtists(list=artists){
- // The edge-to-edge program is a deliberate twelve-artist curation:
- // visitors are never automatically dropped into the anime room.
- // Other artists remain fully available in tabs, search and slideshow.
- const highlighted=PINNED.map(handle=>list.find(a=>artistHandle(a).toLowerCase()===handle)).filter(Boolean);
- return highlighted.length?sortArtists(highlighted):sortArtists(list.filter(a=>artistHandle(a).toLowerCase()!=='ciphervoss'));
+ return sortArtists(PINNED.map(handle=>list.find(a=>artistHandle(a).toLowerCase()===handle)).filter(Boolean));
 }
 function featureHour(now=Date.now()){return Math.floor(now/FEATURE_HOUR_MS)}
 function currentFeature(now=Date.now()){
@@ -355,54 +364,102 @@ async function renderArrivalImage(){
   const img=new Image();
   const timeout=window.setTimeout(()=>{img.onload=null;img.onerror=null;reject(Error('Image timeout'))},2200);
   img.referrerPolicy='no-referrer';
-  img.onload=()=>{clearTimeout(timeout);img.naturalWidth>img.naturalHeight*1.1&&img.naturalWidth>=640?resolve(c):reject(Error('Not landscape'))};
+  img.onload=()=>{clearTimeout(timeout);img.naturalWidth>img.naturalHeight*1.1&&img.naturalWidth>=640?resolve({...c,width:img.naturalWidth,height:img.naturalHeight}):reject(Error('Not landscape'))};
   img.onerror=()=>{clearTimeout(timeout);reject(Error('Image unavailable'))};
-  img.src=c.artist.media[c.index];
+  img.src=c.url;
  });
  const storageKey='twentyx:last-arrival-artwork';
  let previous;
  try{previous=localStorage.getItem(storageKey)}catch{}
- const candidates=featured.flatMap(artist=>artist.media.map((url,index)=>({artist,index,url})));
+ let previousPath;
+ try{previousPath=new URL(previous).pathname}catch{}
+ const candidates=featured.flatMap(artist=>artist.media.map((url,index)=>({artist,index,url})))
+  .filter(work=>new URL(work.url).pathname!==previousPath);
  for(let i=candidates.length-1;i>0;i--){
   const j=Math.floor(Math.random()*(i+1));
   [candidates[i],candidates[j]]=[candidates[j],candidates[i]];
  }
- const fresh=candidates.filter(work=>work.url!==previous);
- const batches=[];
- for(let i=0;i<fresh.length;i+=featured.length)batches.push(fresh.slice(i,i+featured.length));
- const fallback=candidates.find(work=>work.url===previous);
- if(fallback)batches.push([fallback]);
- for(const batch of batches){
+ for(let offset=0;offset<candidates.length;offset+=featured.length){
+  const batch=candidates.slice(offset,offset+featured.length);
   const selected=await Promise.any(batch.map(probeWork)).catch(()=>null);
   if(arrivalSignature!==signature)return;
   if(!selected)continue;
   arrivalArtist=selected.artist;arrivalWorkIndex=selected.index;
   const image=byId('arrival-image-img');
+  image.referrerPolicy='no-referrer';
+  image.width=selected.width;
+  image.height=selected.height;
   image.src=selected.url;
   try{localStorage.setItem(storageKey,selected.url)}catch{}
-  image.referrerPolicy='no-referrer';
   image.alt='Landscape artwork '+(selected.index+1)+' of 20 curated by '+selected.artist.name;
   byId('arrival-name').textContent=selected.artist.name+' · Work '+String(selected.index+1).padStart(2,'0')+' / 20';
   byId('arrival-image').hidden=document.body.dataset.view==='artist';
-  colorFromArtwork(image.src,selected.artist);
+  if(document.body.dataset.view==='home'&&!byId('cinema').classList.contains('active'))colorFromArtwork(image.src,selected.artist);
   return;
  }
 }
 
-/** Twelve newest-first featured artist exhibitions with the exact original twenty works. */
+function artworkCarousel(label,works,{columns=2,onSelect}={}){
+ const section=create('section','artwork-carousel');
+ section.dataset.columns=String(columns);
+ section.setAttribute('aria-label',label+' carousel');
+ const track=create('div','artwork-carousel-track');
+ track.tabIndex=0;
+ track.setAttribute('aria-label',label+' artworks');
+ for(const {artist,index} of works){
+  const slide=button('','artwork-carousel-slide',()=>onSelect(artist,index));
+  const image=create('img');
+  image.src=artist.media[index];
+  image.alt='Work '+(index+1)+' by '+artist.name;
+  image.loading='lazy';image.decoding='async';image.referrerPolicy='no-referrer';
+  slide.append(image,create('span','artwork-carousel-credit',artist.name));
+  track.append(slide);
+ }
+ section.append(track);
+ if(works.length>columns){
+  const controls=create('div','artwork-carousel-controls');
+  const move=direction=>track.scrollBy({left:direction*track.clientWidth/columns,behavior:prefersReduced?'instant':'smooth'});
+  const previous=button('Previous','ghost',()=>move(-1));
+  const next=button('Next','ghost',()=>move(1));
+  const update=()=>{
+   previous.disabled=track.scrollLeft<=1;
+   next.disabled=track.scrollLeft+track.clientWidth>=track.scrollWidth-1;
+  };
+  track.addEventListener('scroll',update,{passive:true});
+  previous.disabled=true;
+  controls.append(previous,next);
+  section.append(controls);
+ }
+ return section;
+}
+
+function abstractFeature(abstracts){
+ const section=create('section','featured-abstract');
+ section.append(button('Abstract','featured-abstract-title',()=>{
+  activeCuration='abstract';
+  byId('search').value='';
+  renderHome();
+  byId('category-title').scrollIntoView();
+ }));
+ section.append(artworkCarousel('Abstract',abstracts.map(previewWork),{onSelect:goArtist}));
+ return section;
+}
+
 function renderFeaturedArtists(){
  const gallery=byId('featured-six-gallery');if(!gallery)return;
  const highlighted=featureArtists();
- const signature=highlighted.map(a=>artistID(a)).join(',');
- if(signature===featuredArtistsSignature&&gallery.children.length===highlighted.length)return;
+ const abstracts=curationArtists('abstract');
+ const signature=highlighted.map(artistID).join(',')+'|'+abstracts.map(artistID).join(',');
+ if(signature===featuredArtistsSignature)return;
  featuredArtistsSignature=signature;
  gallery.replaceChildren();
  highlighted.forEach((a,index)=>{
+  if(index===8&&abstracts.length)gallery.append(abstractFeature(abstracts));
   const tile=button('','featured-six-card',()=>goArtist(a));
   const handle=artistHandle(a).toLowerCase();
   tile.setAttribute('aria-label','Enter '+a.name+'—twenty original artworks by @'+handle);
   const artwork=create('span','featured-six-art');
-  const src=a.media[0];
+  const src=a.media[previewWork(a).index];
   setArtBackdrop(artwork,src);
   const img=create('img');
   img.src=src;img.alt='Original artwork from @'+handle+' exhibition, presented without cropping';
@@ -417,6 +474,7 @@ function renderFeaturedArtists(){
   tile.append(artwork,explore,label);
   gallery.append(tile);
  });
+ if(highlighted.length<=8&&abstracts.length)gallery.append(abstractFeature(abstracts));
 }
 
 /** A living arrival list, never stale hard-coded names or invented additions. */
@@ -467,7 +525,7 @@ function featureWork(next=false){
   byId('feature-title').textContent=featuredArtist.name;
   fitArtistHeadlines();
   byId('feature-subline').textContent='20 original artworks';
-  if(document.body.dataset.view!=='artist'&&!byId('cinema').classList.contains('active'))colorFromArtwork(src,featuredArtist);
+  if(document.body.dataset.view!=='artist'&&!arrivalArtist&&!byId('cinema').classList.contains('active'))colorFromArtwork(src,featuredArtist);
   img.classList.remove('change');
  };
  if(prefersReduced||!next)reveal();else window.setTimeout(reveal,220);
@@ -567,12 +625,29 @@ function attachCardTilt(root){
  });
 }
 function renderHome(){
+ document.body.dataset.galleryRoom=activeCuration;
+ applyViewingTheme();
  renderCurationTabs();
  const q=byId('search').value.trim().toLowerCase();
  // A typed artist search intentionally searches the full archive, regardless of tab.
  const shown=q
   ?sortArtists(artists.filter(a=>(a.name+' '+artistHandle(a)).toLowerCase().includes(q)))
   :curationArtists();
+ const spotlight=byId('category-spotlight');
+ spotlight.replaceChildren();
+ if(!q&&activeCuration==='abstract'&&shown.length){
+  spotlight.append(artworkCarousel('Abstract',shown.map(previewWork),{onSelect:goArtist}));
+ }
+ if(!q&&activeCuration==='illustration'){
+  const lineup=shown.filter(artist=>['nikdraperivey','artxygenishim'].includes(artistHandle(artist).toLowerCase()));
+  if(lineup.length){
+   const works=Array.from({length:20},(_,index)=>lineup.map(artist=>({artist,index}))).flat();
+   spotlight.append(create('h3','category-spotlight-title',lineup.map(artist=>artist.name).join(' & ')));
+   spotlight.append(artworkCarousel('Featured Illustration',works,{
+    onSelect:(artist,index)=>startCinema(lineup,lineup.indexOf(artist),index,false)
+   }));
+  }
+ }
  const root=byId('home-gallery');root.replaceChildren();
  shown.forEach((a,index)=>{
   const card=create('article','collection-card');card.id='artist-'+artistID(a);card.dataset.artistHandle=artistHandle(a).toLowerCase();
@@ -691,11 +766,18 @@ function renderRoute(){
  document.body.dataset.view=onArtist?'artist':'home';
  byId('featured-six').hidden=onArtist;
  byId('arrival-image').hidden=onArtist||!arrivalArtist;
- if(onArtist)renderArtist(match);
+ if(onArtist){
+  delete document.body.dataset.galleryRoom;
+  applyViewingTheme();
+  renderArtist(match);
+ }
  else{
   currentArtist=null;document.title='TwentyX • ArtVision X';
   renderHome();
-  if(!byId('cinema').classList.contains('active')&&featuredArtist)colorFromArtwork(featuredArtist.media[featuredIndex],featuredArtist);
+  if(!byId('cinema').classList.contains('active')){
+   if(arrivalArtist)colorFromArtwork(arrivalArtist.media[arrivalWorkIndex],arrivalArtist);
+   else if(featuredArtist)colorFromArtwork(featuredArtist.media[featuredIndex],featuredArtist);
+  }
  }
 }
 function openHelp(key){
@@ -803,6 +885,7 @@ function stopCinema(){
  cinemaNativeFullscreen=false;
  viewerArtists=[];
  if(currentArtist)colorFromArtwork(currentArtist.media[spatialIndex]||currentArtist.media[0],currentArtist);
+ else if(arrivalArtist)colorFromArtwork(arrivalArtist.media[arrivalWorkIndex],arrivalArtist);
  else if(featuredArtist)colorFromArtwork(featuredArtist.media[featuredIndex],featuredArtist);
  if(lastFocus&&lastFocus.isConnected)lastFocus.focus();
 }
