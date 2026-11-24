@@ -20,7 +20,6 @@ const CURATION_TABS=[
  {id:'illustration',name:'Illustration',description:'Distinctive narrative and image-making through form, graphic imagination and character.',handles:['artxygenishim','nikdraperivey','ink_relic','andyybzyy','periblitzv2','hplovebux','turonworld']},
  {id:'abstract',name:'Abstract',description:'Digital abstractions made in Procreate.',handles:['dorthejoc','maxximillian']},
  {id:'fine-art',name:'Fine Art',description:'Works by War Lord Wolff and HP Lovebux.',handles:['wolfthewarlord','hplovebux']},
- {id:'alien',name:'Alien',description:'Speculative worlds and otherworldly forms.',handles:['spalienart']},
  {id:'anime',name:'Anime',description:'Anime- and manga-influenced visual worlds, including expressive character designs and fantasy details.',handles:['mheenam_lily7','nikkiyaki_','jellitix','yenaarteng','spalienart','elyris_art','mintshiiii','ayyzirly','aarandommm','ftpickaxe','for1un3']},
  {id:'other',name:'Other Visions',description:'Artistic approaches that deserve room without a forced style label.',handles:[]},
  {id:'all',name:'All Exhibitions',description:'The complete evolving archive. All visual languages together, newest first.',handles:[]}
@@ -74,7 +73,7 @@ function renderCurationTabs(){
  byId('category-title').textContent=selected.name;
 }
 
-const THEME_IDS=['violet','analog','heritage','nostalgia','glitch'];
+const THEME_IDS=['violet','analog','heritage','nostalgia','glitch','alien'];
 const FEATURE_HOUR_MS=3600000;
 let lastFeatureHour=null,currentTheme='violet',pendingXUrl='';
 let artists=[];
@@ -97,7 +96,7 @@ const prefersReduced=window.matchMedia('(prefers-reduced-motion: reduce)').match
 const help={
   about:['What is TwentyX?','TwentyX Presented By ArtVision is a multidimensional self-evolving art exhibition. Every artist curates twenty works of art on X. Enter their solo exhibitions, experience the work in multiple dimensions, and follow the artists who made it.'],
   updates:['When does the gallery update?','TwentyX introduces newly curated exhibitions at 6:00 AM and 6:00 PM Pacific Time. Return to discover new artists and explore their twenty works.'],
-  join:['How to participate','Your post must contain exactly 20 artworks to appear in TwentyX. Posts containing 1–19 are not eligible. Twenty is the maximum number allowed in a single X post. Include #TwentyX and share your work with ArtVision on X; each complete exhibition is verified before inclusion.'],
+  join:['How to participate','Your post must contain exactly 20 artworks to appear in TwentyX. Posts containing 1–19 are not eligible. Twenty is the maximum number allowed in a single X post. Join the ArtVision community on X, then publish your post inside the community with #TwentyX.'],
   browse:['Exploring the exhibition','Select an artist to view all twenty works on a full-width exhibition wall, or switch to the spatial carousel. Use Surprise me for a chance encounter. The slideshow studio lets you select any combination of artists, or play the entire gallery.'],
   qr:['What does the exhibition brochure do?','Download an artist-curated TwentyX exhibition brochure with twenty works, a curatorial credit and a scannable QR code. The full-size PNG is preferred, with an instantly downloadable vector edition as a fallback.'],
   spatial:['About the spatial carousel','A cinematic, three-panel perspective viewer. The original two-dimensional artworks remain unchanged. Use Previous or Next to cycle through all twenty; click the center image to enter the immersive viewer.'],
@@ -128,7 +127,7 @@ function openXAction(mode,artist){
  byId('x-action-title').textContent=follow?'Follow @'+artistHandle(artist)+' on X':'Enter the ArtVision community.';
  byId('x-action-copy').textContent=follow
   ?'Follow @'+artistHandle(artist)+' on X, then come right back to this exhibition. Following is authorized on X.'
-  :'join the artVision community and post twenty images with the hashtag #TwentyX to join this exhibition.';
+  :'Join the ArtVision community on X. As a member, publish one post inside the community with exactly 20 images and #TwentyX.';
  byId('x-action-continue').textContent=follow?'Follow on X ↗':'Join ArtVision on X ↗';
  byId('x-action-guide').hidden=follow;
  if(!byId('x-action-modal').open)byId('x-action-modal').showModal();
@@ -447,14 +446,14 @@ function abstractFeature(abstracts){
 
 function renderFeaturedArtists(){
  const gallery=byId('featured-six-gallery');if(!gallery)return;
- const highlighted=featureArtists();
  const abstracts=curationArtists('abstract');
+ const highlighted=featureArtists().filter(artist=>!inCuration(artist,'abstract'));
  const signature=highlighted.map(artistID).join(',')+'|'+abstracts.map(artistID).join(',');
  if(signature===featuredArtistsSignature)return;
  featuredArtistsSignature=signature;
  gallery.replaceChildren();
  highlighted.forEach((a,index)=>{
-  if(index===8&&abstracts.length)gallery.append(abstractFeature(abstracts));
+  if(index===6&&abstracts.length)gallery.append(abstractFeature(abstracts));
   const tile=button('','featured-six-card',()=>goArtist(a));
   const handle=artistHandle(a).toLowerCase();
   tile.setAttribute('aria-label','Enter '+a.name+'—twenty original artworks by @'+handle);
@@ -474,7 +473,7 @@ function renderFeaturedArtists(){
   tile.append(artwork,explore,label);
   gallery.append(tile);
  });
- if(highlighted.length<=8&&abstracts.length)gallery.append(abstractFeature(abstracts));
+ if(highlighted.length<=6&&abstracts.length)gallery.append(abstractFeature(abstracts));
 }
 
 /** A living arrival list, never stale hard-coded names or invented additions. */
@@ -519,7 +518,7 @@ function featureWork(next=false){
  const src=featuredArtist.media[featuredIndex];
  const reveal=()=>{
   img.src=src;
-  setArtBackdrop(byId('feature-artwork'),src);
+  setArtBackdrop(byId('feature-chamber'),src);
   img.alt='Featured work '+(featuredIndex+1)+' of 20 curated by '+featuredArtist.name;
   byId('feature-number').textContent=String(featuredIndex+1).padStart(2,'0')+' / 20';
   byId('feature-title').textContent=featuredArtist.name;
@@ -747,13 +746,16 @@ function renderArtist(a){
  byId('download-qr').onclick=()=>downloadPoster(a,byId('download-qr'));
  byId('play-artist').onclick=()=>startCinema(artists,Math.max(0,artists.findIndex(x=>artistID(x)===artistID(a))),0,true);
 }
+function creditName(name){
+ return name.replace(/[\p{Extended_Pictographic}\p{Regional_Indicator}\p{Emoji_Modifier}\u200D\uFE0F\u20E3]/gu,'').trim().replace(/\s+/g,' ');
+}
 function renderArtistCredits(){
  const root=byId('artist-credits-list');
  const unique=new Map(artists.map(a=>[artistHandle(a).toLowerCase(),a]));
  const ordered=[...unique.values()].sort((a,b)=>a.name.localeCompare(b.name,'en',{sensitivity:'base'}));
  root.replaceChildren(...ordered.map(a=>{
   const item=create('li');
-  item.append(link(a.name,artistPath(a),''));
+  item.append(link(creditName(a.name)||'@'+artistHandle(a),artistPath(a),''));
   return item;
  }));
 }
@@ -904,7 +906,8 @@ async function downloadPoster(a,target){
  target.textContent='Preparing exhibition brochure…';
  try{
   const base='/welcome/'+artistHandle(a).toLowerCase()+'-'+artistID(a);
-  const themed=base+'--'+currentTheme;
+  const theme=document.body.dataset.theme;
+  const themed=base+'--'+theme;
   // Every theme has a fully rendered PNG plus a self-contained vector edition
   // compiled from the original 20-artwork brochure, never recoloring the art.
   let href=base+'.svg',ext='svg';

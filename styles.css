@@ -2767,9 +2767,8 @@ body[data-view="artist"] .arrival-curations{display:none!important}
 body[data-gallery-room="fine-art"]{--room-display:"TwentyX Heritage";--room-text:"TwentyX Futura"}
 body[data-gallery-room="illustration"]{--room-display:"TwentyX Cartoon Paint";--room-text:"TwentyX Cartoon Sign"}
 body[data-gallery-room="postphotography"]{--room-display:"TwentyX Liner";--room-text:"TwentyX Futura"}
-body[data-gallery-room="alien"]{--room-display:"TwentyX Bioliquid";--room-text:"TwentyX Da Government"}
 
-body:is([data-gallery-room="fine-art"],[data-gallery-room="illustration"],[data-gallery-room="postphotography"],[data-gallery-room="alien"]) :is(#home-view,#featured-six,.topbar,.feature-section,.arrival-caption,.arrival-curations,.footer) :is(a,button,label,input,p,h2,h3,span,small,strong,li,summary,div):not(.category-title,.featured-six-wordmark,.brand-wordmark){
+body:is([data-gallery-room="fine-art"],[data-gallery-room="illustration"],[data-gallery-room="postphotography"]) :is(#home-view,#featured-six,.topbar,.feature-section,.arrival-caption,.arrival-curations,.footer) :is(a,button,label,input,p,h2,h3,span,small,strong,li,summary,div):not(.category-title,.featured-six-wordmark,.brand-wordmark){
  font-family:var(--room-text),Inter,system-ui,sans-serif!important
 }
 .category-title{
@@ -2814,4 +2813,73 @@ body:is([data-gallery-room="fine-art"],[data-gallery-room="illustration"],[data-
  #featured-six-gallery .featured-six-label{min-height:48px;padding:6px!important}
  #featured-six-gallery .featured-six-name{font-size:clamp(.85rem,3.8vw,1.25rem)}
  #featured-six-gallery .featured-six-number{font-size:9px}
+}
+
+/* Exhibition artwork is the full card. Its caption sits on a museum label. */
+.feature-chamber{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ grid-template-areas:"exhibition";min-height:0!important;
+ isolation:isolate;background:#171820!important
+}
+.feature-chamber::before{
+ content:""!important;position:absolute;inset:-36px!important;z-index:-1!important;
+ background:var(--artwork-source) center / cover no-repeat!important;
+ filter:blur(30px) saturate(.82) brightness(.7);opacity:.88;pointer-events:none
+}
+.feature-chamber::after,.feature-chamber .feature-aura,.feature-chamber .feature-depthline{display:none}
+.feature-art-wrapper,.feature-caption{grid-area:exhibition}
+.feature-art-wrapper{position:relative}
+.feature-chamber .feature-artwork,.feature-chamber .feature-artwork:hover{
+ display:block;background:transparent!important;transform:none!important;
+ max-height:none!important
+}
+.feature-chamber .feature-artwork>img{filter:none}
+.feature-chamber .feature-caption{
+ position:relative;align-self:end;justify-self:start;z-index:4;
+ display:grid;gap:.6rem;width:max-content;max-width:calc(100% - 5rem);
+ margin:clamp(10px,2.2vw,34px);padding:clamp(12px,1.6vw,24px);
+ background:rgba(21,21,26,.83);border:1px solid #ffffff42;
+ color:#faf8f5;backdrop-filter:blur(16px);animation:none
+}
+.feature-caption .feature-artist-name{
+ margin:0;font-size:clamp(1.25rem,3vw,3.15rem)!important;
+ white-space:normal;overflow-wrap:anywhere;color:#fff;background:none
+}
+.feature-caption p{margin:0}
+.feature-caption .feature-actions{display:flex;flex-wrap:wrap;gap:6px;margin:0}
+.feature-caption .feature-actions button{
+ white-space:normal;font-size:clamp(.75rem,2.8vw,.95rem);padding:6px 10px;min-height:36px
+}
+@media(max-width:540px){
+ .feature-chamber .feature-art-wrapper{grid-area:auto}
+ .feature-chamber .feature-caption{grid-area:auto;max-width:calc(100% - 20px);margin-top:0}
+}
+
+.featured-brand{display:grid;gap:4px;max-width:100%}
+.featured-six-wordmark{font-size:clamp(1.8rem,8vw,5.5rem);overflow-wrap:anywhere}
+#featured-six-gallery{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:640px){#featured-six-gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.footer{display:block;padding:clamp(14px,2vw,28px);margin:1.5rem 0;background:#14151b}
+.artist-credits-list{display:flex;flex-wrap:wrap;gap:2px 14px}
+.artist-credits-list a{padding:.28rem 0;border:0}
+.footer-actions{margin-top:.65rem;padding-top:.4rem;border-top:1px solid #ffffff26}
+.footer-actions .ghost{min-height:36px;white-space:normal;text-align:left}
+.cta-instructions,.cta-helper{min-width:0;max-width:min(100%,56rem)}
+.cta-helper ol{margin:.45rem 0;padding-inline-start:1.35em}
+.cta-helper li+li{margin-top:.35rem}
+.cta-helper p{margin:.55rem 0 0}
+.hero-editorial,.arrival-caption,.curatorial-intro,.cta-helper,.card-heading{overflow-wrap:anywhere}
+.arrival-author{min-width:0}.arrival-enter{white-space:normal}
+body[data-theme="alien"]{
+ --bg:#0a1018;--a:#203746;--b:#193737;--c:#85efc4;--pink:#abf5e2;
+ --glass:#101f2de0;--room-text:"TwentyX Da Government";--room-display:"TwentyX Bioliquid";
+ --gloss:linear-gradient(105deg,#e4faf0,#78d7c8,#a8bef1)
+}
+body[data-theme="alien"] :is(.category-title,.hero-editorial,.spotlight-title-wrap h1,.feature-artist-name){
+ font-family:var(--room-display),system-ui,sans-serif!important
+}
+body[data-theme="alien"] :is(.topbar,#home-view,#artist-view,#featured-six,.arrival-caption,.footer)
+ :is(p,a,button,label,input,span,small,strong,li,summary,h2,h3):not(.category-title,.featured-six-wordmark,.brand-wordmark,.feature-artist-name){
+ font-family:var(--room-text),system-ui,sans-serif!important
 }

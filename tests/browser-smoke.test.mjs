@@ -5,7 +5,7 @@ import {JSDOM,VirtualConsole} from 'jsdom';
 
 const publishedArtists=JSON.parse(readFileSync('artists.json','utf8'));
 const newestFirst=artists=>[...artists].sort((a,b)=>b.postId.localeCompare(a.postId));
-const roomIds=['postphotography','sketchbook','illustration','abstract','fine-art','alien','anime'];
+const roomIds=['postphotography','sketchbook','illustration','abstract','fine-art','anime'];
 function uncategorizedArtists(gallery){
  const curatedIds=new Set(roomIds.flatMap(room=>gallery.curationArtists(room).map(a=>a.postId)));
  return newestFirst(publishedArtists.filter(a=>!curatedIds.has(a.postId)));
@@ -187,7 +187,7 @@ test('Themes switch all views and persisted selected theme routes to matching or
  try{
   await new Promise(done=>setTimeout(done,55));
   const themes=[...t.doc.querySelectorAll('#theme-select option')].map(x=>x.value);
-  assert.deepEqual(themes,['violet','analog','heritage','nostalgia','glitch']);
+  assert.deepEqual(themes,['violet','analog','heritage','nostalgia','glitch','alien']);
   const select=t.doc.querySelector('#theme-select');
   assert.equal(t.doc.querySelector('#theme-dock').dataset.open,'false');
   t.doc.querySelector('#theme-dock-tab').click();
@@ -301,7 +301,7 @@ test('ArtVision invite contains complete 20-image hashtag instructions and curat
   const modal=t.doc.querySelector('#x-action-modal');
   assert.equal(modal.open,true);
   assert.equal(t.doc.querySelector('#x-action-copy').textContent,
-   'join the artVision community and post twenty images with the hashtag #TwentyX to join this exhibition.');
+   'Join the ArtVision community on X. As a member, publish one post inside the community with exactly 20 images and #TwentyX.');
   t.doc.querySelector('#x-action-guide').click();
   assert.equal(modal.open,false);
   assert.equal(t.doc.querySelector('#guide-drawer').open,true);
@@ -315,7 +315,7 @@ test('negative space derives from the current artwork in all three presentation 
  try{
   await new Promise(done=>setTimeout(done,45));
   const heroSrc=t.doc.querySelector('#feature-image').src;
-  assert.ok(t.doc.querySelector('#feature-artwork').style.getPropertyValue('--artwork-source').includes(heroSrc));
+  assert.ok(t.doc.querySelector('#feature-chamber').style.getPropertyValue('--artwork-source').includes(heroSrc));
   t.doc.querySelector('.artist-name-link').click();
   t.doc.querySelector('#spatial-mode').click();
   const stage=t.doc.querySelector('#stage-main');
@@ -324,7 +324,7 @@ test('negative space derives from the current artwork in all three presentation 
   const theater=t.doc.querySelector('#cinema-img');
   assert.ok(t.doc.querySelector('.cinema-viewport').style.getPropertyValue('--artwork-source').includes(theater.src));
   const css=readFileSync('styles.css','utf8');
-  assert.ok(css.includes('.feature-artwork::before'));
+  assert.ok(css.includes('.feature-chamber::before'));
   assert.ok(css.includes('.perspective-scene button::before'));
   assert.ok(css.includes('.cinema-viewport::before'));
   assert.match(css,/object-fit:contain/);
@@ -373,7 +373,7 @@ test('gallery artist cards have no artwork matte, 20 natural-size uncut images a
 });
 
 
-test('fourteen newest-first featured original artworks lead the gallery',async()=>{
+test('twelve newest-first square features and the wide Abstract block lead the gallery',async()=>{
  const t=boot();
  try{
   await new Promise(done=>setTimeout(done,65));
@@ -390,8 +390,8 @@ test('fourteen newest-first featured original artworks lead the gallery',async()
    assert.ok(order[i-1].compareDocumentPosition(order[i]) & t.win.Node.DOCUMENT_POSITION_FOLLOWING,'fourteen featured artworks first, then wordmark, ticker, XXL and gallery');
   }
   const featured=[...t.doc.querySelectorAll('.featured-six-card')];
-  assert.equal(featured.length,14,'fourteen distinct artist exhibitions are featured');
-  const handles=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim','exolorian','jjjjere','ctwlk','turonworld','allthebots','nikdraperivey','dorthejoc','maxximillian'];
+  assert.equal(featured.length,12,'the two Abstract artists appear only in the wide block');
+  const handles=['skelevaggio','stunnifer','pepavaggio','giselxphoto','hplovebux','artxygenishim','exolorian','jjjjere','ctwlk','turonworld','allthebots','nikdraperivey'];
   const seed=JSON.parse(t.doc.querySelector('#seeded-artists').textContent);
   assert.ok(handles.every(handle=>seed.some(a=>a.handle.toLowerCase()===handle)),'every featured artist has a verified complete exhibition');
   const names=seed.filter(a=>handles.includes(a.handle.toLowerCase())).sort((a,b)=>b.postId.localeCompare(a.postId)).map(a=>a.handle.toLowerCase()==='ctwlk'?'CTWLK XR · @ctwlk':a.name);
@@ -612,7 +612,7 @@ test('Postphotography opens by default; anime and all other viewing rooms are op
  }finally{t.close()}
 });
 
-test('verified Futurist Motor Club collection and all fourteen newest-first features are present',async()=>{
+test('verified Futurist Motor Club collection and all twelve square features are present',async()=>{
  const data=JSON.parse(readFileSync('artists.json','utf8'));
  const artist=data.find(a=>a.handle==='allthebots');
  assert.ok(artist);
@@ -623,7 +623,7 @@ test('verified Futurist Motor Club collection and all fourteen newest-first feat
  const t=boot();try{
   await new Promise(done=>setTimeout(done,65));
   const featured=[...t.doc.querySelectorAll('.featured-six-card')];
-  assert.equal(featured.length,14);
+  assert.equal(featured.length,12);
   assert.ok(featured.some(card=>card.querySelector('.featured-six-name').textContent.includes('Futurist Motor Club')));
   const arrivals=[...t.doc.querySelectorAll('#arrival-links a')];
   assert.deepEqual(arrivals.map(a=>a.getAttribute('href')),
@@ -650,8 +650,8 @@ test('artists fill rows from newest upper-left to right; numbering stays horizon
   assert.equal(ciphervoss.querySelectorAll('.card-mosaic img').length,20,'Cipher retains intact twenty-work block');
   assert.equal(t.doc.querySelector('[data-curation="postphotography"] .curation-tab-count').textContent,'10');
   const featured=[...t.doc.querySelectorAll('.featured-six-card')];
-  assert.equal(featured.length,14);
-  assert.deepEqual(featured.slice(0,3).map(x=>x.querySelector('.featured-six-number').textContent),['01 / 14','02 / 14','03 / 14']);
+  assert.equal(featured.length,12);
+  assert.deepEqual(featured.slice(0,3).map(x=>x.querySelector('.featured-six-number').textContent),['01 / 12','02 / 12','03 / 12']);
   t.doc.querySelector('[data-curation="all"]').click();
   const allCards=[...t.doc.querySelectorAll('#home-gallery>.collection-card')];
   assert.equal(allCards.length,publishedArtists.length);
@@ -695,12 +695,20 @@ test('Abstract feature and room spotlights use the admitted original artwork',as
   await new Promise(done=>setTimeout(done,60));
   const grid=t.doc.querySelector('#featured-six-gallery');
   const abstract=grid.querySelector('.featured-abstract');
-  assert.equal(Array.from(grid.children).indexOf(abstract),8);
+  assert.equal(Array.from(grid.children).indexOf(abstract),6);
   const expected=[['2125304690447700450',14],['2124689739081023575',2]].map(([id,index])=>publishedArtists.find(a=>a.postId===id).media[index]);
   const previews=section=>Array.from(section.querySelectorAll('.artwork-carousel-slide img'),img=>img.src);
   assert.deepEqual(previews(abstract),expected);
 
   const select=id=>t.doc.querySelector('#curation-tabs [data-curation="'+id+'"]').click();
+  assert.equal(t.doc.querySelector('#curation-tabs [data-curation="alien"]'),null);
+  t.win.setTheme('alien');
+  assert.equal(t.doc.body.dataset.theme,'alien');
+  t.win.setTheme('violet');
+  assert.equal(t.doc.querySelector('.featured-brand .arrival-overline').textContent,'ARTVISION PRESENTS');
+  assert.equal(t.doc.querySelector('.arrival-caption .arrival-overline'),null);
+  assert.equal(t.doc.querySelectorAll('.artist-credits-list a').length,publishedArtists.length);
+  assert.doesNotMatch(t.doc.querySelector('.artist-credits-list').textContent,/[\p{Extended_Pictographic}\p{Regional_Indicator}]/u);
   const spotlight=t.doc.querySelector('#category-spotlight');
   select('abstract');
   assert.deepEqual(previews(spotlight),expected);
