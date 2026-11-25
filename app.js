@@ -71,6 +71,7 @@ function renderCurationTabs(){
  const selected=CURATION_TABS.find(tab=>tab.id===activeCuration);
  byId('curation-description').textContent=selected.description;
  byId('category-title').textContent=selected.name;
+ scheduleCategoryFit();
 }
 
 const THEME_IDS=['violet','analog','heritage','nostalgia','glitch','alien'];
@@ -530,6 +531,20 @@ function featureWork(next=false){
  if(prefersReduced||!next)reveal();else window.setTimeout(reveal,220);
 }
 
+function fitCategoryTitle(){
+ const title=byId('category-title');
+ title.style.removeProperty('font-size');
+ if(activeCuration!=='postphotography'||!title.clientWidth)return;
+ const fontSize=parseFloat(getComputedStyle(title).fontSize);
+ if(title.scrollWidth>title.clientWidth){
+  title.style.fontSize=Math.floor(fontSize*title.clientWidth/title.scrollWidth*.985)+'px';
+ }
+}
+function scheduleCategoryFit(){
+ fitCategoryTitle();
+ document.fonts?.load('1em "TwentyX Liner"').then(fitCategoryTitle).catch(()=>{});
+}
+
 /** Preserve a single-word artist moniker on one line at any viewport size. */
 function fitArtistHeadlines(){
  const definitions=[['feature-title',114,26],['artist-title',172,30]];
@@ -837,7 +852,7 @@ function renderCinema(){
  const a=viewerArtists[viewerArtistIndex];
  byId('cinema-artist').textContent=a.name;
  byId('cinema-follow').href=followIntent(a);byId('cinema-follow').dataset.follow='true';
- byId('cinema-progress').textContent='WORK '+String(viewerWorkIndex+1).padStart(2,'0')+' / 20 IN THIS CURATION';
+ byId('cinema-progress').textContent=String(viewerWorkIndex+1).padStart(2,'0')+' / 20';
  const image=byId('cinema-img');
  image.src=a.media[viewerWorkIndex];
  colorFromArtwork(a.media[viewerWorkIndex],a);
@@ -1004,6 +1019,7 @@ function bindUI(){
  cinema.addEventListener('focusin',revealCinemaControls);
  cinema.addEventListener('click',revealCinemaControls);
  window.addEventListener('resize',fitArtistHeadlines);
+ window.addEventListener('resize',fitCategoryTitle);
  document.addEventListener('fullscreenchange',()=>{
   if(cinemaNativeFullscreen && !document.fullscreenElement && byId('cinema').classList.contains('active')) stopCinema();
  });
