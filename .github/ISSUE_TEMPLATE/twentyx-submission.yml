@@ -1,0 +1,12 @@
+name: Submit a TwentyX exhibition
+description: Send ArtVision the link to your original TwentyX community post.
+title: "[TwentyX submission] "
+body:
+  - type: input
+    id: original-post
+    attributes:
+      label: Original ArtVision post
+      description: Paste the public X post link with exactly 20 images and #TwentyX. This submission is public.
+      placeholder: https://x.com/yourhandle/status/1234567890123456789
+    validations:
+      required: true

@@ -354,48 +354,66 @@ function renderFeatureTicker(){
 }
 let featuredArtistsSignature='';
 
-/* Landscape eligibility is determined using each original image's actual dimensions. */
+function shuffled(items){
+ const result=[...items];
+ for(let i=result.length-1;i>0;i--){
+  const j=Math.floor(Math.random()*(i+1));
+  [result[i],result[j]]=[result[j],result[i]];
+ }
+ return result;
+}
+
 async function renderArrivalImage(){
  const featured=featureArtists();
  const signature=featured.map(artistID).join(',');
  if(!featured.length||arrivalSignature===signature)return;
  arrivalSignature=signature;
- const probeWork=c=>new Promise((resolve,reject)=>{
-  const img=new Image();
-  const timeout=window.setTimeout(()=>{img.onload=null;img.onerror=null;reject(Error('Image timeout'))},2200);
-  img.referrerPolicy='no-referrer';
-  img.onload=()=>{clearTimeout(timeout);img.naturalWidth>img.naturalHeight*1.1&&img.naturalWidth>=640?resolve({...c,width:img.naturalWidth,height:img.naturalHeight}):reject(Error('Not landscape'))};
-  img.onerror=()=>{clearTimeout(timeout);reject(Error('Image unavailable'))};
-  img.src=c.url;
- });
- const storageKey='twentyx:last-arrival-artwork';
- let previous;
- try{previous=localStorage.getItem(storageKey)}catch{}
- let previousPath;
- try{previousPath=new URL(previous).pathname}catch{}
- const candidates=featured.flatMap(artist=>artist.media.map((url,index)=>({artist,index,url})))
-  .filter(work=>new URL(work.url).pathname!==previousPath);
- for(let i=candidates.length-1;i>0;i--){
-  const j=Math.floor(Math.random()*(i+1));
-  [candidates[i],candidates[j]]=[candidates[j],candidates[i]];
- }
- for(let offset=0;offset<candidates.length;offset+=featured.length){
-  const batch=candidates.slice(offset,offset+featured.length);
-  const selected=await Promise.any(batch.map(probeWork)).catch(()=>null);
-  if(arrivalSignature!==signature)return;
-  if(!selected)continue;
-  arrivalArtist=selected.artist;arrivalWorkIndex=selected.index;
-  const image=byId('arrival-image-img');
+ const storageKey='twentyx:arrival-rotation-v2';
+ let previous={};
+ try{previous=JSON.parse(localStorage.getItem(storageKey))||{}}catch{}
+ const byArtist=new Map(featured.map(artist=>[artistID(artist),artist]));
+ let lineup=previous.signature===signature&&Array.isArray(previous.remaining)
+  ?[...new Set(previous.remaining)].filter(id=>byArtist.has(id)):[];
+ if(!lineup.length)lineup=shuffled(byArtist.keys());
+ // Prevent an immediate repeat even when starting the next cycle.
+ const ordered=[...lineup.filter(id=>id!==previous.artist),...lineup.filter(id=>id===previous.artist)];
+ const fallback=shuffled(byArtist.keys()).filter(id=>!lineup.includes(id)&&id!==previous.artist);
+ const previousPath=previous.path;
+ const probe=work=>new Promise(resolve=>{
+  const image=new Image();
+  const timeout=window.setTimeout(()=>finish(null),2200);
+  const finish=value=>{clearTimeout(timeout);image.onload=null;image.onerror=null;resolve(value)};
   image.referrerPolicy='no-referrer';
-  image.width=selected.width;
-  image.height=selected.height;
-  image.src=selected.url;
-  try{localStorage.setItem(storageKey,selected.url)}catch{}
-  image.alt='Landscape artwork '+(selected.index+1)+' of 20 curated by '+selected.artist.name;
-  byId('arrival-name').textContent=selected.artist.name+' · Work '+String(selected.index+1).padStart(2,'0')+' / 20';
-  byId('arrival-image').hidden=document.body.dataset.view==='artist';
-  if(document.body.dataset.view==='home'&&!byId('cinema').classList.contains('active'))colorFromArtwork(image.src,selected.artist);
-  return;
+  image.onload=()=>finish(image.naturalWidth&&image.naturalHeight
+   ?{...work,width:image.naturalWidth,height:image.naturalHeight}:null);
+  image.onerror=()=>finish(null);
+  image.src=work.url;
+ });
+ for(const id of [...ordered,...fallback]){
+  const artist=byArtist.get(id);
+  const works=shuffled(artist.media.map((url,index)=>({url,index,path:new URL(url).pathname})))
+   .filter(work=>work.path!==previousPath);
+  for(let offset=0;offset<works.length;offset+=4){
+   // Each batch belongs to one artist. Prefer a landscape when available,
+   // and keep portrait originals eligible at their natural aspect ratio.
+   const results=(await Promise.all(works.slice(offset,offset+4).map(probe))).filter(Boolean);
+   if(arrivalSignature!==signature)return;
+   const selected=results.find(work=>work.width>work.height*1.1)||results[0];
+   if(!selected)continue;
+   arrivalArtist=artist;arrivalWorkIndex=selected.index;
+   const image=byId('arrival-image-img');
+   image.referrerPolicy='no-referrer';
+   image.width=selected.width;image.height=selected.height;
+   image.src=selected.url;
+   try{localStorage.setItem(storageKey,JSON.stringify({
+    signature,remaining:lineup.filter(item=>item!==id),artist:id,path:selected.path
+   }))}catch{}
+   image.alt='Artwork '+(selected.index+1)+' of 20 curated by '+artist.name;
+   byId('arrival-name').textContent=artist.name+' · Work '+String(selected.index+1).padStart(2,'0')+' / 20';
+   byId('arrival-image').hidden=document.body.dataset.view==='artist';
+   if(document.body.dataset.view==='home'&&!byId('cinema').classList.contains('active'))colorFromArtwork(image.src,artist);
+   return;
+  }
  }
 }
 
