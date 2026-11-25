@@ -487,7 +487,7 @@ test('landscape-first ordering, newsletter drawer and cross-artist cinema naviga
   const before=t.doc.getElementById('cinema-artist').textContent;
   t.doc.getElementById('cinema-next-artist').click();
   assert.notEqual(t.doc.getElementById('cinema-artist').textContent,before);
-  assert.match(t.doc.getElementById('cinema-progress').textContent,/IN THIS CURATION/);
+  assert.match(t.doc.getElementById('cinema-progress').textContent,/^\d{2} \/ 20$/);
   assert.ok(t.doc.getElementById('cinema-download'));
  }finally{t.close()}
 });
@@ -517,18 +517,16 @@ test('spatial carousel restores exclusive visibility and artwork navigation',asy
   t.doc.getElementById('spatial-current').click();
   assert.equal(t.doc.getElementById('cinema').classList.contains('active'),true,'center artwork opens cinema');
   assert.equal(t.doc.getElementById('cinema-img').src,original);
-  const rail=t.doc.querySelector('#cinema .cinema-controls-rail');
-  assert.ok(rail,'cinema has one dedicated control rail');
-  assert.ok(rail.contains(t.doc.querySelector('.cinema-top')));
-  assert.ok(rail.contains(t.doc.querySelector('.cinema-bottom')));
-  assert.equal(rail.contains(t.doc.querySelector('.cinema-viewport')),false,'large artwork is outside the controls rail');
+  const cinema=t.doc.getElementById('cinema');
+  const sections=Array.from(cinema.children).filter(node=>!node.classList.contains('cinema-background'));
+  assert.deepEqual(sections.map(node=>node.className),['cinema-top','cinema-viewport','cinema-bottom']);
   t.doc.getElementById('cinema-close').click();
   t.doc.getElementById('wall-mode').click();
   assert.equal(wall.hidden,false);
   assert.equal(stage.hidden,true);
   const css=readFileSync('styles.css','utf8');
   assert.match(css,/#artist-wall\[hidden\]/,'specific hidden rule defeats column masonry');
-  assert.match(css,/#cinema\.active \.cinema-controls-rail/,'control rail is styled');
+  assert.match(css,/animation:cinema-reveal/,'cinema animates each artwork change');
  }finally{t.close()}
 });
 
