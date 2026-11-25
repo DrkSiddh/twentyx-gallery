@@ -1,7 +1,7 @@
 {
-  "completedAt": "2026-11-23T15:34:07.702Z",
+  "completedAt": "2026-11-25T18:19:37.859Z",
   "method": "public-web+FxEmbed (no paid X API)",
-  "knownExhibitions": 33,
+  "knownExhibitions": 35,
   "candidatesFound": 2,
   "checked": 2,
   "admitted": 0,
@@ -55,6 +55,10 @@
       "error": "HTTP 503"
     }
   ],
+  "communityReadable": false,
+  "directIntakeLoaded": true,
+  "directSubmissions": 0,
+  "deferred": 0,
   "results": [
     {
       "id": "2121728209721131289",
@@ -62,7 +66,9 @@
       "kind": "reject",
       "reason": "missing-hashtag",
       "observed": null,
-      "source": "known-candidate"
+      "source": "known-candidate",
+      "postUrl": null,
+      "issue": null
     },
     {
       "id": "2123239061460578681",
@@ -70,8 +76,10 @@
       "kind": "review",
       "reason": "incomplete-photo-media",
       "observed": null,
-      "source": "known-candidate"
+      "source": "known-candidate",
+      "postUrl": null,
+      "issue": null
     }
   ],
-  "caveat": "No result does not prove no eligible X posts. Public community/search access may be restricted."
+  "coverage": "All open GitHub submission issues were read when the issue file was supplied. Public X discovery samples results and does not certify community-wide coverage."
 }

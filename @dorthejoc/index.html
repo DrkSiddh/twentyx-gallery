@@ -2874,8 +2874,8 @@ body #home-view h1.hero-editorial{
 <div class="ambient ambient-a" aria-hidden="true"></div><div class="ambient ambient-b" aria-hidden="true"></div>
 
 
-<section id="arrival-image" class="arrival-image" hidden aria-label="Original landscape artwork from one of our featured artists">
- <button class="arrival-artwork" id="arrival-artwork" type="button" aria-label="View this original landscape artwork"><img id="arrival-image-img" alt="" loading="eager" decoding="async"></button>
+<section id="arrival-image" class="arrival-image" hidden aria-label="Original artwork from one of our featured artists">
+ <button class="arrival-artwork" id="arrival-artwork" type="button" aria-label="View this original artwork"><img id="arrival-image-img" alt="" loading="eager" decoding="async"></button>
  <div class="arrival-caption"><div class="arrival-introduction"><strong>Welcome to TwentyX</strong><span>An evolving art exhibition</span></div><div class="arrival-author"><span id="arrival-name">Featured artist</span><button id="arrival-enter" class="arrival-enter" type="button">Enter this exhibition ↗</button></div></div>
 </section>
 <div class="page-shell">
@@ -2952,7 +2952,8 @@ body #home-view h1.hero-editorial{
   <div class="cta-cluster"><button class="pill primary hero-join" id="share-artvision" type="button"><span class="cta-spark" aria-hidden="true">✦</span> Share your #TwentyX <span aria-hidden="true">↗</span></button><div class="cta-instructions"><div class="cta-helper"><strong>Apply to exhibit</strong>
  <ol><li>Join the <a href="https://x.com/i/communities/1835009931231322257" target="_blank" rel="noopener noreferrer">ArtVision community on X</a>.</li>
  <li>As a member, publish one post inside the ArtVision community with <strong>exactly 20 images</strong> and <strong>#TwentyX</strong>. Add any caption you like. The additional text may or may not appear in the gallery.</li></ol>
- <p>If X offers the option to also post to followers, select it for the widest visibility. ArtVision gives your work another place to be seen, and your followers can see it too.</p></div><button class="curation-link" type="button" data-open-guide="ideas">Curation ideas, FAQs &amp; terms <span aria-hidden="true">↗</span></button></div></div>
+ <p>If X offers the option to also post to followers, select it for the widest visibility. ArtVision gives your work another place to be seen, and your followers can see it too.</p>
+ <p><a href="https://github.com/DrkSiddh/twentyx-gallery/issues/new?template=twentyx-submission.yml" target="_blank" rel="noopener noreferrer">Send us your post link ↗</a> so we can track your submission even when X search misses it. GitHub sign-in is required.</p></div><button class="curation-link" type="button" data-open-guide="ideas">Curation ideas, FAQs &amp; terms <span aria-hidden="true">↗</span></button></div></div>
  </div>
  
 
@@ -3496,48 +3497,66 @@ function renderFeatureTicker(){
 }
 let featuredArtistsSignature='';
 
-/* Landscape eligibility is determined using each original image's actual dimensions. */
+function shuffled(items){
+ const result=[...items];
+ for(let i=result.length-1;i>0;i--){
+  const j=Math.floor(Math.random()*(i+1));
+  [result[i],result[j]]=[result[j],result[i]];
+ }
+ return result;
+}
+
 async function renderArrivalImage(){
  const featured=featureArtists();
  const signature=featured.map(artistID).join(',');
  if(!featured.length||arrivalSignature===signature)return;
  arrivalSignature=signature;
- const probeWork=c=>new Promise((resolve,reject)=>{
-  const img=new Image();
-  const timeout=window.setTimeout(()=>{img.onload=null;img.onerror=null;reject(Error('Image timeout'))},2200);
-  img.referrerPolicy='no-referrer';
-  img.onload=()=>{clearTimeout(timeout);img.naturalWidth>img.naturalHeight*1.1&&img.naturalWidth>=640?resolve({...c,width:img.naturalWidth,height:img.naturalHeight}):reject(Error('Not landscape'))};
-  img.onerror=()=>{clearTimeout(timeout);reject(Error('Image unavailable'))};
-  img.src=c.url;
- });
- const storageKey='twentyx:last-arrival-artwork';
- let previous;
- try{previous=localStorage.getItem(storageKey)}catch{}
- let previousPath;
- try{previousPath=new URL(previous).pathname}catch{}
- const candidates=featured.flatMap(artist=>artist.media.map((url,index)=>({artist,index,url})))
-  .filter(work=>new URL(work.url).pathname!==previousPath);
- for(let i=candidates.length-1;i>0;i--){
-  const j=Math.floor(Math.random()*(i+1));
-  [candidates[i],candidates[j]]=[candidates[j],candidates[i]];
- }
- for(let offset=0;offset<candidates.length;offset+=featured.length){
-  const batch=candidates.slice(offset,offset+featured.length);
-  const selected=await Promise.any(batch.map(probeWork)).catch(()=>null);
-  if(arrivalSignature!==signature)return;
-  if(!selected)continue;
-  arrivalArtist=selected.artist;arrivalWorkIndex=selected.index;
-  const image=byId('arrival-image-img');
+ const storageKey='twentyx:arrival-rotation-v2';
+ let previous={};
+ try{previous=JSON.parse(localStorage.getItem(storageKey))||{}}catch{}
+ const byArtist=new Map(featured.map(artist=>[artistID(artist),artist]));
+ let lineup=previous.signature===signature&&Array.isArray(previous.remaining)
+  ?[...new Set(previous.remaining)].filter(id=>byArtist.has(id)):[];
+ if(!lineup.length)lineup=shuffled(byArtist.keys());
+ // Prevent an immediate repeat even when starting the next cycle.
+ const ordered=[...lineup.filter(id=>id!==previous.artist),...lineup.filter(id=>id===previous.artist)];
+ const fallback=shuffled(byArtist.keys()).filter(id=>!lineup.includes(id)&&id!==previous.artist);
+ const previousPath=previous.path;
+ const probe=work=>new Promise(resolve=>{
+  const image=new Image();
+  const timeout=window.setTimeout(()=>finish(null),2200);
+  const finish=value=>{clearTimeout(timeout);image.onload=null;image.onerror=null;resolve(value)};
   image.referrerPolicy='no-referrer';
-  image.width=selected.width;
-  image.height=selected.height;
-  image.src=selected.url;
-  try{localStorage.setItem(storageKey,selected.url)}catch{}
-  image.alt='Landscape artwork '+(selected.index+1)+' of 20 curated by '+selected.artist.name;
-  byId('arrival-name').textContent=selected.artist.name+' · Work '+String(selected.index+1).padStart(2,'0')+' / 20';
-  byId('arrival-image').hidden=document.body.dataset.view==='artist';
-  if(document.body.dataset.view==='home'&&!byId('cinema').classList.contains('active'))colorFromArtwork(image.src,selected.artist);
-  return;
+  image.onload=()=>finish(image.naturalWidth&&image.naturalHeight
+   ?{...work,width:image.naturalWidth,height:image.naturalHeight}:null);
+  image.onerror=()=>finish(null);
+  image.src=work.url;
+ });
+ for(const id of [...ordered,...fallback]){
+  const artist=byArtist.get(id);
+  const works=shuffled(artist.media.map((url,index)=>({url,index,path:new URL(url).pathname})))
+   .filter(work=>work.path!==previousPath);
+  for(let offset=0;offset<works.length;offset+=4){
+   // Each batch belongs to one artist. Prefer a landscape when available,
+   // and keep portrait originals eligible at their natural aspect ratio.
+   const results=(await Promise.all(works.slice(offset,offset+4).map(probe))).filter(Boolean);
+   if(arrivalSignature!==signature)return;
+   const selected=results.find(work=>work.width>work.height*1.1)||results[0];
+   if(!selected)continue;
+   arrivalArtist=artist;arrivalWorkIndex=selected.index;
+   const image=byId('arrival-image-img');
+   image.referrerPolicy='no-referrer';
+   image.width=selected.width;image.height=selected.height;
+   image.src=selected.url;
+   try{localStorage.setItem(storageKey,JSON.stringify({
+    signature,remaining:lineup.filter(item=>item!==id),artist:id,path:selected.path
+   }))}catch{}
+   image.alt='Artwork '+(selected.index+1)+' of 20 curated by '+artist.name;
+   byId('arrival-name').textContent=artist.name+' · Work '+String(selected.index+1).padStart(2,'0')+' / 20';
+   byId('arrival-image').hidden=document.body.dataset.view==='artist';
+   if(document.body.dataset.view==='home'&&!byId('cinema').classList.contains('active'))colorFromArtwork(image.src,artist);
+   return;
+  }
  }
 }
 

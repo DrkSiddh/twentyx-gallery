@@ -109,6 +109,8 @@
     "kind": "review",
     "reason": "incomplete-photo-media",
     "observed": null,
-    "source": "known-candidate"
+    "source": "known-candidate",
+    "postUrl": null,
+    "issue": null
   }
 ]
