@@ -50,8 +50,6 @@ export function checkStatus(status,source,communityId=COMMUNITY_ID){
    return {kind:'review',reason:'missing-post-identity',id};
  if(status.reposted_by||status.type==='retweet')
    return {kind:'reject',reason:'not-original-post',id};
- // Community ID may be absent from public embeds and is not an admission rule.
- // The hashtag and exact media count are the two requirements.
  const all=Array.isArray(status.media?.all)?status.media.all:status.media?.photos;
  if(!Array.isArray(all)||all.length!==20){
   // A free embed service can truncate media, so a short response is not
@@ -72,6 +70,11 @@ export function checkStatus(status,source,communityId=COMMUNITY_ID){
  // uses of the same hashtag from years earlier.
  if(date < new Date('2026-11-01T00:00:00Z'))
    return {kind:'reject',reason:'before-exhibition-launch',id,handle};
+ const observedCommunity=String(status.community_id??status.community?.id??'');
+ if((observedCommunity&&observedCommunity!==String(communityId))||
+    (!observedCommunity&&source!=='confirmed-community-feed')){
+  return {kind:'review',reason:'community-unverified',id,handle};
+ }
  return {kind:'admit',reason:'verified-hashtag-and-20-original-photos',id,handle,
   record:{name:name.slice(0,100),postUrl:'https://x.com/'+handle+'/status/'+id,
    date:date.toISOString().slice(0,10),media:urls,
@@ -93,7 +96,7 @@ async function discoverPublicBrowser(pageUrl,label,seen,notes){
   await page.waitForTimeout(2400);
   const found=new Set();
   for(let n=0;n<5;n++){
-   const links=await page.locator('a[href*="/status/"]').evaluateAll(list=>list.map(a=>a.href)).catch(()=>[]);
+   const links=await page.locator('article').evaluateAll(cards=>cards.map(card=>card.querySelector('a[href*="/status/"]:has(time)')?.href).filter(Boolean));
    for(const u of links){const hit=idFromUrl(u);if(hit)found.add(hit.id)}
    await page.mouse.wheel(0,1300);
    await page.waitForTimeout(900);
@@ -142,16 +145,24 @@ function fromVx(record){
 async function publicPostLookup(id){
  let fx=null;
  try{fx=(await jsonGet(STATUS_BASE+id)).status}catch{}
- if(fx && checkStatus(fx,'free-search').kind==='admit')return fx;
+ if(fx && checkStatus(fx,'confirmed-community-feed').kind==='admit')return fx;
  try{
   const vx=fromVx(await jsonGet(VX_BASE+id));
-  if(checkStatus(vx,'free-search').kind==='admit')return vx;
+  if(checkStatus(vx,'confirmed-community-feed').kind==='admit')return vx;
   if(!fx)return vx;
  }catch{}
  if(!fx)throw Error('Public post lookups unavailable on FxEmbed and VxTwitter');
  return fx;
 }
-export async function run({useBrowser=true,fetchStatus=publicPostLookup}={}){
+export function submittedPosts(pages){
+ return pages.flatMap(page=>page.filter(issue=>!issue.pull_request&&issue.title.startsWith('[TwentyX submission]'))
+  .flatMap(issue=>{
+   const url=issue.body?.match(/^### Original ArtVision post\s+(https:\/\/[^\s<]+)/m)?.[1];
+   const post=idFromUrl(url);
+   return post?[{id:post.id,issue:issue.number,postUrl:url}]:[];
+  }));
+}
+export async function run({useBrowser=true,fetchStatus=publicPostLookup,issuePages=[]}={}){
  const notes=[],seen=new Map();
  const archived=read('data/collections.json',[]);
  const inbox=read('data/inbox.json',[]);
@@ -167,18 +178,27 @@ export async function run({useBrowser=true,fetchStatus=publicPostLookup}={}){
   const hit=idFromUrl(item.postUrlCandidate);
   if(hit&&!seen.has(hit.id))seen.set(hit.id,{id:hit.id,source:'known-candidate'});
  }
+ const direct=submittedPosts(issuePages);
+ for(const item of direct){
+  const existing=seen.get(item.id);
+  seen.set(item.id,{...item,source:existing?.source||'artist-submission'});
+ }
  const review=read('data/review-queue.json',[]);
  const outcomes=[],accepted=[];
- const jobs=[...seen.values()].filter(x=>!known.has(x.id)).slice(0,MAX_POSTS);
- for(const candidate of jobs){
+ const jobs=[...seen.values()].filter(x=>!known.has(x.id))
+  .sort((a,b)=>Number(Boolean(b.issue))-Number(Boolean(a.issue)));
+ const checked=jobs.slice(0,MAX_POSTS);
+ for(const candidate of checked){
+  const reference={postUrl:candidate.postUrl??null,issue:candidate.issue??null};
   try{
    const status=await fetchStatus(candidate.id);
    if(isWithdrawnHandle(status?.author?.screen_name||status?.author?.username))continue;
+   if(String(status?.id)!==candidate.id)throw Error('Lookup returned a different post ID');
    const result=checkStatus(status,candidate.source);
    outcomes.push({id:candidate.id,handle:result.handle||null,kind:result.kind,reason:result.reason,
-     observed:result.observed??null,source:candidate.source});
+     observed:result.observed??null,source:candidate.source,...reference});
    if(result.kind==='admit')accepted.push(result.record);
-  }catch(e){outcomes.push({id:candidate.id,kind:'review',reason:'lookup-unavailable',error:String(e.message||e).slice(0,130),source:candidate.source})}
+  }catch(e){outcomes.push({id:candidate.id,kind:'review',reason:'lookup-unavailable',error:String(e.message||e).slice(0,130),source:candidate.source,...reference})}
  }
  const merged=new Map(inbox.map(a=>[idFromUrl(a.postUrl)?.id,a]).filter(([id])=>id));
  for(const x of accepted)merged.set(idFromUrl(x.postUrl).id,x);
@@ -187,14 +207,27 @@ export async function run({useBrowser=true,fetchStatus=publicPostLookup}={}){
  // Public discovery can fail. Commit only findings, never shrink the archive.
  write('data/inbox.json',[...merged.values()]);
  write('data/review-queue.json',[...queue.values()].slice(-250));
+ const communityReadable=notes.some(note=>note.source==='community'&&note.readable);
  const report={completedAt:new Date().toISOString(),method:'public-web+FxEmbed (no paid X API)',
-  knownExhibitions:archived.length,candidatesFound:seen.size,checked:jobs.length,admitted:accepted.length,
-  sourceChecks:notes,results:outcomes,
-  caveat:'No result does not prove no eligible X posts. Public community/search access may be restricted.'};
+  knownExhibitions:archived.length,candidatesFound:seen.size,checked:checked.length,admitted:accepted.length,
+  sourceChecks:notes,communityReadable,directIntakeLoaded:Boolean(process.env.TWENTYX_ISSUES_FILE),directSubmissions:direct.length,deferred:jobs.length-checked.length,results:outcomes,
+  coverage:'All open GitHub submission issues were read when the issue file was supplied. Public X discovery samples results and does not certify community-wide coverage.'};
  write('data/discovery-free-report.json',report);
- console.log('TWENTYX FREE SCAN '+JSON.stringify({candidates:seen.size,checked:jobs.length,newExhibitions:accepted.length,sources:notes.map(n=>({source:n.source,readable:n.readable,posts:n.postLinks??n.returned??0,error:n.error||null}))}));
+ if(process.env.GITHUB_STEP_SUMMARY){
+  fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+   '\n### TwentyX intake\n\n'+
+   '- Open direct submissions: '+direct.length+'\n'+
+   '- Candidates checked: '+checked.length+'\n'+
+   '- Awaiting review: '+queue.size+'\n'+
+   '- Deferred to a later run: '+report.deferred+'\n'+
+   '- X community discovery: '+(communityReadable?'public sample read':'unavailable')+'\n');
+ }
+ if(!communityReadable)console.warn('::warning::X community discovery unavailable. Direct submission issues remain available for review.');
+
+ console.log('TWENTYX FREE SCAN '+JSON.stringify({candidates:seen.size,checked:checked.length,newExhibitions:accepted.length,sources:notes.map(n=>({source:n.source,readable:n.readable,posts:n.postLinks??n.returned??0,error:n.error||null}))}));
  return report;
 }
 if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
- run({useBrowser:process.env.TWENTYX_SKIP_BROWSER!=='1'}).catch(e=>{console.error('Free collector error: '+e.message);process.exitCode=1});
+ run({useBrowser:process.env.TWENTYX_SKIP_BROWSER!=='1',
+  issuePages:process.env.TWENTYX_ISSUES_FILE?JSON.parse(fs.readFileSync(process.env.TWENTYX_ISSUES_FILE,'utf8')):[]}).catch(e=>{console.error('Free collector error: '+e.message);process.exitCode=1});
 }

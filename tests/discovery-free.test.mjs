@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {checkStatus,COMMUNITY_ID} from '../scripts/discover-free.mjs';
+import {checkStatus,submittedPosts,COMMUNITY_ID} from '../scripts/discover-free.mjs';
 
 const fixture=()=>{
  const photos=Array.from({length:20},(_,i)=>({
@@ -30,9 +30,12 @@ test('one-image and four-image snippets NEVER count as exact 20',()=>{
   assert.equal(result.observed,n);
  }
 });
-test('hashtag and twenty images qualify even when X does not expose a community ID',()=>{
+test('search and direct submissions require community evidence',()=>{
  const s=fixture();delete s.community;
- assert.equal(checkStatus(s,'free-search').kind,'admit');
+ assert.equal(checkStatus(s,'free-search').reason,'community-unverified');
+ assert.equal(checkStatus(s,'artist-submission').kind,'review');
+ s.community={id:'999'};
+ assert.equal(checkStatus(s,'confirmed-community-feed').kind,'review');
 });
 test('post found within actual community page is valid source evidence',()=>{
  const s=fixture();delete s.community;
@@ -51,4 +54,13 @@ test('missing #TwentyX is rejected; unrelated old posts are rejected',()=>{
  assert.equal(checkStatus(s,'free-search').kind,'reject');
  s=fixture();s.created_timestamp=1570000000;
  assert.equal(checkStatus(s,'free-search').reason,'before-exhibition-launch');
+});
+
+
+test('direct intake reads only submission issues with a public X post URL',()=>{
+ const postUrl='https://x.com/ok__vision/status/2121728209721131289';
+ const entry={title:'[TwentyX submission] ok vision',number:42,body:'### Original ArtVision post\n\n'+postUrl};
+ assert.deepEqual(submittedPosts([[entry,{...entry,pull_request:{}},{...entry,title:'Unrelated'}],
+  [{...entry,body:'### Original ArtVision post\n\nhttps://example.org/status/1234567890123456789'}]]),
+  [{id:'2121728209721131289',issue:42,postUrl}]);
 });

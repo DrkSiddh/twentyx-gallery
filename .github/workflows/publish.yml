@@ -45,7 +45,7 @@ jobs:
         run: |
           npm install --no-package-lock
           npx playwright install --with-deps chromium --only-shell
-      - name: Load verified removal requests
+      - name: Load gallery submissions and withdrawal requests
         if: steps.window.outputs.allowed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -55,7 +55,7 @@ jobs:
         run: TWENTYX_APPROVALS_FILE="$RUNNER_TEMP/twentyx-approvals.json" node scripts/publish.mjs
       - name: Find and validate new TwentyX posts at no API cost
         if: steps.window.outputs.allowed == 'true'
-        run: npm run discover:free
+        run: TWENTYX_ISSUES_FILE="$RUNNER_TEMP/twentyx-approvals.json" npm run discover:free
       - name: Validate and publish current exhibitions
         if: steps.window.outputs.allowed == 'true'
         run: npm run publish
